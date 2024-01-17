@@ -1,19 +1,18 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
+import { FC, HTMLAttributes } from "react";
 import type { LinksFunction } from "@remix-run/node";
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
+import { Links, LiveReload, Meta } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
 
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-];
+import styles from "./tailwind.css";
+import Navbar from "./components/layout/nav-bar";
 
-export default function App() {
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+type DocumentProps = HTMLAttributes<HTMLElement> & {
+  title?: string;
+};
+
+const Document: FC<DocumentProps> = ({ children, title }) => {
   return (
     <html lang="en">
       <head>
@@ -21,13 +20,20 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <title>{title ? title : "RSS Shared"}</title>
       </head>
       <body>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
+        {children}
         <LiveReload />
       </body>
     </html>
+  );
+};
+
+export default function App() {
+  return (
+    <Document>
+      <Navbar isLogged={false} />
+    </Document>
   );
 }
