@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 
 import styles from "./tailwind.css";
 import Navbar from "./components/layout/nav-bar";
+import Login from "./components/layout/login";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -34,6 +35,7 @@ export default function App() {
   return (
     <Document>
       <Navbar isLogged={false} />
+      <Login />
     </Document>
   );
 }
