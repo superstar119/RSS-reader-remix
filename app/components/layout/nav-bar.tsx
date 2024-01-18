@@ -10,7 +10,7 @@ const Navbar: FC<NavbarProps> = ({ className, isLogged, ...props }) => {
   return (
     <div
       className={cn(
-        "w-full h-[52px] pt-[22px] flex  items-center",
+        "w-full h-[96px] py-[22px] flex  items-center",
         isLogged ? "justify-between" : "justify-center",
         className
       )}
