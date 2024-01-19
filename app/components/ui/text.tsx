@@ -16,3 +16,17 @@ export const Heading: FC<TextProps> = ({ className, children, ...props }) => {
     </span>
   );
 };
+
+export const Text: FC<TextProps> = ({ className, children, ...props }) => {
+  return (
+    <span
+      className={cn(
+        "text-[16px] text-[#272727] leading-[150%] font-normal",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+};

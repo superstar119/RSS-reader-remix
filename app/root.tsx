@@ -35,7 +35,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
         <Links />
         <title>{title ? title : "RSS Feed"}</title>
       </head>
-      <body>
+      <body className="w-full h-screen flex flex-col">
         {children}
         <LiveReload />
         {process.env.NODE_ENV === "development" ? <LiveReload /> : null}

@@ -34,6 +34,6 @@ export async function verifyUser(email: User["email"], password: string) {
   return userInfo;
 }
 
-export async function getUserById(id: number) {
+export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
 }
