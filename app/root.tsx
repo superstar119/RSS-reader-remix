@@ -1,10 +1,8 @@
 import { FC, ReactNode } from "react";
-import type { LinksFunction } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Links, LiveReload, Meta, Outlet } from "@remix-run/react";
 import styles from "./tailwind.css";
 import Navbar from "./components/layout/nav-bar";
-
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 interface DocumentProps {
   children: ReactNode;
@@ -14,6 +12,8 @@ interface DocumentProps {
 interface LayoutProps {
   children: ReactNode;
 }
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function App() {
   return (
@@ -33,7 +33,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        <title>{title ? title : "Remix Blog"}</title>
+        <title>{title ? title : "RSS Feed"}</title>
       </head>
       <body>
         {children}

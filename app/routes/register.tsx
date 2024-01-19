@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Form, Link, useActionData } from "@remix-run/react";
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, Link, MetaFunction, useActionData } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils/utils";
@@ -8,6 +8,9 @@ import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { createUserSession } from "~/models/session.server";
+
+export const meta: MetaFunction = () => [{ title: "Register | RSS Feed" }];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -48,7 +51,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
   const user = await createUser(email, password);
-  return redirect("/login");
+  return createUserSession({
+    redirectTo: "/",
+    remember: false,
+    request,
+    userId: user.id,
+  });
 };
 
 export default function Register() {

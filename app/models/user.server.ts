@@ -33,3 +33,7 @@ export async function verifyUser(email: User["email"], password: string) {
 
   return userInfo;
 }
+
+export async function getUserById(id: number) {
+  return prisma.user.findUnique({ where: { id } });
+}

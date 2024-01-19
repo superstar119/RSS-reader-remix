@@ -1,6 +1,6 @@
 import { Form, Link, useActionData } from "@remix-run/react";
 import { MetaFunction, json, redirect } from "@remix-run/node";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { validateEmail } from "~/utils/utils";
 import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
@@ -8,8 +8,14 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { verifyUser } from "~/models/user.server";
 import { useEffect, useRef } from "react";
+import { createUserSession, getUser } from "~/models/session.server";
 
-export const meta: MetaFunction = () => [{ title: "Login" }];
+export const meta: MetaFunction = () => [{ title: "Login | RSS Feed" }];
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await getUser(request);
+  return user ? redirect("/") : null;
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -44,7 +50,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       { status: 400 }
     );
   }
-  return redirect("/");
+  return createUserSession({
+    redirectTo: "/",
+    remember: false,
+    request,
+    userId: user.id,
+  });
 };
 
 export default function Login() {
