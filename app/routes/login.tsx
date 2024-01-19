@@ -74,7 +74,7 @@ export default function Login() {
   }, [actionData]);
 
   return (
-    <div className="max-w-[400px] mx-auto mt-[90px] mx-auto min-w-[350px] box-border">
+    <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
         <Heading>Login</Heading>
         <Form

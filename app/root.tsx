@@ -1,7 +1,15 @@
 import { FC, ReactNode } from "react";
 import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Links, LiveReload, Meta, Outlet } from "@remix-run/react";
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "@remix-run/react";
 import styles from "./tailwind.css";
+import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar from "./components/layout/nav-bar";
 
 interface DocumentProps {
@@ -13,13 +21,18 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export default function App() {
   return (
     <Document>
       <Layout>
         <Outlet />
+        <ScrollRestoration />
+        <Scripts />
       </Layout>
     </Document>
   );
@@ -48,6 +61,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <Navbar isLogged={false} />
+
       {children}
     </>
   );
