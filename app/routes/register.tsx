@@ -2,8 +2,8 @@ import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Form, Link } from "@remix-run/react";
-import { useRef } from "react";
+import { Form, Link, useActionData } from "@remix-run/react";
+import { useEffect, useRef } from "react";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { createUser, getUserByEmail } from "~/models/user.server";
@@ -48,14 +48,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
   const user = await createUser(email, password);
-
   return redirect("/login");
 };
 
 export default function Register() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const actionData = useActionData<typeof action>();
 
+  useEffect(() => {
+    if (actionData?.errors.email) {
+      emailRef.current?.focus();
+    }
+
+    if (actionData?.errors.password) {
+      passwordRef.current?.focus();
+    }
+  }, [actionData]);
   return (
     <div className="max-w-[400px] mx-auto mt-[90px] mx-auto min-w-[350px] box-border">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
