@@ -1,13 +1,13 @@
-import { Heading } from "~/components/ui/text";
-import { Label } from "~/components/ui/label";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Form, Link, useActionData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils/utils";
+import { Heading } from "~/components/ui/text";
+import { Label } from "~/components/ui/label";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -84,10 +84,16 @@ export default function Register() {
               autoFocus={true}
               name="email"
               ref={emailRef}
+              aria-invalid={actionData?.errors.email ? true : undefined}
               required
               placeholder="richard@piedpiper.com"
               className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
             />
+            {actionData?.errors.email && (
+              <div className="pt-1 text-red-700 animate-fade-in">
+                {actionData.errors.email}
+              </div>
+            )}
           </div>
 
           <div className="w-full flex flex-col gap-[8px] items-start">
@@ -98,10 +104,15 @@ export default function Register() {
               type="password"
               name="password"
               ref={passwordRef}
+              className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
               required
               placeholder="•••••••••••"
-              className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
             />
+            {actionData?.errors.password && (
+              <div className="pt-1 text-red-700 animate-fade-in">
+                {actionData.errors.password}
+              </div>
+            )}
           </div>
 
           <div className="w-full flex justify-start">
