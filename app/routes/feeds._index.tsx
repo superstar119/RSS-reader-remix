@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Heading, Text } from "~/components/ui/text";
 
@@ -11,12 +12,11 @@ export default function FeedsIndexPage() {
           website URL ending in /feed/).
         </Text>
       </div>
-      <Button
-        className="w-[120px] text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px]"
-        type="submit"
-      >
-        Add first feed
-      </Button>
+      <Link to="/settings">
+        <Button className="w-[120px] text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px]">
+          Add first feed
+        </Button>
+      </Link>
     </div>
   );
 }
