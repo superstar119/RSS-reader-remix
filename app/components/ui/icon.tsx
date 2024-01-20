@@ -112,6 +112,90 @@ export const ICONS = {
       />
     </svg>
   ),
+  drag: ({ className, color }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="10"
+      height="16"
+      viewBox="0 0 10 16"
+      fill="none"
+      className={className}
+    >
+      <g clipPath="url(#clip0_122_417)">
+        <path
+          d="M1.8125 14.5C2.26123 14.5 2.625 14.1362 2.625 13.6875C2.625 13.2388 2.26123 12.875 1.8125 12.875C1.36377 12.875 1 13.2388 1 13.6875C1 14.1362 1.36377 14.5 1.8125 14.5Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+        <path
+          d="M1.8125 8.8125C2.26123 8.8125 2.625 8.44873 2.625 8C2.625 7.55127 2.26123 7.1875 1.8125 7.1875C1.36377 7.1875 1 7.55127 1 8C1 8.44873 1.36377 8.8125 1.8125 8.8125Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+        <path
+          d="M1.8125 3.125C2.26123 3.125 2.625 2.76123 2.625 2.3125C2.625 1.86377 2.26123 1.5 1.8125 1.5C1.36377 1.5 1 1.86377 1 2.3125C1 2.76123 1.36377 3.125 1.8125 3.125Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+        <path
+          d="M7.8125 14.5C8.26123 14.5 8.625 14.1362 8.625 13.6875C8.625 13.2388 8.26123 12.875 7.8125 12.875C7.36377 12.875 7 13.2388 7 13.6875C7 14.1362 7.36377 14.5 7.8125 14.5Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+        <path
+          d="M7.8125 8.8125C8.26123 8.8125 8.625 8.44873 8.625 8C8.625 7.55127 8.26123 7.1875 7.8125 7.1875C7.36377 7.1875 7 7.55127 7 8C7 8.44873 7.36377 8.8125 7.8125 8.8125Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+        <path
+          d="M7.8125 3.125C8.26123 3.125 8.625 2.76123 8.625 2.3125C8.625 1.86377 8.26123 1.5 7.8125 1.5C7.36377 1.5 7 1.86377 7 2.3125C7 2.76123 7.36377 3.125 7.8125 3.125Z"
+          stroke={color ?? "#C0C0C0"}
+          strokeWidth="2"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_122_417">
+          <rect width="10" height="16" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  ),
+  trash: ({ className, color }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26"
+      height="26"
+      viewBox="0 0 26 26"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M21.9375 6.5C21.9375 7.84619 17.936 8.9375 13 8.9375C8.06395 8.9375 4.0625 7.84619 4.0625 6.5M21.9375 6.5C21.9375 5.15381 17.936 4.0625 13 4.0625C8.06395 4.0625 4.0625 5.15381 4.0625 6.5M21.9375 6.5L19.5 21.125C19.5 21.125 18.6875 22.75 13 22.75C7.3125 22.75 6.5 21.125 6.5 21.125L4.0625 6.5M15.0312 13.4062L10.9688 17.4688M10.9688 13.4062L15.0312 17.4688"
+        stroke={color ?? "#C0C0C0"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  add: ({ className, color }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26"
+      height="26"
+      viewBox="0 0 26 26"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M13 20.3125L13 5.6875M5.6875 13L20.3125 13"
+        stroke={color ?? "#272727"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
 } as const satisfies Record<string, FC<TSvgProps>>;
 
 export const Icon = forwardRef<HTMLDivElement, IconProps>(
