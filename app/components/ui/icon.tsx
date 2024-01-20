@@ -67,6 +67,51 @@ export const ICONS = {
       />
     </svg>
   ),
+  return: ({ className, color }) => (
+    <svg
+      width="16"
+      height="13"
+      viewBox="0 0 16 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M4.7057 12.0696L0.908825 8.27273L4.7057 4.47585V12.0696ZM3.54235 8.96307V7.58239H15.0352V8.96307H3.54235ZM13.6929 8.96307V0.909091H15.0736V8.96307H13.6929ZM9.97275 2.28977V0.909091H15.0352V2.28977H9.97275Z"
+        fill={color ?? "#7B7B7B"}
+      />
+    </svg>
+  ),
+  arrowLeft: ({ className, color }) => (
+    <svg
+      width="14"
+      height="12"
+      viewBox="0 0 14 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M5.91735 12L0.190075 6.27273L5.91735 0.545455L6.90172 1.51705L2.84917 5.5696H13.3449V6.97585H2.84917L6.90172 11.0156L5.91735 12Z"
+        fill={color ?? "#7B7B7B"}
+      />
+    </svg>
+  ),
+  arrowRight: ({ className, color }) => (
+    <svg
+      width="14"
+      height="12"
+      viewBox="0 0 14 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M8.09064 12L7.10627 11.0284L11.1588 6.97585H0.663086V5.5696H11.1588L7.10627 1.52983L8.09064 0.545455L13.8179 6.27273L8.09064 12Z"
+        fill={color ?? "#7B7B7B"}
+      />
+    </svg>
+  ),
 } as const satisfies Record<string, FC<TSvgProps>>;
 
 export const Icon = forwardRef<HTMLDivElement, IconProps>(

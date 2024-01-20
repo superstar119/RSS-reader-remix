@@ -1,5 +1,6 @@
 type ShortcutType = {
-  key: string;
+  key?: string;
+  icon?: "arrowLeft" | "arrowRight" | "return";
   description: string;
 };
 
@@ -20,11 +21,11 @@ export const shortcuts: ShortcutsType[] = [
   {
     name: "Post",
     items: [
-      { key: "←", description: "Previous post" },
-      { key: "→", description: "Next post" },
+      { icon: "arrowLeft", description: "Previous post" },
+      { icon: "arrowRight", description: "Next post" },
       { key: "C", description: "Copy link to clipboard" },
       { key: "E", description: "Mark as unread" },
-      { key: "⏎", description: "Open link in new tab" },
+      { icon: "return", description: "Open link in new tab" },
     ],
   },
   {

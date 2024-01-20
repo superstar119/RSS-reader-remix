@@ -1,3 +1,4 @@
+import { Icon } from "../ui/icon";
 import { Shortcut } from "../ui/shortcut";
 import { Key, Text } from "../ui/text";
 import { ShortcutItem } from "./shortcut-item";
@@ -12,9 +13,14 @@ export const ShortcutTab = () => (
           {group.items.map((shortcut, key) => (
             <ShortcutItem key={key}>
               <Shortcut>
-                <Key className={shortcut.key.length > 2 ? "text-[12px]" : ""}>
-                  {shortcut.key}
-                </Key>
+                {shortcut.key && (
+                  <Key className={shortcut.key.length > 2 ? "text-[12px]" : ""}>
+                    {shortcut.key}
+                  </Key>
+                )}
+                {shortcut.icon && (
+                  <Icon iconName={shortcut.icon} color="#7b7b7b" />
+                )}
               </Shortcut>
               <Text>{shortcut.description}</Text>
             </ShortcutItem>
