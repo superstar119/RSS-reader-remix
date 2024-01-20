@@ -21,7 +21,21 @@ export const Category: FC<TextProps> = ({ className, children, ...props }) => {
   return (
     <span
       className={cn(
-        "text-[22px] text-[#272727] leading-[145%] font-normal select-none",
+        "text-[22px] leading-[145%] font-normal select-none",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+};
+
+export const Key: FC<TextProps> = ({ className, children, ...props }) => {
+  return (
+    <span
+      className={cn(
+        "text-[18px] text-[#7b7b7b] leading-[150%] font-normal",
         className
       )}
       {...props}
