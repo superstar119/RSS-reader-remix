@@ -18,5 +18,6 @@ model Feed {
   id     String @id @default(cuid())
   url    String
   userId String
+  orderId  Int
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,24 +1,22 @@
 import { FC } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import { FeedItem } from "./feed-item";
+import { Feed } from "@prisma/client";
 
 type FeedListProps = {
-  items: Array<{
-    id: string;
-    content: string;
-  }>;
+  items: Array<Feed>;
 };
 
 export const FeedList: FC<FeedListProps> = ({ items }) => (
-  <Droppable droppableId="feed-list">
+  <Droppable droppableId="feeds">
     {(provided) => (
       <div
-        {...provided.droppableProps}
         ref={provided.innerRef}
+        {...provided.droppableProps}
         className="flex flex-col gap-[12px]"
       >
         {items.map((item, index) => (
-          <FeedItem key={item.id} item={item} index={index} />
+          <FeedItem key={item.id} feed={item} index={index} />
         ))}
         {provided.placeholder}
       </div>
