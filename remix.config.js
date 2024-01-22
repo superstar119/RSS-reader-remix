@@ -2,8 +2,19 @@
 export default {
   tailwind: true,
   postcss: true,
-  // appDirectory: "app",
-  // assetsBuildDirectory: "public/build",
-  // publicPath: "/build/",
-  // serverBuildPath: "build/index.js",
+  browserNodeBuiltinsPolyfill: {
+    modules: {
+      stream: true,
+      https: true,
+      string_decoder: true,
+      events: true,
+      timers: true,
+      url: true,
+      http: true,
+    },
+  },
+  appDirectory: "app",
+  assetsBuildDirectory: "public",
+  publicPath: "/build/",
+  serverBuildPath: "build/index.js",
 };

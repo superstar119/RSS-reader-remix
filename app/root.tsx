@@ -1,5 +1,5 @@
-import { FC, ReactNode } from "react";
-import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { FC, ReactNode, useState, createContext, useContext } from "react";
+import { LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -11,6 +11,7 @@ import {
 import styles from "./tailwind.css";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar from "./components/layout/nav-bar";
+import layoutContext from "./lib/context";
 
 interface DocumentProps {
   children: ReactNode;
@@ -31,6 +32,7 @@ export default function App() {
     <Document>
       <Layout>
         <Outlet />
+
         <ScrollRestoration />
         <Scripts />
       </Layout>
@@ -48,21 +50,23 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
         <Links />
         <title>{title ? title : "RSS Feed"}</title>
       </head>
-      <body className="w-full h-screen flex flex-col">
+      <body className="w-full h-screen min-h-screen flex flex-col">
         {children}
         <LiveReload />
-        {process.env.NODE_ENV === "development" ? <LiveReload /> : null}
       </body>
     </html>
   );
 };
 
 const Layout: FC<LayoutProps> = ({ children }) => {
-  return (
-    <>
-      <Navbar isLogged={false} />
+  const [layout, setLayout] = useState<string>("tileList");
 
+  const layoutValue = { layout, setLayout };
+
+  return (
+    <layoutContext.Provider value={layoutValue}>
+      <Navbar />
       {children}
-    </>
+    </layoutContext.Provider>
   );
 };

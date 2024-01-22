@@ -3,14 +3,8 @@ import {
   LoaderFunctionArgs,
   redirect,
   ActionFunctionArgs,
-  json,
 } from "@remix-run/node";
-import {
-  Link,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { FC, useEffect, useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -18,10 +12,8 @@ import { Category, Heading, Text } from "~/components/ui/text";
 import {
   createFeed,
   deleteFeed,
-  getUserFeeds,
-  moveFeedBackwards,
-  moveFeedForwards,
-  updateFeedOrder,
+  getFeedById,
+  getFeedByUrl,
 } from "~/models/feed.server";
 import { getUser } from "~/models/session.server";
 import { Icon } from "~/components/ui/icon";
@@ -32,13 +24,71 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { FeedList } from "~/components/layout/feed-list";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import Parser from "rss-parser";
+import { parse } from "node-html-parser";
+import { createPost } from "~/models/post.server";
+import {
+  createFeedSubscription,
+  deleteFeedSubscription,
+  getUserFeedSubscription,
+} from "~/models/feed-subscription.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
   if (!user) return redirect("/login");
-  const feeds = await getUserFeeds(user.id);
-  return feeds;
+  const feedSubscriptions = await getUserFeedSubscription(user.id);
+  const feedPromise = feedSubscriptions.map((subscription) =>
+    getFeedById(subscription.feedId)
+  );
+  const feed = await Promise.all(feedPromise);
+  return feed;
 };
+
+export const fetchRSSFeed = async (url: string) => {
+  try {
+    const parser = new Parser({
+      customFields: {
+        item: [
+          ["content:encoded", "contentEncoded"],
+          ["description", "description"],
+          ["dc:creator", "author", { keepArray: true }],
+        ],
+      },
+    });
+    const feed = await parser.parseURL(url);
+
+    const posts = feed.items.map((item) => {
+      return {
+        title: item.title || "",
+        pubDate: item.pubDate || item.isoDate || Date.now.toString(),
+        content: item.contentEncoded || item.content || item.description || "",
+        author: item.creator || item.author || "",
+        link: item.link || "",
+        imgSrc: extractImageSrc(item),
+      };
+    });
+
+    const title = feed.title || url;
+    return { title, posts };
+  } catch (err) {
+    console.error("Error fetching RSS Feed: ", err);
+    return { title: "", posts: [] };
+  }
+};
+
+function extractImageSrc(item: any): string {
+  if (item.enclosure && item.enclosure.type?.startsWith("image/")) {
+    return item.enclosure.url;
+  }
+
+  const content = item.contentEncoded || item.content || item.description || "";
+
+  const html = parse(content);
+  const imgElement = html.querySelector("img");
+  const match = imgElement?.getAttribute("src");
+
+  return match ? match : "";
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await getUser(request);
@@ -47,31 +97,58 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const action = Object.fromEntries(formData.entries()) as SubmitAction;
   switch (action._action) {
-    case "updateFeed": {
-      return await updateFeedOrder(action.id, Number(action.orderId));
-    }
     case "addFeed": {
-      return await createFeed(user.id, action.url);
+      {
+        let feed = await getFeedByUrl(action.url);
+
+        if (!feed) {
+          const rss = await fetchRSSFeed(action.url);
+          feed = await createFeed(action.url, rss.title);
+          const id = feed.id;
+          const postsPromise = rss.posts.map((post) =>
+            createPost(
+              id,
+              post.title,
+              post.imgSrc,
+              post.pubDate,
+              post.content,
+              post.link,
+              post.author
+            )
+          );
+          await Promise.all(postsPromise);
+        }
+        await createFeedSubscription(user.id, feed.id);
+        return feed;
+      }
     }
     case "deleteFeed": {
-      return await deleteFeed(action.id);
+      const feed = await getFeedById(action.id);
+      if (feed) {
+        return await deleteFeedSubscription(
+          feed.id,
+          user.id,
+          Number(action.order)
+        );
+      }
+      return false;
     }
-    case "patchMoveFeedForwards": {
-      return await moveFeedForwards(
-        user.id,
-        action.id,
-        Number(action.source),
-        Number(action.position)
-      );
-    }
-    case "patchMoveFeedBackwards": {
-      return await moveFeedBackwards(
-        user.id,
-        action.id,
-        Number(action.source),
-        Number(action.position)
-      );
-    }
+    // case "patchMoveFeedForwards": {
+    //   return await moveFeedForwards(
+    //     user.id,
+    //     action.id,
+    //     Number(action.source),
+    //     Number(action.position)
+    //   );
+    // }
+    // case "patchMoveFeedBackwards": {
+    //   return await moveFeedBackwards(
+    //     user.id,
+    //     action.id,
+    //     Number(action.source),
+    //     Number(action.position)
+    //   );
+    // }
   }
 };
 
@@ -83,6 +160,7 @@ type SubmitAction =
   | {
       _action: "deleteFeed";
       id: string;
+      order: string;
     }
   | {
       _action: "updateFeed";
@@ -132,18 +210,7 @@ const Settings: FC = () => {
     const newFeeds = Array.from(feeds);
     const [removed] = newFeeds.splice(result.source.index, 1);
     newFeeds.splice(result.destination.index, 0, removed);
-    
-    newFeeds.map(
-      async (feed, index) =>
-        await changeFeedOrder.submit(
-          {
-            _action: "updateFeed",
-            id: feed.id,
-            orderId: newFeeds.length - index,
-          },
-          { method: "patch" }
-        )
-    );
+
     setFeeds(newFeeds);
   };
 
@@ -152,7 +219,7 @@ const Settings: FC = () => {
   }, [loaderData]);
 
   return (
-    <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px]">
+    <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
       <Heading className="w-full">Settings</Heading>
       <Tabs defaultValue="feed" className="w-full">
         <TabsList className="p-0 flex-col w-full flex h-auto">

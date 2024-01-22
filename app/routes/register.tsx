@@ -74,7 +74,7 @@ export default function Register() {
     }
   }, [actionData]);
   return (
-    <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center">
+    <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
         <Heading>Sign up</Heading>
 

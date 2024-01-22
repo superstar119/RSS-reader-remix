@@ -37,7 +37,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   const user = await verifyUser(email, password);
-  console.log(typeof user);
+
   if (user === null)
     return json(
       { errors: { email: "Invalid User", password: null } },
@@ -74,7 +74,7 @@ export default function Login() {
   }, [actionData]);
 
   return (
-    <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center">
+    <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
         <Heading>Login</Heading>
         <Form
