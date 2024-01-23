@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { getPost } from "~/models/post.server";
 import { Text } from "~/components/ui/text";
@@ -61,7 +61,6 @@ const normalizeDate = (pubDateString: string) => {
   }
   return date + ". " + month + " " + year;
 };
-
 const FeedDetails = () => {
   const loadData = useLoaderData<typeof loader>();
 
@@ -112,7 +111,7 @@ const FeedDetails = () => {
     : "";
 
   let navigate = useNavigate();
-  const id = useLocation().pathname.split('/').;
+  const id = useLocation().pathname.split("/").slice(-1).at(0);
 
   useEffect(() => {
     function handleKeydown(event: KeyboardEvent) {
@@ -121,7 +120,6 @@ const FeedDetails = () => {
       }
 
       if (event.key === "arrowRight") {
-        
       }
     }
 
