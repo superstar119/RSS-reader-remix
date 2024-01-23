@@ -1,11 +1,4 @@
-import {
-  FC,
-  ReactNode,
-  useState,
-  createContext,
-  useContext,
-  Suspense,
-} from "react";
+import { FC, ReactNode, useState } from "react";
 import { LinksFunction } from "@remix-run/node";
 import {
   Links,
@@ -15,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import styles from "./tailwind.css";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar from "./components/layout/nav-bar";
@@ -36,9 +30,14 @@ export const links: LinksFunction = () => [
 ];
 
 export const Loading = () => {
+  const navigation = useNavigation();
+  const active = navigation.state !== "idle";
+
+  if (!active) return null;
+
   return (
-    <div className="w-screen h-screen bg-white bg-opacity-30 flex justify-center items-center">
-      <ThreeDots />
+    <div className="w-screen h-screen bg-white bg-opacity-30 flex justify-center items-center absolute z-[100]">
+      <ThreeDots fill="#c0c0c0" className="w-[80px]" />
     </div>
   );
 };
@@ -47,10 +46,8 @@ export default function App() {
   return (
     <Document>
       <Layout>
-        <Suspense fallback={<Loading />}>
-          <Outlet />
-        </Suspense>
-
+        <Loading />
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </Layout>
