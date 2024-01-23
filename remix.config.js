@@ -14,7 +14,6 @@ export default {
     },
   },
   appDirectory: "app",
-  assetsBuildDirectory: "public",
   publicPath: "/build/",
   serverBuildPath: "build/index.js",
 };
