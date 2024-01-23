@@ -27903,7 +27903,7 @@ if (import.meta) {
     //@ts-expect-error
     "app\\components\\layout\\feed-item.tsx"
   );
-  import.meta.hot.lastModified = "1705930666808.709";
+  import.meta.hot.lastModified = "1706042814733.7568";
 }
 var FeedItem = ({
   feed,
@@ -27936,18 +27936,13 @@ var FeedItem = ({
           lineNumber: 47,
           columnNumber: 15
         }, this),
-        /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(Input, { type: "hidden", name: "order", defaultValue: index + 1 }, void 0, false, {
-          fileName: "app/components/layout/feed-item.tsx",
-          lineNumber: 48,
-          columnNumber: 15
-        }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(Button, { className: "hover:bg-transparent bg-transparent h-content p-0", value: "deleteFeed", name: "_action", type: "submit", children: /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(Icon, { iconName: "trash", color: "#c0c0c0", className: cn("animate-fade-in transition-all", hover ? "opacity-100" : "opacity-0") }, void 0, false, {
           fileName: "app/components/layout/feed-item.tsx",
-          lineNumber: 50,
+          lineNumber: 49,
           columnNumber: 17
         }, this) }, void 0, false, {
           fileName: "app/components/layout/feed-item.tsx",
-          lineNumber: 49,
+          lineNumber: 48,
           columnNumber: 15
         }, this)
       ] }, void 0, true, {
@@ -27962,7 +27957,7 @@ var FeedItem = ({
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)($89eedd556c436f6a$export$1ff3c3f08ae963c0, { className: "h-[1px] bg-[#f1f1f1] mt-[12px] pl-[22px]" }, void 0, false, {
       fileName: "app/components/layout/feed-item.tsx",
-      lineNumber: 54,
+      lineNumber: 53,
       columnNumber: 11
     }, this)
   ] }, void 0, true, {
@@ -28093,12 +28088,11 @@ if (import.meta) {
     //@ts-expect-error
     "app\\routes\\settings.tsx"
   );
-  import.meta.hot.lastModified = "1706040788540.0635";
+  import.meta.hot.lastModified = "1706042842118.5393";
 }
 var Settings = () => {
   _s2();
   const loaderData = useLoaderData();
-  const changeFeedOrder = useFetcher();
   const navigate = useNavigate();
   const [edit, setEdit] = (0, import_react18.useState)(false);
   const [hover, setHover] = (0, import_react18.useState)(false);
@@ -28128,7 +28122,7 @@ var Settings = () => {
   return /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Heading, { className: "w-full", children: "Settings" }, void 0, false, {
       fileName: "app/routes/settings.tsx",
-      lineNumber: 188,
+      lineNumber: 156,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Tabs, { defaultValue: "feed", className: "w-full", children: [
@@ -28136,115 +28130,115 @@ var Settings = () => {
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full flex items-center gap-[32px]", children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsTrigger, { value: "feed", className: "p-0 shadow-none data-[state=active]:shadow-none text-[#c0c0c0] data-[state=active]:text-[#272727]", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Category, { children: "Feed" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 193,
+            lineNumber: 161,
             columnNumber: 15
           }, this) }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 192,
+            lineNumber: 160,
             columnNumber: 13
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsTrigger, { value: "account", className: "p-0 shadow-none data-[state=active]:shadow-none text-[#c0c0c0] data-[state=active]:text-[#272727] ", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Category, { children: "Account" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 196,
+            lineNumber: 164,
             columnNumber: 15
           }, this) }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 195,
+            lineNumber: 163,
             columnNumber: 13
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsTrigger, { value: "shortcut", className: "p-0 shadow-none data-[state=active]:shadow-none text-[#c0c0c0] data-[state=active]:text-[#272727]", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Category, { children: "Shortcuts" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 199,
+            lineNumber: 167,
             columnNumber: 15
           }, this) }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 198,
+            lineNumber: 166,
             columnNumber: 13
           }, this)
         ] }, void 0, true, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 191,
+          lineNumber: 159,
           columnNumber: 11
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Separator, { className: "bg-[#c0c0c0] my-[40px]" }, void 0, false, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 202,
+          lineNumber: 170,
           columnNumber: 11
         }, this)
       ] }, void 0, true, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 190,
+        lineNumber: 158,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsContent, { value: "feed", className: "m-0 animate-fade-in", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex flex-col w-full items-stretch justify-start", children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full flex flex-col items-stretch gap-[8px]", children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Text, { children: "Feeds" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 207,
+            lineNumber: 175,
             columnNumber: 15
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px]", children: [
             /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(DragDropContext, { onDragEnd: onDragEnd3, children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(FeedList, { items: feeds }, void 0, false, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 210,
+              lineNumber: 178,
               columnNumber: 19
             }, this) }, void 0, false, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 209,
+              lineNumber: 177,
               columnNumber: 17
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("form", { onClick: () => setEdit(true), method: "post", children: edit ? /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex justify-between hover:opacity-70 p-0 gap-[20px]", children: [
               /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Input, { name: "url", autoFocus: true, required: true, placeholder: "https://minimal.gallery/feed/", className: "rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 214,
+                lineNumber: 182,
                 columnNumber: 23
               }, this),
               /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Button, { className: "hover:bg-transparent bg-transparent h-content p-0", value: "addFeed", name: "_action", type: "submit", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Icon, { iconName: "add", color: "#272727" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 216,
+                lineNumber: 184,
                 columnNumber: 25
               }, this) }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 215,
+                lineNumber: 183,
                 columnNumber: 23
               }, this)
             ] }, void 0, true, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 213,
+              lineNumber: 181,
               columnNumber: 27
             }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex justify-between hover:opacity-70 p-0 pl-[22px] cursor-pointer h-[26px]", onMouseOver: () => setHover(true), onMouseOut: () => setHover(false), children: [
               /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Text, { className: "animate-fade-in", children: "Add new" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 219,
+                lineNumber: 187,
                 columnNumber: 23
               }, this),
               hover && /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Icon, { iconName: "add", color: "#272727" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 220,
+                lineNumber: 188,
                 columnNumber: 33
               }, this)
             ] }, void 0, true, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 218,
+              lineNumber: 186,
               columnNumber: 30
             }, this) }, void 0, false, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 212,
+              lineNumber: 180,
               columnNumber: 17
             }, this)
           ] }, void 0, true, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 208,
+            lineNumber: 176,
             columnNumber: 15
           }, this)
         ] }, void 0, true, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 206,
+          lineNumber: 174,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Separator, { className: "bg-[#c0c0c0] my-[40px]" }, void 0, false, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 225,
+          lineNumber: 193,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex flex-col gap-[16px]", children: [
@@ -28252,125 +28246,125 @@ var Settings = () => {
             /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex justify-between items-center", children: [
               /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Text, { children: "Custom code" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 229,
+                lineNumber: 197,
                 columnNumber: 19
               }, this),
               /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Link, { to: "/extensions", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Text, { className: "underline text-[#c0c0c0] hover:text-[#272727]", children: "View extensions" }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 231,
+                lineNumber: 199,
                 columnNumber: 21
               }, this) }, void 0, false, {
                 fileName: "app/routes/settings.tsx",
-                lineNumber: 230,
+                lineNumber: 198,
                 columnNumber: 19
               }, this)
             ] }, void 0, true, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 228,
+              lineNumber: 196,
               columnNumber: 17
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Textarea, { className: "rounded-[3px] border-[#f1f1f1] bg-white w-full placeholder:text-[#c0c0c0] focus-visible:ring-0 focus-visible:ring-offset-0 h-[240px] resize-none px-[20px] py-[16px]", placeholder: "Custom CSS Style" }, void 0, false, {
               fileName: "app/routes/settings.tsx",
-              lineNumber: 236,
+              lineNumber: 204,
               columnNumber: 17
             }, this)
           ] }, void 0, true, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 227,
+            lineNumber: 195,
             columnNumber: 15
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Button, { className: "text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto", children: "Save changes" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 239,
+            lineNumber: 207,
             columnNumber: 17
           }, this) }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 238,
+            lineNumber: 206,
             columnNumber: 15
           }, this)
         ] }, void 0, true, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 226,
+          lineNumber: 194,
           columnNumber: 13
         }, this)
       ] }, void 0, true, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 205,
+        lineNumber: 173,
         columnNumber: 11
       }, this) }, void 0, false, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 204,
+        lineNumber: 172,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsContent, { value: "account", className: "m-0 animate-fade-in", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex flex-col justify-start items-stretch gap-[40px]", children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex flex-col gap-[16px]", children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(AccountItem, { children: "Change payment details" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 249,
+            lineNumber: 217,
             columnNumber: 15
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(AccountItem, { children: "Pause, upgrade, downgrade or cancel" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 250,
+            lineNumber: 218,
             columnNumber: 15
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(AccountItem, { children: "Billing history & invoices" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 251,
+            lineNumber: 219,
             columnNumber: 15
           }, this)
         ] }, void 0, true, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 248,
+          lineNumber: 216,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Button, { className: "text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto", children: [
           "Open billing",
           /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Icon, { iconName: "link", color: "white" }, void 0, false, {
             fileName: "app/routes/settings.tsx",
-            lineNumber: 256,
+            lineNumber: 224,
             columnNumber: 17
           }, this)
         ] }, void 0, true, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 254,
+          lineNumber: 222,
           columnNumber: 15
         }, this) }, void 0, false, {
           fileName: "app/routes/settings.tsx",
-          lineNumber: 253,
+          lineNumber: 221,
           columnNumber: 13
         }, this)
       ] }, void 0, true, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 247,
+        lineNumber: 215,
         columnNumber: 11
       }, this) }, void 0, false, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 246,
+        lineNumber: 214,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(TabsContent, { value: "shortcut", className: "m-0 animate-fade-in", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(ShortcutTab, {}, void 0, false, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 262,
+        lineNumber: 230,
         columnNumber: 11
       }, this) }, void 0, false, {
         fileName: "app/routes/settings.tsx",
-        lineNumber: 261,
+        lineNumber: 229,
         columnNumber: 9
       }, this)
     ] }, void 0, true, {
       fileName: "app/routes/settings.tsx",
-      lineNumber: 189,
+      lineNumber: 157,
       columnNumber: 7
     }, this)
   ] }, void 0, true, {
     fileName: "app/routes/settings.tsx",
-    lineNumber: 187,
+    lineNumber: 155,
     columnNumber: 10
   }, this);
 };
-_s2(Settings, "CeKe2XcsQMXUr6+j/malazRPkDU=", false, function() {
-  return [useLoaderData, useFetcher, useNavigate];
+_s2(Settings, "OOaccOePdPSCno5s4OJxdxlyQdg=", false, function() {
+  return [useLoaderData, useNavigate];
 });
 _c14 = Settings;
 var settings_default = Settings;
@@ -28416,4 +28410,4 @@ react-is/cjs/react-is.development.js:
 sax/lib/sax.js:
   (*! http://mths.be/fromcodepoint v0.1.0 by @mathias *)
 */
-//# sourceMappingURL=/build/routes/settings-5B4IYRDI.js.map
+//# sourceMappingURL=/build/routes/settings-T2LRDILC.js.map

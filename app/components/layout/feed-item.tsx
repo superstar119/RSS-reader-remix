@@ -51,7 +51,6 @@ export const FeedItem: FC<FeedItemProps> = ({ feed, index }) => {
             </div>
             <deleteFetcher.Form method="delete">
               <Input type="hidden" name="id" defaultValue={feed.id} />
-              <Input type="hidden" name="order" defaultValue={index + 1} />
               <Button
                 className="hover:bg-transparent bg-transparent h-content p-0"
                 value="deleteFeed"

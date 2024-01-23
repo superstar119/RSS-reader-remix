@@ -125,30 +125,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "deleteFeed": {
       const feed = await getFeedById(action.id);
       if (feed) {
-        return await deleteFeedSubscription(
-          feed.id,
-          user.id,
-          Number(action.order)
-        );
+        return await deleteFeedSubscription(feed.id, user.id);
       }
       return false;
     }
-    // case "patchMoveFeedForwards": {
-    //   return await moveFeedForwards(
-    //     user.id,
-    //     action.id,
-    //     Number(action.source),
-    //     Number(action.position)
-    //   );
-    // }
-    // case "patchMoveFeedBackwards": {
-    //   return await moveFeedBackwards(
-    //     user.id,
-    //     action.id,
-    //     Number(action.source),
-    //     Number(action.position)
-    //   );
-    // }
   }
 };
 
@@ -160,30 +140,16 @@ type SubmitAction =
   | {
       _action: "deleteFeed";
       id: string;
-      order: string;
     }
   | {
       _action: "updateFeed";
       id: string;
       orderId: number;
-    }
-  | {
-      _action: "patchMoveFeedForwards";
-      id: string;
-      source: number;
-      position: number;
-    }
-  | {
-      _action: "patchMoveFeedBackwards";
-      id: string;
-      source: number;
-      position: number;
     };
 
 const Settings: FC = () => {
   const loaderData = useLoaderData<Feed[]>();
 
-  const changeFeedOrder = useFetcher();
   const navigate = useNavigate();
   const [edit, setEdit] = useState<boolean>(false);
   const [hover, setHover] = useState<boolean>(false);
@@ -193,20 +159,6 @@ const Settings: FC = () => {
     if (!result.destination) return;
 
     if (result.source.index === result.destination.index) return;
-
-    // const actionType =
-    //   result.source.index > result.destination.index
-    //     ? "patchMoveFeedForwards"
-    //     : "patchMoveFeedBackwards";
-
-    // const action: SubmitAction = {
-    //   _action: actionType,
-    //   id: feeds[result.source.index].id,
-    //   source: feeds[result.source.index].orderId,
-    //   position: feeds[result.destination.index].orderId,
-    // };
-
-    // await changeFeedOrder.submit(action, { method: "patch" });
 
     const newFeeds = Array.from(feeds);
     const [removed] = newFeeds.splice(result.source.index, 1);

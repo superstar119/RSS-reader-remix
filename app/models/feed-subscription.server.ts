@@ -12,6 +12,10 @@ export const createFeedSubscription = async (
   userId: User["id"],
   feedId: Feed["id"]
 ) => {
+  const subscription = await prisma.feedSubscription.findMany({
+    where: { userId, feedId },
+  });
+  if (subscription.length) return;
   const lastIndex = await prisma.feedSubscription.findFirst({
     orderBy: { order: "desc" },
   });
@@ -26,10 +30,9 @@ export const createFeedSubscription = async (
 
 export const deleteFeedSubscription = async (
   feedId: Feed["id"],
-  userId: User["id"],
-  order: FeedSubscription["order"]
+  userId: User["id"]
 ) => {
-  return prisma.feedSubscription.delete({
-    where: { feedId, userId, order },
+  return prisma.feedSubscription.deleteMany({
+    where: { feedId, userId },
   });
 };
