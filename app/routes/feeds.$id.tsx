@@ -1,18 +1,34 @@
 import { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
-import { getPost } from "~/models/post.server";
+import {
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+} from "@remix-run/react";
+import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
 import { Icon } from "~/components/ui/icon";
 import "~/assets/style.css";
 import { useEffect } from "react";
+import { FeedPost } from "@prisma/client";
+
+type loaderType = {
+  post: FeedPost;
+  nextId?: string;
+  prevId?: string;
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const postId = url.pathname.split("/").slice(-1);
 
   const post = await getPost(postId[0]);
-  return post;
+  const next = await getNextRecord(postId[0]);
+  const prev = await getPrevRecord(postId[0]);
+
+  // console.log(next?.id, prev?.id, postId);
+  return { post: post, nextId: next?.id, prevId: prev?.id };
 };
 
 const normalizeDate = (pubDateString: string) => {
@@ -62,10 +78,10 @@ const normalizeDate = (pubDateString: string) => {
   return date + ". " + month + " " + year;
 };
 const FeedDetails = () => {
-  const loadData = useLoaderData<typeof loader>();
+  const loadData = useLoaderData<loaderType>();
 
   const pubDate = loadData
-    ? normalizeDate(loadData.pubDate)
+    ? normalizeDate(loadData.post.pubDate)
     : normalizeDate(new Date().toString());
 
   const areSiblings = (node1: Element, node2: Element): boolean => {
@@ -107,11 +123,10 @@ const FeedDetails = () => {
   };
 
   const processedHTMLContent = loadData
-    ? processHtmlContent(loadData.content)
+    ? processHtmlContent(loadData.post.content)
     : "";
 
   let navigate = useNavigate();
-  const id = useLocation().pathname.split("/").slice(-1).at(0);
 
   useEffect(() => {
     function handleKeydown(event: KeyboardEvent) {
@@ -119,21 +134,27 @@ const FeedDetails = () => {
         navigate("/feeds/list");
       }
 
-      if (event.key === "arrowRight") {
+      if (event.key === "ArrowRight" && loadData.nextId) {
+        navigate(`/feeds/${loadData.nextId}`);
+      }
+      if (event.key === "ArrowLeft" && loadData.prevId) {
+        navigate(`/feeds/${loadData.prevId}`);
       }
     }
 
     window.addEventListener("keydown", handleKeydown);
 
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, []);
+  }, [navigate, loadData.nextId, loadData.prevId]);
 
   return (
     <div className="w-[560px] flex flex-col gap-[40px] mx-auto py-[180px] pb-[80px] animate-fade-in">
-      <div className="flex flex-col gap-[10px]">
+      <div className="flex flex-col gap-[10px] animate-fade-in">
         <div className="flex flex-col">
-          <Text className="text-[#272727] mb-[6px]">{loadData?.author}</Text>
-          <Heading>{loadData?.title}</Heading>
+          <Text className="text-[#272727] mb-[6px]">
+            {loadData?.post.author}
+          </Text>
+          <Heading>{loadData?.post.title}</Heading>
         </div>
         <Text className="text-[#c0c0c0]">{pubDate}</Text>
       </div>

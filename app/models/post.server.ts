@@ -77,3 +77,15 @@ export const getNextRecord = async (id: FeedPost["id"]) => {
     },
   });
 };
+export const getPrevRecord = async (id: FeedPost["id"]) => {
+  return prisma.feedPost.findFirst({
+    where: {
+      id: {
+        lt: id,
+      },
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+};
