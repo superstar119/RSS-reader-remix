@@ -36,7 +36,7 @@ export const Loading = () => {
   if (!active) return null;
 
   return (
-    <div className="w-screen h-screen bg-white bg-opacity-30 flex justify-center items-center absolute z-[100]">
+    <div className="w-screen h-screen bg-white bg-opacity-60 flex justify-center items-center absolute z-[100]">
       <ThreeDots fill="#c0c0c0" className="w-[80px]" />
     </div>
   );
