@@ -4,7 +4,7 @@ import {
   redirect,
   ActionFunctionArgs,
 } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { FC, useEffect, useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -184,6 +184,7 @@ const Settings: FC = () => {
   const loaderData = useLoaderData<Feed[]>();
 
   const changeFeedOrder = useFetcher();
+  const navigate = useNavigate();
   const [edit, setEdit] = useState<boolean>(false);
   const [hover, setHover] = useState<boolean>(false);
   const [feeds, setFeeds] = useState<Feed[]>(loaderData);
@@ -217,6 +218,18 @@ const Settings: FC = () => {
   useEffect(() => {
     setFeeds(loaderData);
   }, [loaderData]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      return navigate("/");
+    }
+  };
 
   return (
     <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">

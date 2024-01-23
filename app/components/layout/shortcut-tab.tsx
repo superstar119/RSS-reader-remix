@@ -2,7 +2,7 @@ import { Icon } from "../ui/icon";
 import { Shortcut } from "../ui/shortcut";
 import { Key, Text } from "../ui/text";
 import { ShortcutItem } from "./shortcut-item";
-import { shortcuts } from "~/store/data";
+import { shortcuts } from "~/utils/data";
 
 export const ShortcutTab = () => (
   <div className="flex flex-col gap-[40px] items-stretch">

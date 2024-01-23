@@ -1,8 +1,8 @@
 import { HTMLAttributes, FC, useState, useEffect, useContext } from "react";
 import { cn } from "~/lib/utils";
 import { Icon } from "../ui/icon";
-import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
-
+import { Link, useFetcher, useLocation, useNavigate } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Tooltip,
   TooltipTrigger,
@@ -12,17 +12,26 @@ import {
 import { Category } from "../ui/text";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 import layoutContext from "~/lib/context";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { getUser } from "~/models/session.server";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
-type NavbarProps = HTMLAttributes<HTMLDivElement> & {};
+export type NavbarData = {
+  postId: string;
+  userId: string;
+  link: string;
+  unread: number;
+};
+
+type NavbarProps = HTMLAttributes<HTMLDivElement>;
 
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
+  const { context } = useContext(layoutContext);
+  const navigate = useNavigate();
   const [state, setState] = useState<String>("");
   const fetcher = useFetcher();
   const { layout, setLayout } = useContext(layoutContext);
-  let unreads;
+
   useEffect(() => {
     switch (location.pathname) {
       case "/login":
@@ -45,6 +54,42 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
         break;
     }
   }, [location]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [layout]);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (state === "feed-list") {
+      if (e.key === "l" || e.key === "L") {
+        switchLayout(layout);
+      }
+      if (e.key === "s" || e.key === "S") {
+        navigate("/settings");
+      }
+      if (e.key === "e" || e.key === "E") {
+        navigate("/feeds/list");
+      }
+    }
+    if (state === "feed-details") {
+      if (e.key === "Enter") {
+        window.open(context.link, "_blank");
+      }
+      if (e.key === "c" || e.key === "C") {
+        copyToClipboard(context.link);
+      }
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      return;
+    }
+  };
 
   if (state === "empty" || state == "") return null;
 
@@ -87,9 +132,21 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/feeds/list">
-                    <Icon iconName="checkmark" color="#c0c0c0" />
-                  </Link>
+                  <fetcher.Form className="!bg-transparent p-0" method="post">
+                    <Input
+                      type="hidden"
+                      name="postId"
+                      defaultValue={context.postId}
+                    />
+                    <Button
+                      className="!bg-transparent p-0"
+                      type="submit"
+                      value="markAsRead"
+                      name="_action"
+                    >
+                      <Icon iconName="checkmark" color="#c0c0c0" />
+                    </Button>
+                  </fetcher.Form>
                 </TooltipTrigger>
                 <TooltipContent
                   className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
@@ -134,7 +191,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/feeds/list">
+                  <Link to="feeds/list">
                     <Icon iconName="reload" color="#c0c0c0" />
                   </Link>
                 </TooltipTrigger>
@@ -188,7 +245,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/settings">
+                  <Link to={context.link} target="_blank">
                     <Icon iconName="linkOut" color="#c0c0c0" />
                   </Link>
                 </TooltipTrigger>
@@ -215,9 +272,12 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/settings">
+                  <Button
+                    className="!bg-transparent p-0"
+                    onClick={() => copyToClipboard(context.link)}
+                  >
                     <Icon iconName="linkCopy" color="#c0c0c0" />
-                  </Link>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent
                   className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
@@ -274,7 +334,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                     Settings
                   </Category>
                   <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
-                    L
+                    S
                   </span>
                 </TooltipContent>
               </Tooltip>

@@ -1,20 +1,22 @@
-import { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import {
-  useFetcher,
-  useLoaderData,
-  useLocation,
-  useNavigate,
-} from "@remix-run/react";
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
 import { Icon } from "~/components/ui/icon";
 import "~/assets/style.css";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { FeedPost } from "@prisma/client";
+import layoutContext from "~/lib/context";
+import { getUser } from "~/models/session.server";
 
 type loaderType = {
   post: FeedPost;
+  userId: string;
   nextId?: string;
   prevId?: string;
 };
@@ -27,8 +29,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const next = await getNextRecord(postId[0]);
   const prev = await getPrevRecord(postId[0]);
 
-  // console.log(next?.id, prev?.id, postId);
-  return { post: post, nextId: next?.id, prevId: prev?.id };
+  const user = await getUser(request);
+  if (!user) return redirect("/");
+
+  return { userId: user.id, post: post, nextId: next?.id, prevId: prev?.id };
 };
 
 const normalizeDate = (pubDateString: string) => {
@@ -79,6 +83,7 @@ const normalizeDate = (pubDateString: string) => {
 };
 const FeedDetails = () => {
   const loadData = useLoaderData<loaderType>();
+  const { context, setContext } = useContext(layoutContext);
 
   const pubDate = loadData
     ? normalizeDate(loadData.post.pubDate)
@@ -89,13 +94,12 @@ const FeedDetails = () => {
   };
 
   // Process the HTML content to satisfy the image display requirement
-  const processHtmlContent = (htmlString: string): string => {
-    const parser = new DOMParser();
+  function processHtmlContent(htmlString: string): string {
+    let parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, "text/html");
 
     const images = Array.from(doc.querySelectorAll("img"));
     let imgContainer: HTMLDivElement | null;
-
     images.forEach((img, index) => {
       const nextImg = images[index + 1];
 
@@ -120,7 +124,7 @@ const FeedDetails = () => {
     });
 
     return doc.body.innerHTML;
-  };
+  }
 
   const processedHTMLContent = loadData
     ? processHtmlContent(loadData.post.content)
@@ -129,6 +133,12 @@ const FeedDetails = () => {
   let navigate = useNavigate();
 
   useEffect(() => {
+    setContext({
+      unread: context.unread,
+      userId: loadData.userId,
+      postId: loadData.post.id,
+      link: loadData.post.link,
+    });
     function handleKeydown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         navigate("/feeds/list");

@@ -1,4 +1,4 @@
-import { LoaderFunction, redirect } from "@remix-run/node";
+import { LoaderFunction, json, redirect } from "@remix-run/node";
 import { useLoaderData, useFetcher, Link } from "@remix-run/react";
 import { Text } from "~/components/ui/text";
 import { getUser } from "~/models/session.server";
@@ -18,11 +18,15 @@ import { cn } from "~/lib/utils";
 import { Sidebar } from "~/components/layout/side-bar";
 import { getFeedById } from "~/models/feed.server";
 
+type sidebarData = {
+  item: string;
+  unread: number;
+};
+
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
   if (!user) return redirect("/");
 
-  
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 0;
   const skip = Number(page) * 30;
@@ -35,13 +39,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     take
   );
 
-  let sidebarData: Array<{
-    item: string;
-    unread: number;
-  }> = [
+  let totalUnread = await getUnreadPostsNumber(user.id, subscriptions);
+
+  let sidebarData: Array<sidebarData> = [
     {
       item: "All",
-      unread: await getUnreadPostsNumber(user.id, subscriptions),
+      unread: totalUnread,
     },
   ];
 
@@ -103,6 +106,7 @@ const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const { layout } = useContext(layoutContext);
+
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
 
   useEffect(() => {
