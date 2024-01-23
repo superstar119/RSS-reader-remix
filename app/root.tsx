@@ -1,4 +1,11 @@
-import { FC, ReactNode, useState, createContext, useContext } from "react";
+import {
+  FC,
+  ReactNode,
+  useState,
+  createContext,
+  useContext,
+  Suspense,
+} from "react";
 import { LinksFunction } from "@remix-run/node";
 import {
   Links,
@@ -12,6 +19,7 @@ import styles from "./tailwind.css";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar from "./components/layout/nav-bar";
 import layoutContext from "./lib/context";
+import { ThreeDots } from "react-loading-icons";
 
 interface DocumentProps {
   children: ReactNode;
@@ -27,11 +35,21 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
+export const Loading = () => {
+  return (
+    <div className="w-screen h-screen bg-white bg-opacity-30 flex justify-center items-center">
+      <ThreeDots />
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <Document>
       <Layout>
-        <Outlet />
+        <Suspense fallback={<Loading />}>
+          <Outlet />
+        </Suspense>
 
         <ScrollRestoration />
         <Scripts />
