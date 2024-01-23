@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../app/lib/context.ts"],
+  "sourcesContent": ["// REMIX HMR BEGIN\nimport * as __hmr__ from \"remix:hmr\";\nif (import.meta) {\nimport.meta.hot = __hmr__.createHotContext(\n//@ts-expect-error\n\"app\\\\lib\\\\context.ts\"\n);\nimport.meta.hot.lastModified = \"1706039041789.7317\";\n}\n// REMIX HMR END\n\nimport { createContext } from \"react\";\r\n\r\nconst layoutContext = createContext({\r\n  layout: \"tileList\",\r\n  setLayout: (newLayout: string) => {},\r\n  theme: \"dark\",\r\n  setTheme: (newTheme: string) => {},\r\n  context: {\r\n    postId: \"\",\r\n    userId: \"\",\r\n    unread: 0,\r\n    link: \"\",\r\n  },\r\n  setContext: (newContext: any) => {},\r\n});\r\n\r\nexport default layoutContext;\r\n"],
+  "mappings": ";;;;;;;;;;;AAWA,mBAA8B;AAT9B,IAAI,aAAa;AACjB,cAAY,MAAc;AAAA;AAAA,IAE1B;AAAA,EACA;AACA,cAAY,IAAI,eAAe;AAC/B;AAKA,IAAM,oBAAgB,4BAAc;AAAA,EAClC,QAAQ;AAAA,EACR,WAAW,CAAC,cAAsB;AAAA,EAAC;AAAA,EACnC,OAAO;AAAA,EACP,UAAU,CAAC,aAAqB;AAAA,EAAC;AAAA,EACjC,SAAS;AAAA,IACP,QAAQ;AAAA,IACR,QAAQ;AAAA,IACR,QAAQ;AAAA,IACR,MAAM;AAAA,EACR;AAAA,EACA,YAAY,CAAC,eAAoB;AAAA,EAAC;AACpC,CAAC;AAED,IAAO,kBAAQ;",
+  "names": []
+}

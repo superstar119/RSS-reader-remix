@@ -13,7 +13,7 @@ export default {
       http: true,
     },
   },
-  appDirectory: "app",
-  publicPath: "/build/",
-  serverBuildPath: "build/index.js",
+  // appDirectory: "app",
+  // publicPath: "/build/",
+  // serverBuildPath: "build/index.js",
 };
