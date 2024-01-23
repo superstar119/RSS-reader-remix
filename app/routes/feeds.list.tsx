@@ -22,6 +22,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
   if (!user) return redirect("/");
 
+  
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 0;
   const skip = Number(page) * 30;
