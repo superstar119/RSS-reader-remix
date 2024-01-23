@@ -1,15 +1,6 @@
 import { Feed } from "@prisma/client";
 import { db as prisma } from "~/utils/db.server";
 
-// export async function getUserFeeds(userId: User["id"]) {
-//   const result = await prisma.feed.findMany({
-//     where: { userId },
-//     orderBy: { orderId: "asc" },
-//   });
-
-//   return Array.isArray(result) ? result : [];
-// }
-
 export async function getFeedByUrl(url: Feed["url"]) {
   return prisma.feed.findUnique({
     where: { url },
