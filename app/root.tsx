@@ -50,7 +50,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
         <Links />
         <title>{title ? title : "RSS Feed"}</title>
       </head>
-      <body className="w-full h-screen min-h-screen flex flex-col">
+      <body className="w-full h-screen min-h-screen flex flex-col max-w-screen pr-[8px]">
         {children}
         <LiveReload />
       </body>

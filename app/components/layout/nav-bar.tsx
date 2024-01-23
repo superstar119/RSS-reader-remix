@@ -1,7 +1,7 @@
 import { HTMLAttributes, FC, useState, useEffect, useContext } from "react";
 import { cn } from "~/lib/utils";
 import { Icon } from "../ui/icon";
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 
 import {
   Tooltip,
@@ -12,14 +12,17 @@ import {
 import { Category } from "../ui/text";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 import layoutContext from "~/lib/context";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { getUser } from "~/models/session.server";
 
 type NavbarProps = HTMLAttributes<HTMLDivElement> & {};
 
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
   const [state, setState] = useState<String>("");
+  const fetcher = useFetcher();
   const { layout, setLayout } = useContext(layoutContext);
-
+  let unreads;
   useEffect(() => {
     switch (location.pathname) {
       case "/login":

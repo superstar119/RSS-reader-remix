@@ -13,7 +13,6 @@ export const createFeedSubscription = async (
   feedId: Feed["id"]
 ) => {
   const lastIndex = await prisma.feedSubscription.findFirst({
-    where: { userId },
     orderBy: { order: "desc" },
   });
   return prisma.feedSubscription.create({

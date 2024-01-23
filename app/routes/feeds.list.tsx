@@ -15,8 +15,7 @@ import { ThreeDots } from "react-loading-icons";
 import ago from "s-ago";
 import layoutContext from "~/lib/context";
 import { cn } from "~/lib/utils";
-import { Sidebar, SidebarType } from "~/components/layout/side-bar";
-import { getReadNumber } from "~/models/read.server";
+import { Sidebar } from "~/components/layout/side-bar";
 import { getFeedById } from "~/models/feed.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

@@ -64,3 +64,16 @@ export const getUnreadPostsNumber = async (
 export const getPost = async (id: FeedPost["id"]) => {
   return prisma.feedPost.findUnique({ where: { id } });
 };
+
+export const getNextRecord = async (id: FeedPost["id"]) => {
+  return prisma.feedPost.findFirst({
+    where: {
+      id: {
+        gt: id,
+      },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+};

@@ -1,11 +1,11 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import { getPost } from "~/models/post.server";
-import DOMPurify from "dompurify";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
 import { Icon } from "~/components/ui/icon";
-// import "./feed.style.css";
+import "~/assets/style.css";
+import { useEffect } from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -111,6 +111,25 @@ const FeedDetails = () => {
     ? processHtmlContent(loadData.content)
     : "";
 
+  let navigate = useNavigate();
+  const id = useLocation().pathname.split('/').;
+
+  useEffect(() => {
+    function handleKeydown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        navigate("/feeds/list");
+      }
+
+      if (event.key === "arrowRight") {
+        
+      }
+    }
+
+    window.addEventListener("keydown", handleKeydown);
+
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, []);
+
   return (
     <div className="w-[560px] flex flex-col gap-[40px] mx-auto py-[180px] pb-[80px] animate-fade-in">
       <div className="flex flex-col gap-[10px]">
@@ -121,7 +140,7 @@ const FeedDetails = () => {
         <Text className="text-[#c0c0c0]">{pubDate}</Text>
       </div>
       <div
-        className="flex flex-col gap-[40px]"
+        className="flex flex-col gap-[40px] w-full flex-1"
         dangerouslySetInnerHTML={{ __html: processedHTMLContent }}
       ></div>
       <div className="mt-[40px] flex px-[12px] py-[8px] gap-[9px] justify-center opacity-30 ">
