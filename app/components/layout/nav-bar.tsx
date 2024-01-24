@@ -23,14 +23,36 @@ export type NavbarData = {
 
 type NavbarProps = HTMLAttributes<HTMLDivElement>;
 
+export const switchLayout = (layout: string) => {
+  const { setLayout } = useContext(layoutContext);
+  switch (layout) {
+    case "tileList":
+      setLayout("imageList");
+      break;
+
+    case "imageList":
+      setLayout("textList");
+      break;
+    default:
+      setLayout("tileList");
+      break;
+  }
+};
+
+export const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    return;
+  }
+};
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
   const { context } = useContext(layoutContext);
   const [theme, setTheme] = useTheme();
-  const navigate = useNavigate();
   const [state, setState] = useState<String>("");
   const fetcher = useFetcher();
-  const { layout, setLayout } = useContext(layoutContext);
+  const { layout } = useContext(layoutContext);
 
   useEffect(() => {
     switch (location.pathname) {
@@ -55,58 +77,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
     }
   }, [location]);
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [layout]);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (state === "feed-list") {
-      if (e.key === "l" || e.key === "L") {
-        switchLayout(layout);
-      }
-      if (e.key === "s" || e.key === "S") {
-        navigate("/settings");
-      }
-      if (e.key === "e" || e.key === "E") {
-        navigate("/feeds/list");
-      }
-    }
-    if (state === "feed-details") {
-      if (e.key === "Enter") {
-        window.open(context.link, "_blank");
-      }
-      if (e.key === "c" || e.key === "C") {
-        copyToClipboard(context.link);
-      }
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      return;
-    }
-  };
-
   if (state === "empty" || state == "") return null;
-
-  const switchLayout = (layout: string) => {
-    switch (layout) {
-      case "tileList":
-        setLayout("imageList");
-        break;
-
-      case "imageList":
-        setLayout("textList");
-        break;
-      default:
-        setLayout("tileList");
-        break;
-    }
-  };
 
   return (
     <div

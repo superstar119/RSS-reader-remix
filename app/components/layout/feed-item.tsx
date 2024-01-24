@@ -69,7 +69,7 @@ export const FeedItem: FC<FeedItemProps> = ({ feed, index }) => {
               </Button>
             </deleteFetcher.Form>
           </div>
-          <Separator className="h-[1px] bg-[#f1f1f1] mt-[12px] pl-[22px]" />
+          <Separator className="h-[1px] bg-[#f1f1f1] mt-[12px] pl-[22px] dark:bg-slate-800" />
         </div>
       )}
     </Draggable>

@@ -1,5 +1,5 @@
 import { LoaderFunction, json, redirect } from "@remix-run/node";
-import { useLoaderData, useFetcher, Link } from "@remix-run/react";
+import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
 import { Text } from "~/components/ui/text";
 import { getUser } from "~/models/session.server";
 import preview from "../assets/preview-placeholder.png";
@@ -17,6 +17,8 @@ import layoutContext from "~/lib/context";
 import { cn } from "~/lib/utils";
 import { Sidebar } from "~/components/layout/side-bar";
 import { getFeedById } from "~/models/feed.server";
+import { switchLayout } from "~/components/layout/nav-bar";
+import { Theme, useTheme } from "remix-themes";
 
 type sidebarData = {
   item: string;
@@ -106,8 +108,30 @@ const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const { layout } = useContext(layoutContext);
-
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
+  const [theme, setTheme] = useTheme();
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "l" || e.key === "L") {
+      switchLayout(layout);
+    }
+    if (e.key === "s" || e.key === "S") {
+      navigate("/settings");
+    }
+    if (e.key === "e" || e.key === "E") {
+      navigate("/feeds/list");
+    }
+    if (e.key === "t" || e.key === "T") {
+      setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
+    }
+  };
 
   useEffect(() => {
     if (!fetcher.data || fetcher.state === "loading") return;

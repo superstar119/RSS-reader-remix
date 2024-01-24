@@ -13,6 +13,8 @@ import { useEffect, useContext } from "react";
 import { FeedPost } from "@prisma/client";
 import layoutContext from "~/lib/context";
 import { getUser } from "~/models/session.server";
+import { copyToClipboard } from "~/components/layout/nav-bar";
+import { Theme, useTheme } from "remix-themes";
 
 type loaderType = {
   post: FeedPost;
@@ -131,7 +133,7 @@ const FeedDetails = () => {
     : "";
 
   let navigate = useNavigate();
-
+  const [theme, setTheme] = useTheme();
   useEffect(() => {
     setContext({
       unread: context.unread,
@@ -139,23 +141,38 @@ const FeedDetails = () => {
       postId: loadData.post.id,
       link: loadData.post.link,
     });
-    function handleKeydown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        navigate("/feeds/list");
-      }
-
-      if (event.key === "ArrowRight" && loadData.nextId) {
-        navigate(`/feeds/${loadData.nextId}`);
-      }
-      if (event.key === "ArrowLeft" && loadData.prevId) {
-        navigate(`/feeds/${loadData.prevId}`);
-      }
-    }
 
     window.addEventListener("keydown", handleKeydown);
 
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [navigate, loadData.nextId, loadData.prevId]);
+  }, [navigate, loadData.nextId, loadData.prevId, theme]);
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      navigate("/feeds/list");
+    }
+
+    console.log(event.key);
+
+    if (event.key === "ArrowRight" && loadData.nextId) {
+      navigate(`/feeds/${loadData.nextId}`);
+    }
+    if (event.key === "ArrowLeft" && loadData.prevId) {
+      navigate(`/feeds/${loadData.prevId}`);
+    }
+    if (event.key === "Enter") {
+      window.open(context.link, "_blank");
+    }
+    if (event.key === "c" || event.key === "C") {
+      copyToClipboard(context.link);
+    }
+    if (event.key === "s" || event.key === "S") {
+      navigate("/settings");
+    }
+    if (event.key === "t" || event.key === "T") {
+      setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
+    }
+  }
 
   return (
     <div className="w-[560px] flex flex-col gap-[40px] mx-auto py-[180px] pb-[80px] animate-fade-in">
