@@ -2,15 +2,14 @@ import { HTMLAttributes, FC, useState, useEffect, useContext } from "react";
 import { cn } from "~/lib/utils";
 import { Icon } from "../ui/icon";
 import { Link, useFetcher, useLocation, useNavigate } from "@remix-run/react";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "../ui/tooltip";
+import { Theme, useTheme } from "remix-themes";
 import { Category } from "../ui/text";
-import { TooltipArrow } from "@radix-ui/react-tooltip";
 import layoutContext from "~/lib/context";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -27,6 +26,7 @@ type NavbarProps = HTMLAttributes<HTMLDivElement>;
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
   const { context } = useContext(layoutContext);
+  const [theme, setTheme] = useTheme();
   const navigate = useNavigate();
   const [state, setState] = useState<String>("");
   const fetcher = useFetcher();
@@ -143,20 +143,18 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       type="submit"
                       value="markAsRead"
                       name="_action"
+                      asChild
                     >
                       <Icon iconName="checkmark" color="#c0c0c0" />
                     </Button>
                   </fetcher.Form>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Mark as unread
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Mark as unread</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     E
                   </span>
                 </TooltipContent>
@@ -173,14 +171,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Refresh feeds
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Refresh feeds</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     E
                   </span>
                 </TooltipContent>
@@ -196,14 +191,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Refresh feeds
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Refresh feeds</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     E
                   </span>
                 </TooltipContent>
@@ -227,14 +219,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   />
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Switch layout
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Switch layout</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     L
                   </span>
                 </TooltipContent>
@@ -250,14 +239,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Open link
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Open link</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     <Icon
                       iconName="return"
                       className="w-[14px] h-[20px]"
@@ -275,19 +261,17 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   <Button
                     className="!bg-transparent p-0"
                     onClick={() => copyToClipboard(context.link)}
+                    asChild
                   >
                     <Icon iconName="linkCopy" color="#c0c0c0" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Copy link
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Copy link</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     C
                   </span>
                 </TooltipContent>
@@ -298,19 +282,24 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/settings">
-                    <Icon iconName="dark" color="#c0c0c0" />
-                  </Link>
+                  <Button className="!bg-transparent p-0" asChild>
+                    <Icon
+                      iconName={theme === Theme.LIGHT ? "dark" : "light"}
+                      color="#c0c0c0"
+                      onClick={() =>
+                        setTheme(
+                          theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
+                        )
+                      }
+                    />
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Switch theme
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Switch theme</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     L
                   </span>
                 </TooltipContent>
@@ -326,14 +315,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] shadow-none border-0 bg-[#272727] rounded-[2px]"
+                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <TooltipArrow color="#272727" />
-                  <Category className="text-[14px] text-white">
-                    Settings
-                  </Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border text-white bg-opacity-10 border flex justify-center items-center items-center">
+                  <Category className="text-[14px]">Settings</Category>
+                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     S
                   </span>
                 </TooltipContent>

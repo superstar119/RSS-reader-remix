@@ -3,8 +3,6 @@ import { createContext } from "react";
 const layoutContext = createContext({
   layout: "tileList",
   setLayout: (newLayout: string) => {},
-  theme: "dark",
-  setTheme: (newTheme: string) => {},
   context: {
     postId: "",
     userId: "",

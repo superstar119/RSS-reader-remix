@@ -32,6 +32,7 @@ import {
   deleteFeedSubscription,
   getUserFeedSubscription,
 } from "~/models/feed-subscription.server";
+import { Theme, useTheme } from "remix-themes";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
@@ -149,7 +150,7 @@ type SubmitAction =
 
 const Settings: FC = () => {
   const loaderData = useLoaderData<Feed[]>();
-
+  const [theme] = useTheme();
   const navigate = useNavigate();
   const [edit, setEdit] = useState<boolean>(false);
   const [hover, setHover] = useState<boolean>(false);
@@ -214,7 +215,7 @@ const Settings: FC = () => {
           <div className="flex flex-col w-full items-stretch justify-start">
             <div className="w-full flex flex-col items-stretch gap-[8px]">
               <Text>Feeds</Text>
-              <div className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px]">
+              <div className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800">
                 <DragDropContext onDragEnd={onDragEnd}>
                   <FeedList items={feeds} />
                 </DragDropContext>
@@ -229,7 +230,7 @@ const Settings: FC = () => {
                         className="rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in"
                       />
                       <Button
-                        className="hover:bg-transparent bg-transparent h-content p-0"
+                        className="!bg-transparent h-content p-0"
                         value="addFeed"
                         name="_action"
                         type="submit"
@@ -250,7 +251,7 @@ const Settings: FC = () => {
                 </form>
               </div>
             </div>
-            <Separator className="bg-[#c0c0c0] my-[40px]" />
+            <Separator className="bg-[#c0c0c0] my-[40px] dark:bg-slate-800" />
             <div className="flex flex-col gap-[16px]">
               <div className="flex flex-col gap-[8px]">
                 <div className="flex justify-between items-center">
@@ -284,7 +285,10 @@ const Settings: FC = () => {
             <div>
               <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
                 Open billing
-                <Icon iconName="link" color="white" />
+                <Icon
+                  iconName="link"
+                  color={theme === Theme.LIGHT ? "white" : "#020617"}
+                />
               </Button>
             </div>
           </div>

@@ -173,7 +173,7 @@ const FeedList = () => {
                     <Text className="truncate w-full overflow-hidden">
                       {item.title}
                     </Text>
-                    <Text className="text-[14px] text-[#c0c0c0]">
+                    <Text className="text-[14px] text-[#c0c0c0] dark:opacity-50">
                       {item.author + " / " + ago(new Date(item.pubDate))}
                     </Text>
                   </div>

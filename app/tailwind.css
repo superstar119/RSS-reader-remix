@@ -25,3 +25,7 @@
 ::-webkit-scrollbar-thumb:hover {
   opacity: 1;
 }
+
+.dark * {
+  color: #c0c0c0;
+}

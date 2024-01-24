@@ -1,5 +1,9 @@
-import { FC, ReactNode, useContext, useState } from "react";
-import { ActionFunctionArgs, LinksFunction } from "@remix-run/node";
+import { FC, ReactNode, useEffect, useState } from "react";
+import {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -7,6 +11,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 import { useNavigation } from "@remix-run/react";
 import styles from "./tailwind.css";
@@ -16,6 +21,13 @@ import layoutContext from "./lib/context";
 import { ThreeDots } from "react-loading-icons";
 import { markAsRead } from "./models/read.server";
 import { getUser } from "./models/session.server";
+import {
+  PreventFlashOnWrongTheme,
+  ThemeProvider,
+  useTheme,
+} from "remix-themes";
+import { themeSessionResolver } from "./utils/session.server";
+import { cn } from "./lib/utils";
 
 interface DocumentProps {
   children: ReactNode;
@@ -35,6 +47,13 @@ type SubmitAction = {
   _action: "markAsRead";
   postId: string;
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { getTheme } = await themeSessionResolver(request);
+  return {
+    theme: getTheme(),
+  };
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await getUser(request);
@@ -61,7 +80,16 @@ export const Loading = () => {
   );
 };
 
-export default function App() {
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+  return (
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export function App() {
   return (
     <Document>
       <Layout>
@@ -75,16 +103,19 @@ export default function App() {
 }
 
 const Document: FC<DocumentProps> = ({ children, title }) => {
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
   return (
-    <html lang="en">
+    <html lang="en" className={cn(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
         <title>{title ? title : "RSS Feed"}</title>
       </head>
-      <body className="w-full h-screen min-h-screen flex flex-col max-w-screen pr-[8px]">
+      <body>
         {children}
         <LiveReload />
       </body>
@@ -100,21 +131,20 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     unread: 0,
     link: "",
   });
-  const [theme, setTheme] = useState<string>("dark");
 
   const layoutValue = {
     layout,
     setLayout,
-    theme,
-    setTheme,
     context: navData,
     setContext: setNavData,
   };
 
   return (
     <layoutContext.Provider value={layoutValue}>
-      <Navbar />
-      {children}
+      <div className="dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-center items-center">
+        <Navbar />
+        {children}
+      </div>
     </layoutContext.Provider>
   );
 };

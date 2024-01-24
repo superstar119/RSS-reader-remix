@@ -595,6 +595,29 @@ export const ICONS = {
       </svg>
     );
   },
+  light: ({ className, color }) => {
+    const [hover, setHover] = useState<boolean>(false);
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="26"
+        height="26"
+        viewBox="0 0 26 26"
+        fill="none"
+        className={className}
+        onMouseOver={() => setHover(true)}
+        onMouseOut={() => setHover(false)}
+      >
+        <path
+          d="M13 4.875V2.4375M7.25476 7.25476L5.53119 5.53119M4.875 13H2.4375M13 23.5625V21.125M20.4688 20.4688L18.7452 18.7452M23.5625 13H21.125M7.25476 18.7452L5.53119 20.4688M20.4688 5.5312L18.7453 7.25478M17.875 13C17.875 15.6924 15.6924 17.875 13 17.875C10.3076 17.875 8.125 15.6924 8.125 13C8.125 10.3076 10.3076 8.125 13 8.125C15.6924 8.125 17.875 10.3076 17.875 13Z"
+          stroke={hover ? "#272727" : color ?? "#C0C0C0"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  },
 } as const satisfies Record<string, FC<TSvgProps>>;
 
 export const Icon = forwardRef<HTMLDivElement, IconProps>(
@@ -613,7 +636,7 @@ export const Icon = forwardRef<HTMLDivElement, IconProps>(
     ref
   ) => {
     return (
-      <div
+      <span
         className={cn(
           `flex flex-row items-center justify-center ${
             onClick ? "cursor-pointer" : ""
@@ -630,7 +653,7 @@ export const Icon = forwardRef<HTMLDivElement, IconProps>(
             color: color,
             className: cn("overflow-visible", iconClassName),
           })}
-      </div>
+      </span>
     );
   }
 );

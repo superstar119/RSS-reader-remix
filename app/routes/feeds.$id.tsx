@@ -161,12 +161,14 @@ const FeedDetails = () => {
     <div className="w-[560px] flex flex-col gap-[40px] mx-auto py-[180px] pb-[80px] animate-fade-in">
       <div className="flex flex-col gap-[10px] animate-fade-in">
         <div className="flex flex-col">
-          <Text className="text-[#272727] mb-[6px]">
+          <Text className="text-[#272727] mb-[6px] dark:opacity-90">
             {loadData?.post.author}
           </Text>
           <Heading>{loadData?.post.title}</Heading>
         </div>
-        <Text className="text-[#c0c0c0]">{pubDate}</Text>
+        <Text className="text-[#c0c0c0] dark:opacity-30 dark:text-white">
+          {pubDate}
+        </Text>
       </div>
       <div
         className="flex flex-col gap-[40px] w-full flex-1"
