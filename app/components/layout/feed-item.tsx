@@ -12,9 +12,10 @@ import { Input } from "../ui/input";
 type FeedItemProps = {
   feed: Feed;
   index: number;
+  handleRemoveFeed: Function;
 };
 
-export const FeedItem: FC<FeedItemProps> = ({ feed, index }) => {
+export const FeedItem: FC<FeedItemProps> = ({ feed, index, handleRemoveFeed }) => {
   const [hover, setHover] = useState<boolean>(false);
   const deleteFetcher = useFetcher();
   return (
@@ -61,6 +62,7 @@ export const FeedItem: FC<FeedItemProps> = ({ feed, index }) => {
                 <Icon
                   iconName="trash"
                   color="#c0c0c0"
+                  onClick={() => handleRemoveFeed(feed.id)}
                   className={cn(
                     "animate-fade-in transition-all",
                     hover ? "opacity-100" : "opacity-0"

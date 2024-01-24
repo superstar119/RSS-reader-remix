@@ -5,9 +5,10 @@ import { Feed } from "@prisma/client";
 
 type FeedListProps = {
   items: Array<Feed>;
+  handleRemoveFeed: Function;
 };
 
-export const FeedList: FC<FeedListProps> = ({ items }) => (
+export const FeedList: FC<FeedListProps> = ({ items, handleRemoveFeed }) => (
   <Droppable droppableId="feeds">
     {(provided) => (
       <div
@@ -15,9 +16,10 @@ export const FeedList: FC<FeedListProps> = ({ items }) => (
         {...provided.droppableProps}
         className="flex flex-col gap-[12px]"
       >
-        {items.map((item, index) => (
-          <FeedItem key={item.id} feed={item} index={index} />
-        ))}
+        {items.map((item, index) => {
+          console.log(item.id, index)
+          return <FeedItem key={item.id} feed={item} index={index} handleRemoveFeed={handleRemoveFeed}/>
+        })}
         {provided.placeholder}
       </div>
     )}

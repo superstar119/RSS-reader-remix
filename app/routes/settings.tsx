@@ -184,6 +184,12 @@ const Settings: FC = () => {
     }
   };
 
+  const handleRemoveFeed = (id: string) => {
+    console.log(id);
+    let feed_n = feeds.filter((feed) => feed.id === id);
+    setFeeds(feed_n);
+  }
+
   return (
     <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
       <Heading className="w-full">Settings</Heading>
@@ -217,7 +223,7 @@ const Settings: FC = () => {
               <Text>Feeds</Text>
               <div className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800">
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <FeedList items={feeds} />
+                  <FeedList items={feeds} handleRemoveFeed = {handleRemoveFeed}/>
                 </DragDropContext>
                 <form onClick={() => setEdit(true)} method="post">
                   {edit ? (
