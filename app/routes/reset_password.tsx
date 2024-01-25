@@ -7,6 +7,7 @@ import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { getUserByEmail } from "~/models/user.server";
 
 export const meta: MetaFunction = () => [{ title: "Reset Password | RSS Feed" }];
 
@@ -17,6 +18,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (!validateEmail(email)) {
     return json(
       { errors: { email: "Email is invalid", password: null } },
+      { status: 400 }
+    );
+  }
+
+  const existingUser = await getUserByEmail(email);
+  if (!existingUser) {
+    return json(
+      {
+        errors: {
+          email: "This user wasn't registered.",
+          password: null,
+        },
+      },
       { status: 400 }
     );
   }
