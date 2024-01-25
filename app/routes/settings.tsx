@@ -186,7 +186,7 @@ const Settings: FC = () => {
 
   const handleRemoveFeed = (id: string) => {
     console.log(id);
-    let feed_n = feeds.filter((feed) => feed.id === id);
+    let feed_n = feeds.filter((feed) => feed.id !== id);
     setFeeds(feed_n);
   };
 

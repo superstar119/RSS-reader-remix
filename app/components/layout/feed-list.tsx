@@ -17,8 +17,15 @@ export const FeedList: FC<FeedListProps> = ({ items, handleRemoveFeed }) => (
         className="flex flex-col gap-[12px]"
       >
         {items.map((item, index) => {
-          console.log(item.id, index)
-          return <FeedItem key={item.id} feed={item} index={index} handleRemoveFeed={handleRemoveFeed}/>
+          console.log(item.id, index);
+          return (
+            <FeedItem
+              key={item.id}
+              feed={item}
+              index={index}
+              handleRemoveFeed={handleRemoveFeed}
+            />
+          );
         })}
         {provided.placeholder}
       </div>
