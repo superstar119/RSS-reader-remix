@@ -30,6 +30,11 @@ export async function getPosts(
   take: number
 ) {
   return prisma.feedPost.findMany({
+    orderBy: [
+      {
+        pubDate: "desc",
+      },
+    ],
     where: {
       feedId: {
         in: feedId,
