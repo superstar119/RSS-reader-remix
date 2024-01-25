@@ -41,6 +41,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     take
   );
 
+  const compareByDate = (a, b) => new Date(b.pubDate) - new Date(a.pubDate);
+
+  posts.sort(compareByDate);
+
   let totalUnread = await getUnreadPostsNumber(user.id, subscriptions);
 
   let sidebarData: Array<sidebarData> = [
