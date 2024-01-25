@@ -41,7 +41,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     take
   );
 
-  const compareByDate = (a, b) => new Date(b.pubDate) - new Date(a.pubDate);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const compareByDate = (a: any, b: any): number => {
+    return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
+  };
 
   posts.sort(compareByDate);
 
