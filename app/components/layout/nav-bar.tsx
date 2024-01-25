@@ -71,6 +71,9 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
       case "/feeds":
         setState("empty");
         break;
+      case "/reset_password":
+        setState("auth");
+        break;
       default:
         setState("feed-details");
         break;

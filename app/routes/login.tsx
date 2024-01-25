@@ -127,12 +127,12 @@ export default function Login() {
             >
               Login
             </Button>
-            <Button
-              variant={"link"}
+            <Link
+              to={{ pathname: "/reset_password" }}
               className="text-[#7b7b7b] underline p-0 font-normal"
             >
               Forgot password?
-            </Button>
+            </Link>
           </div>
         </Form>
 
