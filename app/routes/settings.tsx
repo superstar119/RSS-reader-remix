@@ -190,7 +190,7 @@ const Settings: FC = () => {
   };
 
   return (
-    <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
+    <div className="w-[560px] mx-auto min-h-inherit flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
       <Heading className="w-full">Settings</Heading>
       <Tabs defaultValue="feed" className="w-full">
         <TabsList className="p-0 flex-col w-full flex h-auto">

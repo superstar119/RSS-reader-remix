@@ -27,22 +27,6 @@ export type NavbarData = {
 
 type NavbarProps = HTMLAttributes<HTMLDivElement>;
 
-export const switchLayout = (layout: string) => {
-  const { setLayout } = useContext(layoutContext);
-  switch (layout) {
-    case "tileList":
-      setLayout("imageList");
-      break;
-
-    case "imageList":
-      setLayout("textList");
-      break;
-    default:
-      setLayout("tileList");
-      break;
-  }
-};
-
 export const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text);
@@ -87,7 +71,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const [theme, setTheme] = useTheme();
   const [state, setState] = useState<String>("");
   const fetcher = useFetcher();
-  const { layout, context } = useContext(layoutContext);
+  const { layout, context, setLayout } = useContext(layoutContext);
   const [unreadNumber, setUnreadNumber] = useState<String>('');
 
   useEffect(() => {
@@ -127,6 +111,21 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   }, [context]);
 
   if (state === "empty" || state == "") return null;
+
+  const switchLayout = (layout: string) => {
+    switch (layout) {
+      case "tileList":
+        setLayout("imageList");
+        break;
+  
+      case "imageList":
+        setLayout("textList");
+        break;
+      default:
+        setLayout("tileList");
+        break;
+    }
+  };
 
   return (
     <div

@@ -17,7 +17,6 @@ import layoutContext from "~/lib/context";
 import { cn } from "~/lib/utils";
 import { Sidebar } from "~/components/layout/side-bar";
 import { getFeedById } from "~/models/feed.server";
-import { switchLayout } from "~/components/layout/nav-bar";
 import { Theme, useTheme } from "remix-themes";
 
 type sidebarData = {
@@ -114,10 +113,25 @@ const InfiniteScroller = (props: {
 const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
-  const { layout } = useContext(layoutContext);
+  const { layout, setLayout } = useContext(layoutContext);
   const navigate = useNavigate();
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
+
+  const switchLayout = (layout: string) => {
+    switch (layout) {
+      case "tileList":
+        setLayout("imageList");
+        break;
+  
+      case "imageList":
+        setLayout("textList");
+        break;
+      default:
+        setLayout("tileList");
+        break;
+    }
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
