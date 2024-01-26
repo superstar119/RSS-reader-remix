@@ -52,6 +52,14 @@ export async function getPosts(
   });
 }
 
+export async function getPostAll() {
+  return prisma.feedPost.findMany({});
+}
+
+export async function getPostCount() {
+  return prisma.feedPost.count({});
+}
+
 export const getPostsNumberByFeedIds = async (feedId: Array<Feed["id"]>) => {
   return await prisma.feedPost.count({
     where: {

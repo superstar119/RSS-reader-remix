@@ -15,7 +15,6 @@ import { getUser } from "~/models/session.server";
 type FeedItemProps = {
   feed: Feed;
   index: number;
-  handleRemoveFeed: (id: string) => void;
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

@@ -128,8 +128,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const feed = await getFeedById(action.id);
       if (feed) {
         await deleteFeedSubscription(feed.id, user.id);
-        await deleteFeed(feed.id);
-        await deletePost(feed.id);
+        // await deleteFeed(feed.id);
+        // await deletePost(feed.id);
         return true;
       }
       return false;

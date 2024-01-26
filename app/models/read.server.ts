@@ -14,3 +14,10 @@ export const markAsRead = async (
 
   return await prisma.read.create({ data: { userId, postId } });
 };
+
+export const markAsUnRead = async (
+  userId: Read["userId"],
+  postId: Read["postId"]
+) => {
+  return await prisma.read.deleteMany({ where: { userId, postId } });
+};

@@ -1,7 +1,7 @@
 import { HTMLAttributes, FC, useState, useEffect, useContext } from "react";
 import { cn } from "~/lib/utils";
 import { Icon } from "../ui/icon";
-import { Link, useFetcher, useLocation, useNavigate } from "@remix-run/react";
+import { Link, useFetcher, useLocation } from "@remix-run/react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -9,10 +9,14 @@ import {
   TooltipProvider,
 } from "../ui/tooltip";
 import { Theme, useTheme } from "remix-themes";
-import { Category } from "../ui/text";
+import { Category, Text } from "../ui/text";
 import layoutContext from "~/lib/context";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { getUser } from "~/models/session.server";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { markAsRead, markAsUnRead } from "~/models/read.server";
+import { getPostAll } from "~/models/post.server";
 
 export type NavbarData = {
   postId: string;
@@ -46,13 +50,45 @@ export const copyToClipboard = async (text: string) => {
     return;
   }
 };
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const user = await getUser(request);
+  if (!user) return;
+  const formData = await request.formData();
+  const action = Object.fromEntries(formData.entries()) as SubmitAction;
+  switch (action._action) {
+    case "markAsUnRead": {
+      const postId = action.postId;
+      return await markAsUnRead(user.id, postId);
+    }
+    case "markAsAllRead": {
+      const posts = await getPostAll();
+      const postsPromise = posts.map((post) =>
+        markAsRead(user.id, post.id)
+      );
+      await Promise.all(postsPromise);
+    }
+  }
+  return;
+};
+
+type SubmitAction =
+  | {
+    _action: "markAsUnRead";
+    postId: string;
+  }
+  | {
+    _action: "markAsAllRead";
+    postId: string;
+  };
+
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
-  const { context } = useContext(layoutContext);
   const [theme, setTheme] = useTheme();
   const [state, setState] = useState<String>("");
   const fetcher = useFetcher();
-  const { layout } = useContext(layoutContext);
+  const { layout, context } = useContext(layoutContext);
+  const [unreadNumber, setUnreadNumber] = useState<String>('');
 
   useEffect(() => {
     switch (location.pathname) {
@@ -79,6 +115,17 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
         break;
     }
   }, [location]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // const readNumber = await getReadNumber(context.userId);
+      setUnreadNumber('19');
+    };
+
+    fetchData()
+      .catch(console.error);
+    console.log('unreadNumber', unreadNumber);
+  }, [context]);
 
   if (state === "empty" || state == "") return null;
 
@@ -115,7 +162,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                     <Button
                       className="!bg-transparent p-0"
                       type="submit"
-                      value="markAsRead"
+                      value="markAsUnRead"
                       name="_action"
                       asChild
                     >
@@ -139,16 +186,28 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Link to="/feeds/list">
-                    <Icon iconName="checkmark" color="#c0c0c0" />
-                    <sub></sub>
-                  </Link>
+                  <fetcher.Form className="!bg-transparent p-0" method="post">
+                    <Input
+                      type="hidden"
+                      name="postId"
+                      defaultValue={context.postId}
+                    />
+                    <Button
+                      className="!bg-transparent p-0 relative"
+                      type="submit"
+                      value="markAsAllRead"
+                      name="_action"
+                    >
+                      <Icon iconName="checkmark" color="#c0c0c0" />
+                      <Text className="text-[#c0c0c0] absolute right-[-10px] bottom-0">{unreadNumber}</Text>
+                    </Button>
+                  </fetcher.Form>
                 </TooltipTrigger>
                 <TooltipContent
                   className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <Category className="text-[14px]">Refresh feeds</Category>
+                  <Category className="text-[14px]">Mark all as read</Category>
                   <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     E
                   </span>
@@ -170,7 +229,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                 >
                   <Category className="text-[14px]">Refresh feeds</Category>
                   <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
-                    E
+                    R
                   </span>
                 </TooltipContent>
               </Tooltip>
@@ -185,8 +244,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       layout === "tileList"
                         ? "tiles"
                         : layout === "textList"
-                        ? "imageList"
-                        : "list"
+                          ? "imageList"
+                          : "list"
                     }
                     color="#c0c0c0"
                     onClick={() => switchLayout(layout)}
