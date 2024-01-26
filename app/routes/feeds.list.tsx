@@ -144,16 +144,14 @@ const FeedList = () => {
     if (!fetcher.data || fetcher.state === "loading") return;
 
     if (fetcher.data) {
-            const newItems = fetcher.data.data;
+      const newItems = fetcher.data.data;
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
     }
   }, [fetcher.data]);
 
   return (
     <div className="relative w-full h-full">
-      <div className="fixed top-[230px] left-[40px]">
-        <Sidebar items={initial.sidebarData} />
-      </div>
+      <Sidebar items={initial.sidebarData} />
       <InfiniteScroller
         loadNext={() => {
           const page = fetcher.data
@@ -181,8 +179,8 @@ const FeedList = () => {
                     layout === "textList"
                       ? "py-[12px]"
                       : layout === "imageList"
-                      ? "py-[15px] flex-col"
-                      : "py-[15px]"
+                        ? "py-[15px] flex-col"
+                        : "py-[15px]"
                   )}
                 >
                   <div
@@ -191,13 +189,12 @@ const FeedList = () => {
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
-                        ? "w-full aspect-square"
-                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                          ? "w-full aspect-square"
+                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
                     )}
                     style={{
-                      backgroundImage: `url(${
-                        item.imgSrc ? item.imgSrc : preview
-                      })`,
+                      backgroundImage: `url(${item.imgSrc ? item.imgSrc : preview
+                        })`,
                     }}
                   />
                   <div className="flex flex-col gap-[5px] w-full">
