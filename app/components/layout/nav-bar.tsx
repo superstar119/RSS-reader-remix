@@ -44,6 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "markAsUnRead": {
       const postId = action.postId;
       return await markAsUnRead(user.id, postId);
+      return true;
     }
     case "markAsAllRead": {
       const posts = await getPostAll();
@@ -51,9 +52,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         markAsRead(user.id, post.id)
       );
       await Promise.all(postsPromise);
+      return true;
     }
+    default:
+      return false;
   }
-  return;
 };
 
 type SubmitAction =
@@ -117,7 +120,6 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
       case "tileList":
         setLayout("imageList");
         break;
-  
       case "imageList":
         setLayout("textList");
         break;
@@ -191,13 +193,16 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       defaultValue={context.postId}
                     />
                     <Button
-                      className="!bg-transparent p-0 relative"
+                      className="!bg-transparent p-0"
                       type="submit"
                       value="markAsAllRead"
                       name="_action"
+                      asChild
                     >
-                      <Icon iconName="checkmark" color="#c0c0c0" />
-                      <Text className="text-[#c0c0c0] absolute right-[-10px] bottom-0">{unreadNumber}</Text>
+                      <div className="relative">
+                        <Icon iconName="checkmark" color="#c0c0c0" />
+                        <Text className="text-[#c0c0c0] absolute right-[-10px] bottom-0">{unreadNumber}</Text>
+                      </div>
                     </Button>
                   </fetcher.Form>
                 </TooltipTrigger>
@@ -313,15 +318,18 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <Button className="!bg-transparent p-0" asChild>
+                  <Button
+                    className="!bg-transparent p-0"
+                    onClick={() =>
+                      setTheme(
+                        theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
+                      )
+                    }
+                    asChild
+                  >
                     <Icon
                       iconName={theme === Theme.LIGHT ? "dark" : "light"}
                       color="#c0c0c0"
-                      onClick={() =>
-                        setTheme(
-                          theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
-                        )
-                      }
                     />
                   </Button>
                 </TooltipTrigger>
