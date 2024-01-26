@@ -295,7 +295,7 @@ const Settings: FC = () => {
           </div>
         </TabsContent>
         <TabsContent value="account" className="m-0 animate-fade-in">
-          <div className="flex flex-col justify-start items-stretch gap-[40px]">
+          <div className="flex flex-col w-full items-stretch justify-start gap-[40px]">
             <div className="flex flex-col gap-[16px]">
               <AccountItem>Change payment details</AccountItem>
               <AccountItem>Pause, upgrade, downgrade or cancel</AccountItem>

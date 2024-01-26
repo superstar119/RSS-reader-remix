@@ -16,7 +16,6 @@ export const FeedList: FC<FeedListProps> = ({ items }) => (
         className="flex flex-col gap-[12px]"
       >
         {items.map((item, index) => {
-          console.log(item.id, index);
           return (
             <FeedItem
               key={item.id}

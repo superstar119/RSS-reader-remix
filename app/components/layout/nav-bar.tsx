@@ -124,7 +124,6 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
 
     fetchData()
       .catch(console.error);
-    console.log('unreadNumber', unreadNumber);
   }, [context]);
 
   if (state === "empty" || state == "") return null;
