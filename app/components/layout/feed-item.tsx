@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Text } from "../ui/text";
 import { Icon } from "../ui/icon";
@@ -8,16 +8,37 @@ import { Feed } from "@prisma/client";
 import { useFetcher } from "@remix-run/react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { deleteFeedSubscription } from "~/models/feed-subscription.server";
+import { getUser } from "~/models/session.server";
 
 type FeedItemProps = {
   feed: Feed;
   index: number;
-  handleRemoveFeed: Function;
+  handleRemoveFeed: (id: string) => void;
 };
 
-export const FeedItem: FC<FeedItemProps> = ({ feed, index, handleRemoveFeed }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const action = formData.get('_action');
+  const id = formData.get('id');
+
+  if (action === 'deleteFeed' && id) {
+    const user = await getUser(request);
+    if (!user) return redirect("/login");
+    await deleteFeedSubscription(id.toString(), user.id);
+    return json({ success: true });
+  }
+};
+
+export const FeedItem: FC<FeedItemProps> = ({ feed, index }) => {
   const [hover, setHover] = useState<boolean>(false);
   const deleteFetcher = useFetcher();
+
+  const handleDeleteClick = (id: string) => {
+    deleteFetcher.submit({ id: id, _action: 'deleteFeed' }, { method: 'post' });
+  };
+
   return (
     <Draggable draggableId={feed.id.toString()} index={index}>
       {(provided, snapshot) => (
@@ -50,22 +71,22 @@ export const FeedItem: FC<FeedItemProps> = ({ feed, index, handleRemoveFeed }) =
 
               <Text>{feed.url}</Text>
             </div>
-            <deleteFetcher.Form method="delete">
+            <deleteFetcher.Form method="post">
               <Input type="hidden" name="id" defaultValue={feed.id} />
               <Button
                 className="!bg-transparent h-content p-0"
                 value="deleteFeed"
                 name="_action"
                 type="submit"
+                onClick={() => handleDeleteClick(feed.id)}
                 asChild
               >
                 <Icon
-                  iconName="trash"
+                  iconName={deleteFetcher.state === 'idle' ? "trash" : "loading"}
                   color="#c0c0c0"
-                  onClick={() => handleRemoveFeed(feed.id)}
                   className={cn(
                     "animate-fade-in transition-all",
-                    hover ? "opacity-100" : "opacity-0"
+                    deleteFetcher.state !== 'idle' ? "opacity-100" : hover ? "opacity-100" : "opacity-0" 
                   )}
                 />
               </Button>

@@ -24,6 +24,13 @@ export async function createPost(
   });
 }
 
+export async function deletePost(id: Feed["id"]) {
+  await prisma.feedPost.deleteMany({
+    where: { id },
+  });
+  return true;
+}
+
 export async function getPosts(
   feedId: Array<Feed["id"]>,
   skip: number,

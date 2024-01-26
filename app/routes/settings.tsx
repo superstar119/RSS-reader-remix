@@ -26,13 +26,14 @@ import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import Parser from "rss-parser";
 import { parse } from "node-html-parser";
-import { createPost } from "~/models/post.server";
+import { createPost, deletePost } from "~/models/post.server";
 import {
   createFeedSubscription,
   deleteFeedSubscription,
   getUserFeedSubscription,
 } from "~/models/feed-subscription.server";
 import { Theme, useTheme } from "remix-themes";
+import { cn } from "~/lib/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
@@ -126,7 +127,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "deleteFeed": {
       const feed = await getFeedById(action.id);
       if (feed) {
-        return await deleteFeedSubscription(feed.id, user.id);
+        await deleteFeedSubscription(feed.id, user.id);
+        await deleteFeed(feed.id);
+        await deletePost(feed.id);
+        return true;
       }
       return false;
     }
@@ -135,21 +139,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 type SubmitAction =
   | {
-      _action: "addFeed";
-      url: string;
-    }
+    _action: "addFeed";
+    url: string;
+  }
   | {
-      _action: "deleteFeed";
-      id: string;
-    }
+    _action: "deleteFeed";
+    id: string;
+  }
   | {
-      _action: "updateFeed";
-      id: string;
-      orderId: number;
-    };
+    _action: "updateFeed";
+    id: string;
+    orderId: number;
+  };
 
 const Settings: FC = () => {
   const loaderData = useLoaderData<Feed[]>();
+  const addFetcher = useFetcher();
   const [theme] = useTheme();
   const navigate = useNavigate();
   const [edit, setEdit] = useState<boolean>(false);
@@ -182,12 +187,6 @@ const Settings: FC = () => {
     if (e.key === "Escape") {
       return navigate("/");
     }
-  };
-
-  const handleRemoveFeed = (id: string) => {
-    console.log(id);
-    let feed_n = feeds.filter((feed) => feed.id !== id);
-    setFeeds(feed_n);
   };
 
   return (
@@ -223,9 +222,9 @@ const Settings: FC = () => {
               <Text>Feeds</Text>
               <div className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800">
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <FeedList items={feeds} handleRemoveFeed={handleRemoveFeed} />
+                  <FeedList items={feeds} />
                 </DragDropContext>
-                <form onClick={() => setEdit(true)} method="post">
+                <addFetcher.Form method="post" onClick={() => setEdit(true)}>
                   {edit ? (
                     <div className="flex justify-between hover:opacity-70 p-0 gap-[20px]">
                       <Input
@@ -241,7 +240,14 @@ const Settings: FC = () => {
                         name="_action"
                         type="submit"
                       >
-                        <Icon iconName="add" color="#272727" />
+                        <Icon
+                          iconName={addFetcher.state === 'idle' ? "add" : "loading"}
+                          color="#272727"
+                          className={cn(
+                            "animate-fade-in transition-all",
+                            addFetcher.state !== 'idle' ? "opacity-100" : hover ? "opacity-100" : "opacity-0"
+                          )}
+                        />
                       </Button>
                     </div>
                   ) : (
@@ -251,10 +257,17 @@ const Settings: FC = () => {
                       onMouseOut={() => setHover(false)}
                     >
                       <Text className="animate-fade-in">Add new</Text>
-                      {hover && <Icon iconName="add" color="#272727" />}
+                      <Icon
+                        iconName={addFetcher.state === 'idle' ? "add" : "loading"}
+                        color="#272727"
+                        className={cn(
+                          "animate-fade-in transition-all",
+                          addFetcher.state !== 'idle' ? "opacity-100" : hover ? "opacity-100" : "opacity-0"
+                        )}
+                      />
                     </div>
                   )}
-                </form>
+                </addFetcher.Form>
               </div>
             </div>
             <Separator className="bg-[#c0c0c0] my-[40px] dark:bg-slate-800" />

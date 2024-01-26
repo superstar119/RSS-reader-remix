@@ -1,6 +1,7 @@
 import { type LucideProps } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { forwardRef, type FC, type HTMLAttributes, useState } from "react";
+import "~/assets/style.css";
 
 type TSvgProps = LucideProps & {
   color?: string;
@@ -618,6 +619,11 @@ export const ICONS = {
       </svg>
     );
   },
+  loading: ({ className, color }) => {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="26" height="26" preserveAspectRatio="xMidYMid meet" style={{ transform: 'translate3d(0px, 0px, 0px)', animation: 'spin 1s infinite linear', color: color }} className={className}><defs><clipPath id="__lottie_element_2"><rect width="50" height="50" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_2)"><g transform="matrix(0.9961947202682495,-0.08715574443340302,0.08715574443340302,0.9961947202682495,-2.083761215209961,2.274026870727539)" opacity="1" style={{ display: 'block' }}><g opacity="1" transform="matrix(1,0,0,1,25,25)"><path stroke-linecap="round" stroke-linejoin="miter" fill-opacity="0" stroke-miterlimit="4" stroke={color} stroke-opacity="1" stroke-width="4" d=" M13.222999572753906,-16.315000534057617 C9.61299991607666,-19.2450008392334 5.011000156402588,-21 0,-21 C0,-21 0,-21 0,-21 C-2.8380000591278076,-21 -5.544000148773193,-20.437000274658203 -8.013999938964844,-19.41699981689453"></path></g></g></g></svg>
+    );
+  }
 } as const satisfies Record<string, FC<TSvgProps>>;
 
 export const Icon = forwardRef<HTMLDivElement, IconProps>(
@@ -638,8 +644,7 @@ export const Icon = forwardRef<HTMLDivElement, IconProps>(
     return (
       <span
         className={cn(
-          `flex flex-row items-center justify-center ${
-            onClick ? "cursor-pointer" : ""
+          `flex flex-row items-center justify-center ${onClick ? "cursor-pointer" : ""
           }`,
           className
         )}
