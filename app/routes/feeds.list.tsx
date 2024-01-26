@@ -31,8 +31,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 0;
-  const skip = Number(page) * 30;
-  const take = 30;
+  const skip = Number(page) * 10;
+  const take = 10;
 
   const subscriptions = await getUserFeedSubscription(user.id);
   const posts = await getPosts(
@@ -144,7 +144,7 @@ const FeedList = () => {
     if (!fetcher.data || fetcher.state === "loading") return;
 
     if (fetcher.data) {
-      const newItems = fetcher.data.data;
+            const newItems = fetcher.data.data;
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
     }
   }, [fetcher.data]);
@@ -162,7 +162,7 @@ const FeedList = () => {
           const query = `?page=${page}`;
           fetcher.load(query);
         }}
-        loading={fetcher.data === "loading"}
+        loading={fetcher.state === "loading"}
       >
         <div
           className={cn(
