@@ -152,8 +152,6 @@ const FeedDetails = () => {
       navigate("/feeds/list");
     }
 
-    console.log(event.key);
-
     if (event.key === "ArrowRight" && loadData.nextId) {
       navigate(`/feeds/${loadData.nextId}`);
     }
