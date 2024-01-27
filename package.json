@@ -10,7 +10,7 @@
     "start": "remix-serve ./build/index.js",
     "setup": "prisma generate && prisma migrate deploy",
     "typecheck": "tsc",
-    "deploy": "prisma generate && prisma migrate deploy && remix build"
+    "deploy": "prisma generate && remix build"
   },
   "dependencies": {
     "@prisma/client": "^5.8.1",
