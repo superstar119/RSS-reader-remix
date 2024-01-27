@@ -14,3 +14,11 @@ iframe {
 .min-h-inherit {
   min-height: inherit;
 }
+
+.hover-icon:hover path {
+  stroke: #272727; /* Change color on hover */
+}
+
+.hover-icon:hover rect {
+  stroke: #272727; /* Change color on hover */
+}
