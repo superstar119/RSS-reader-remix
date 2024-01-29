@@ -39,26 +39,26 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-];
-
 type SubmitAction = {
   _action: "markAsRead";
   postId: string;
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { getTheme } = await themeSessionResolver(request);
   return {
     theme: getTheme(),
   };
-}
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await getUser(request);
-  if (!user) return;
+  if (!user) return null;
   const formData = await request.formData();
   const action = Object.fromEntries(formData.entries()) as SubmitAction;
   if (action._action === "markAsRead") {
@@ -75,25 +75,12 @@ const Loading = () => {
   if (!active) return null;
 
   return (
-    <div className="w-screen h-screen bg-white bg-opacity-10 flex justify-center items-center fixed z-[100] animate-fade-in">
+    <div className="w-screen h-screen bg-white bg-opacity-40 flex justify-center items-center fixed z-[100] animate-fade-in top-0 left-0">
+      {" "}
       <ThreeDots fill="#c0c0c0" className="w-[80px]" />
     </div>
   );
 };
-
-function App() {
-  return (
-    <Document>
-      <Layout>
-        <SpeedInsights />
-        <Loading />
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-      </Layout>
-    </Document>
-  );
-}
 
 const Document: FC<DocumentProps> = ({ children, title }) => {
   const data = useLoaderData<typeof loader>();
@@ -143,11 +130,26 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default function AppWithProviders() {
+const App: FC = () => (
+  <Document>
+    <Layout>
+      <SpeedInsights />
+      <Loading />
+      <Outlet />
+      <ScrollRestoration />
+      <Scripts />
+    </Layout>
+  </Document>
+);
+
+const AppWithProviders = () => {
   const data = useLoaderData<typeof loader>();
+
   return (
-    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/theme">
       <App />
     </ThemeProvider>
   );
-}
+};
+
+export default AppWithProviders;
