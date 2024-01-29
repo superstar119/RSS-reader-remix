@@ -100,16 +100,16 @@ const FeedList = () => {
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [handleKeyDown]);
 
   useEffect(() => {
-    if (!fetcher.data || fetcher.state === "loading") return;
+    if (fetcher.state === "loading") return;
 
-    if (fetcher.data) {
-      const newItems = fetcher.data.data;
+    const newItems = fetcher.data?.data;
+    if (newItems) {
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
     }
-  }, [fetcher.data]);
+  }, [fetcher.data?.data, fetcher.state]);
 
   return (
     <div className="relative w-full h-full">
@@ -172,6 +172,11 @@ const FeedList = () => {
               </Link>
             );
           })}
+          <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
+            {fetcher.state === "loading" && (
+              <ThreeDots fill="#c0c0c0" className="w-[40px] h-[20px]" />
+            )}
+          </div>
         </div>
       </InfiniteScroller>
     </div>
