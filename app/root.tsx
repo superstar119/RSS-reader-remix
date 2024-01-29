@@ -101,6 +101,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <script src="https://app.lemonsqueezy.com/js/lemon.js"></script>
         <Meta />
         <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
