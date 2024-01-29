@@ -8,26 +8,28 @@ datasource db {
 }
 
 model User {
-  id                String @id @default(cuid())
+  id                String @id @default(cuid()) 
   email             String @unique
   password          String
   feedSubscription  FeedSubscription[]
   read              Read[]
+
+  @@index([id], name: "user_index", type: Hash)
 }
 
 model FeedSubscription {
   id        String @id @default(cuid())
-  feedId    String
+  feedId    String  
   userId    String  
   order     Int     @unique
   feed      Feed    @relation(fields: [feedId], references: [id], onDelete: Cascade)
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, feedId, order])
   
-  @@index([feedId, userId])
-  @@index([feedId])
-  @@index([userId])
-  @@index([id])
+  @@index([feedId, userId], name: "feedId_userId_index", type: Hash)
+  @@index([feedId], name: "feedId_index", type: Hash)
+  @@index([userId], name: "userId_index", type: Hash)
+  @@index([id], name: "feedSubscription_index", type: Hash)
 }
 
 model Feed {
@@ -36,6 +38,8 @@ model Feed {
   title             String
   FeedPost          FeedPost[]
   feedSubscription  FeedSubscription[]
+
+  @@index([id], name: "Feed_id_index", type: Hash)
 }
 
 model FeedPost {
@@ -50,8 +54,8 @@ model FeedPost {
   feed    Feed     @relation(fields:[feedId], references: [id], onDelete: Cascade)
   read    Read[]
 
-  @@index([feedId])
-  @@index([id])
+  @@index([id], name: "Post_id_index", type: Hash)
+  @@index([feedId], name: "Feed_id_index", type: Hash)
 }
 
 model Read {
@@ -61,8 +65,7 @@ model Read {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      FeedPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
     
-  @@index([userId, postId])
-  @@index([id])
-  @@index([userId])
-  @@index([postId])
+  @@index([id], name: "Read_id_index", type: Hash)
+  @@index([userId], name: "user_id_index", type: Hash)
+  @@index([postId], name: "post_id_index", type: Hash)
 }

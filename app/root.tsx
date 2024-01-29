@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode, useState } from "react";
 import {
   ActionFunctionArgs,
   LinksFunction,
@@ -67,7 +67,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return;
 };
 
-export const Loading = () => {
+const Loading = () => {
   const navigation = useNavigation();
   const active = navigation.state !== "idle";
 
@@ -80,16 +80,7 @@ export const Loading = () => {
   );
 };
 
-export default function AppWithProviders() {
-  const data = useLoaderData<typeof loader>();
-  return (
-    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
-      <App />
-    </ThemeProvider>
-  );
-}
-
-export function App() {
+function App() {
   return (
     <Document>
       <Layout>
@@ -148,3 +139,12 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     </layoutContext.Provider>
   );
 };
+
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+  return (
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
+      <App />
+    </ThemeProvider>
+  );
+}
