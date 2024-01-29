@@ -14,7 +14,7 @@ model User {
   feedSubscription  FeedSubscription[]
   read              Read[]
 
-  @@index([id], name: "user_index", type: Hash)
+  @@index([id], map: "user_index")
 }
 
 model FeedSubscription {
@@ -26,10 +26,10 @@ model FeedSubscription {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, feedId, order])
   
-  @@index([feedId, userId], name: "feedId_userId_index", type: Hash)
-  @@index([feedId], name: "feedId_index", type: Hash)
-  @@index([userId], name: "userId_index", type: Hash)
-  @@index([id], name: "feedSubscription_index", type: Hash)
+  @@index([feedId, userId], map: "feedId_userId_index")
+  @@index([feedId], map: "subscription_feedId_index")
+  @@index([userId], map: "subscription_userId_index")
+  @@index([id], map: "feedSubscription_index")
 }
 
 model Feed {
@@ -39,7 +39,7 @@ model Feed {
   FeedPost          FeedPost[]
   feedSubscription  FeedSubscription[]
 
-  @@index([id], name: "Feed_id_index", type: Hash)
+  @@index([id], map: "Feed_id_index")
 }
 
 model FeedPost {
@@ -54,8 +54,8 @@ model FeedPost {
   feed    Feed     @relation(fields:[feedId], references: [id], onDelete: Cascade)
   read    Read[]
 
-  @@index([id], name: "Post_id_index", type: Hash)
-  @@index([feedId], name: "Feed_id_index", type: Hash)
+  @@index([id], map: "Post_id_index")
+  @@index([feedId], map: "FeedPost_feedId_index")
 }
 
 model Read {
@@ -65,7 +65,7 @@ model Read {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      FeedPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
     
-  @@index([id], name: "Read_id_index", type: Hash)
-  @@index([userId], name: "user_id_index", type: Hash)
-  @@index([postId], name: "post_id_index", type: Hash)
+  @@index([id], map: "Read_id_index")
+  @@index([userId], map: "read_user_id_index")
+  @@index([postId], map: "read_post_id_index")
 }
