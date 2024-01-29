@@ -110,7 +110,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           const postsPromise = rss.posts.map((post) =>
             createPost(
               id,
-              post.title,
+              rss.title,
               post.imgSrc,
               post.pubDate,
               post.content,
@@ -139,18 +139,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 type SubmitAction =
   | {
-    _action: "addFeed";
-    url: string;
-  }
+      _action: "addFeed";
+      url: string;
+    }
   | {
-    _action: "deleteFeed";
-    id: string;
-  }
+      _action: "deleteFeed";
+      id: string;
+    }
   | {
-    _action: "updateFeed";
-    id: string;
-    orderId: number;
-  };
+      _action: "updateFeed";
+      id: string;
+      orderId: number;
+    };
 
 const Settings: FC = () => {
   const loaderData = useLoaderData<Feed[]>();
@@ -241,11 +241,17 @@ const Settings: FC = () => {
                         type="submit"
                       >
                         <Icon
-                          iconName={addFetcher.state === 'idle' ? "add" : "loading"}
+                          iconName={
+                            addFetcher.state === "idle" ? "add" : "loading"
+                          }
                           color="#272727"
                           className={cn(
                             "animate-fade-in transition-all",
-                            addFetcher.state !== 'idle' ? "opacity-100" : hover ? "opacity-100" : "opacity-0"
+                            addFetcher.state !== "idle"
+                              ? "opacity-100"
+                              : hover
+                              ? "opacity-100"
+                              : "opacity-0"
                           )}
                         />
                       </Button>
@@ -258,11 +264,17 @@ const Settings: FC = () => {
                     >
                       <Text className="animate-fade-in">Add new</Text>
                       <Icon
-                        iconName={addFetcher.state === 'idle' ? "add" : "loading"}
+                        iconName={
+                          addFetcher.state === "idle" ? "add" : "loading"
+                        }
                         color="#272727"
                         className={cn(
                           "animate-fade-in transition-all",
-                          addFetcher.state !== 'idle' ? "opacity-100" : hover ? "opacity-100" : "opacity-0"
+                          addFetcher.state !== "idle"
+                            ? "opacity-100"
+                            : hover
+                            ? "opacity-100"
+                            : "opacity-0"
                         )}
                       />
                     </div>
