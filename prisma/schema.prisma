@@ -23,6 +23,7 @@ model FeedSubscription {
   feed      Feed    @relation(fields: [feedId], references: [id], onDelete: Cascade)
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, feedId, order])
+  @@index([feedId, userId])
 }
 
 model Feed {
@@ -44,6 +45,8 @@ model FeedPost {
   feedId  String
   feed    Feed     @relation(fields:[feedId], references: [id], onDelete: Cascade)
   read    Read[]
+
+  @@index([feedId])
 }
 
 model Read {
@@ -52,4 +55,5 @@ model Read {
   postId    String
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      FeedPost    @relation(fields: [postId], references: [id], onDelete: Cascade)  
+  @@index([userId, postId])
 }
