@@ -110,12 +110,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           const postsPromise = rss.posts.map((post) =>
             createPost(
               id,
-              rss.title,
+              post.title,
               post.imgSrc,
               post.pubDate,
               post.content,
               post.link,
-              post.author
+              rss.title
             )
           );
           await Promise.all(postsPromise);
@@ -136,10 +136,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 };
-
-declare global {
-  interface Window { createLemonSqueezy: any; }
-}
 
 type SubmitAction =
   | {
@@ -182,10 +178,6 @@ const Settings: FC = () => {
   }, [loaderData]);
 
   useEffect(() => {
-    window.createLemonSqueezy();
-  }, []);
-  
-  useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -197,19 +189,8 @@ const Settings: FC = () => {
     }
   };
 
-  const handleRemoveFeed = (id: string) => {
-    console.log(id);
-    let feed_n = feeds.filter((feed) => feed.id !== id);
-    setFeeds(feed_n);
-  };
-  
-  const handleOpenBilling = () =>{
-    const billingLink = "https://sortable.lemonsqueezy.com/checkout/buy/9317ae94-00bc-4f23-9ebb-3ad5b4b417c0?embed=1";
-    window.location.href = billingLink;
-  }
-
   return (
-    <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
+    <div className="w-[560px] mx-auto min-h-inherit flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
       <Heading className="w-full">Settings</Heading>
       <Tabs defaultValue="feed" className="w-full">
         <TabsList className="p-0 flex-col w-full flex h-auto">
@@ -251,7 +232,7 @@ const Settings: FC = () => {
                         autoFocus
                         required
                         placeholder="https://minimal.gallery/feed/"
-                        className="rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in"
+                        className="rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in"
                       />
                       <Button
                         className="!bg-transparent h-content p-0"
@@ -333,8 +314,7 @@ const Settings: FC = () => {
               <AccountItem>Billing history & invoices</AccountItem>
             </div>
             <div>
-              <Button className="lemonsqueezy-button text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto"
-              onClick={handleOpenBilling}>
+              <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
                 Open billing
                 <Icon
                   iconName="link"
