@@ -10,7 +10,6 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { createUserSession } from "~/models/session.server";
 
-
 export const meta: MetaFunction = () => [{ title: "Register | RSS Feed" }];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -60,10 +59,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export const config = {
-  runtime: "edge"
-};
-
 export default function Register() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -78,7 +73,7 @@ export default function Register() {
       passwordRef.current?.focus();
     }
   }, [actionData]);
-  
+
   return (
     <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
