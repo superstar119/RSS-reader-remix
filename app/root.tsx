@@ -28,6 +28,7 @@ import {
 } from "remix-themes";
 import { themeSessionResolver } from "./utils/session.server";
 import { cn } from "./lib/utils";
+import { SpeedInsights } from "@vercel/speed-insights/remix";
 
 interface DocumentProps {
   children: ReactNode;
@@ -84,6 +85,7 @@ function App() {
   return (
     <Document>
       <Layout>
+        <SpeedInsights />
         <Loading />
         <Outlet />
         <ScrollRestoration />

@@ -25,6 +25,7 @@
     "@remix-run/serve": "^2.5.0",
     "@types/jsdom": "^21.1.6",
     "@vercel/remix": "^2.5.1",
+    "@vercel/speed-insights": "^1.0.8",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
