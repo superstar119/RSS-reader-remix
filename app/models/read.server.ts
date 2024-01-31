@@ -10,7 +10,7 @@ export const markAsRead = async (
   postId: Read["postId"]
 ) => {
   const readInfo = await prisma.read.findMany({ where: { userId, postId } });
-  if (readInfo) return;
+  if (readInfo.length) return;
 
   return await prisma.read.create({ data: { userId, postId } });
 };

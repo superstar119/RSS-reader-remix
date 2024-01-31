@@ -5,28 +5,21 @@ import {
   ActionFunctionArgs,
 } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useRef } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Category, Heading, Text } from "~/components/ui/text";
-import {
-  createFeed,
-  deleteFeed,
-  getFeedById,
-  getFeedByUrl,
-} from "~/models/feed.server";
+import { createFeed, getFeedById, getFeedByUrl } from "~/models/feed.server";
+import DraggableList from "react-draggable-list";
 import { getUser } from "~/models/session.server";
 import { Icon } from "~/components/ui/icon";
 import { AccountItem } from "~/components/layout/account-item";
 import { Button } from "~/components/ui/button";
 import { ShortcutTab } from "~/components/layout/shortcut-tab";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { FeedList } from "~/components/layout/feed-list";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import Parser from "rss-parser";
-import { parse } from "node-html-parser";
-import { createPost, deletePost } from "~/models/post.server";
+
+import { createPost } from "~/models/post.server";
 import {
   createFeedSubscription,
   deleteFeedSubscription,
@@ -34,6 +27,15 @@ import {
 } from "~/models/feed-subscription.server";
 import { Theme, useTheme } from "remix-themes";
 import { cn } from "~/lib/utils";
+import { fetchRSSFeed } from "~/utils/utils";
+import { FeedItem } from "~/components/layout/feed-item";
+import type { SettingSubmitAction } from "~/utils/type";
+
+declare global {
+  interface Window {
+    createLemonSqueezy: any;
+  }
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
@@ -46,58 +48,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return feed;
 };
 
-export const fetchRSSFeed = async (url: string) => {
-  try {
-    const parser = new Parser({
-      customFields: {
-        item: [
-          ["content:encoded", "contentEncoded"],
-          ["description", "description"],
-          ["dc:creator", "author", { keepArray: true }],
-        ],
-      },
-    });
-    const feed = await parser.parseURL(url);
-
-    const posts = feed.items.map((item) => {
-      return {
-        title: item.title || "",
-        pubDate: item.pubDate || item.isoDate || Date.now.toString(),
-        content: item.contentEncoded || item.content || item.description || "",
-        author: item.creator || item.author || "",
-        link: item.link || "",
-        imgSrc: extractImageSrc(item),
-      };
-    });
-
-    const title = feed.title || url;
-    return { title, posts };
-  } catch (err) {
-    console.error("Error fetching RSS Feed: ", err);
-    return { title: "", posts: [] };
-  }
-};
-
-function extractImageSrc(item: any): string {
-  if (item.enclosure && item.enclosure.type?.startsWith("image/")) {
-    return item.enclosure.url;
-  }
-
-  const content = item.contentEncoded || item.content || item.description || "";
-
-  const html = parse(content);
-  const imgElement = html.querySelector("img");
-  const match = imgElement?.getAttribute("src");
-
-  return match ? match : "";
-}
-
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await getUser(request);
   if (!user) return redirect("/login");
 
   const formData = await request.formData();
-  const action = Object.fromEntries(formData.entries()) as SubmitAction;
+  const action = Object.fromEntries(formData.entries()) as SettingSubmitAction;
   switch (action._action) {
     case "addFeed": {
       {
@@ -128,8 +84,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const feed = await getFeedById(action.id);
       if (feed) {
         await deleteFeedSubscription(feed.id, user.id);
-        // await deleteFeed(feed.id);
-        // await deletePost(feed.id);
         return true;
       }
       return false;
@@ -137,79 +91,44 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-declare global {
-  interface Window {
-    createLemonSqueezy: any;
-  }
-}
-
-type SubmitAction =
-  | {
-      _action: "addFeed";
-      url: string;
-    }
-  | {
-      _action: "deleteFeed";
-      id: string;
-    }
-  | {
-      _action: "updateFeed";
-      id: string;
-      orderId: number;
-    };
-
-const Settings: FC = () => {
+const Settings = () => {
   const loaderData = useLoaderData<Feed[]>();
-  const addFetcher = useFetcher();
+  const settingsForm = useFetcher();
   const [theme] = useTheme();
   const navigate = useNavigate();
   const [edit, setEdit] = useState<boolean>(false);
   const [hover, setHover] = useState<boolean>(false);
-  const [feeds, setFeeds] = useState<Feed[]>(loaderData);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const onDragEnd = async (result: DropResult) => {
-    if (!result.destination) return;
-
-    if (result.source.index === result.destination.index) return;
-
-    const newFeeds = Array.from(feeds);
-    const [removed] = newFeeds.splice(result.source.index, 1);
-    newFeeds.splice(result.destination.index, 0, removed);
-
-    setFeeds(newFeeds);
-  };
+  const [feeds, setFeeds] = useState<Array<any>>([]);
 
   useEffect(() => {
-    setFeeds(loaderData);
+    setFeeds(
+      loaderData.map((item, idx) => {
+        return { idx: idx, ...item };
+      })
+    );
   }, [loaderData]);
 
   useEffect(() => {
-    window.createLemonSqueezy();
-  }, []);
+    if (settingsForm.state === "idle") {
+      setEdit(false);
+    }
+  }, [settingsForm]);
 
   useEffect(() => {
+    if (!window.createLemonSqueezy) return;
+
+    window.createLemonSqueezy();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        navigate("/");
+      }
+    };
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      return navigate("/");
-    }
-  };
-
-  const handleRemoveFeed = (id: string) => {
-    console.log(id);
-    let feed_n = feeds.filter((feed) => feed.id !== id);
-    setFeeds(feed_n);
-  };
-
-  const handleOpenBilling = () => {
-    const billingLink =
-      "https://sortable.lemonsqueezy.com/checkout/buy/9317ae94-00bc-4f23-9ebb-3ad5b4b417c0?embed=1";
-    window.location.href = billingLink;
-  };
+  }, [navigate]);
 
   return (
     <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
@@ -242,11 +161,19 @@ const Settings: FC = () => {
           <div className="flex flex-col w-full items-stretch justify-start">
             <div className="w-full flex flex-col items-stretch gap-[8px]">
               <Text>Feeds</Text>
-              <div className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800">
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <FeedList items={feeds} />
-                </DragDropContext>
-                <addFetcher.Form method="post" onClick={() => setEdit(true)}>
+              <div
+                className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800"
+                ref={containerRef}
+              >
+                <DraggableList
+                  itemKey="idx"
+                  list={feeds}
+                  onMoveEnd={(newList: any) => setFeeds(newList)}
+                  container={() => containerRef.current}
+                  template={FeedItem}
+                  commonProps={{ fetcher: useFetcher() }}
+                />
+                <settingsForm.Form method="post" action="/settings">
                   {edit ? (
                     <div className="flex justify-between hover:opacity-70 p-0 gap-[20px]">
                       <Input
@@ -264,12 +191,12 @@ const Settings: FC = () => {
                       >
                         <Icon
                           iconName={
-                            addFetcher.state === "idle" ? "add" : "loading"
+                            settingsForm.state === "idle" ? "add" : "loading"
                           }
                           color="#272727"
                           className={cn(
                             "animate-fade-in transition-all",
-                            addFetcher.state !== "idle"
+                            settingsForm.state !== "idle"
                               ? "opacity-100"
                               : hover
                               ? "opacity-100"
@@ -283,16 +210,17 @@ const Settings: FC = () => {
                       className="flex justify-between hover:opacity-70 p-0 pl-[22px] cursor-pointer h-[26px]"
                       onMouseOver={() => setHover(true)}
                       onMouseOut={() => setHover(false)}
+                      onClick={() => setEdit(true)}
                     >
                       <Text className="animate-fade-in">Add new</Text>
                       <Icon
                         iconName={
-                          addFetcher.state === "idle" ? "add" : "loading"
+                          settingsForm.state === "idle" ? "add" : "loading"
                         }
                         color="#272727"
                         className={cn(
                           "animate-fade-in transition-all",
-                          addFetcher.state !== "idle"
+                          settingsForm.state !== "idle"
                             ? "opacity-100"
                             : hover
                             ? "opacity-100"
@@ -301,7 +229,7 @@ const Settings: FC = () => {
                       />
                     </div>
                   )}
-                </addFetcher.Form>
+                </settingsForm.Form>
               </div>
             </div>
             <Separator className="bg-[#c0c0c0] my-[40px] dark:bg-slate-800" />
@@ -335,18 +263,18 @@ const Settings: FC = () => {
               <AccountItem>Pause, upgrade, downgrade or cancel</AccountItem>
               <AccountItem>Billing history & invoices</AccountItem>
             </div>
-            <div>
-              <Button
-                className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto"
-                onClick={handleOpenBilling}
-              >
+            <Link
+              to="https://sortable.lemonsqueezy.com/checkout/buy/9317ae94-00bc-4f23-9ebb-3ad5b4b417c0?embed=1"
+              target="_blank"
+            >
+              <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
                 Open billing
                 <Icon
-                  iconName="link"
+                  iconName="linkBill"
                   color={theme === Theme.LIGHT ? "white" : "#020617"}
                 />
               </Button>
-            </div>
+            </Link>
           </div>
         </TabsContent>
         <TabsContent value="shortcut" className="m-0 animate-fade-in">

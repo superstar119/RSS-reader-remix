@@ -15,7 +15,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { getUser } from "~/models/session.server";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { markAsRead, markAsUnRead } from "~/models/read.server";
+import { getReadNumber, markAsRead, markAsUnRead } from "~/models/read.server";
 import { getPostAll } from "~/models/post.server";
 
 export type NavbarData = {
@@ -27,106 +27,52 @@ export type NavbarData = {
 
 type NavbarProps = HTMLAttributes<HTMLDivElement>;
 
+type SubmitAction = {
+  _action: "markAsUnRead" | "markAsAllRead";
+  postId: string;
+};
+
 export const copyToClipboard = async (text: string) => {
+  if (!navigator.clipboard) {
+    console.warn("Clipboard not available");
+    return;
+  }
   try {
     await navigator.clipboard.writeText(text);
   } catch (err) {
-    return;
+    console.error("Failed to copy to clipboard", err);
   }
 };
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const user = await getUser(request);
-  if (!user) return;
-  const formData = await request.formData();
-  const action = Object.fromEntries(formData.entries()) as SubmitAction;
-  switch (action._action) {
-    case "markAsUnRead": {
-      const postId = action.postId;
-      return await markAsUnRead(user.id, postId);
-      return true;
-    }
-    case "markAsAllRead": {
-      const posts = await getPostAll();
-      const postsPromise = posts.map((post) =>
-        markAsRead(user.id, post.id)
-      );
-      await Promise.all(postsPromise);
-      return true;
-    }
-    default:
-      return false;
-  }
-};
-
-type SubmitAction =
-  | {
-    _action: "markAsUnRead";
-    postId: string;
-  }
-  | {
-    _action: "markAsAllRead";
-    postId: string;
-  };
 
 const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const location = useLocation();
   const [theme, setTheme] = useTheme();
-  const [state, setState] = useState<String>("");
-  const fetcher = useFetcher();
   const { layout, context, setLayout } = useContext(layoutContext);
-  const [unreadNumber, setUnreadNumber] = useState<String>('');
+  const fetcher = useFetcher();
+
+  const [state, setState] = useState<string>("empty");
 
   useEffect(() => {
-    switch (location.pathname) {
-      case "/login":
-        setState("auth");
-        break;
-      case "/register":
-        setState("auth");
-        break;
-      case "/feeds/list":
-        setState("feed-list");
-        break;
-      case "/settings":
-        setState("setting");
-        break;
-      case "/feeds":
-        setState("empty");
-        break;
-      case "/reset_password":
-        setState("auth");
-        break;
-      default:
-        setState("feed-details");
-        break;
-    }
-  }, [location]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      // const readNumber = await getReadNumber(context.userId);
-      setUnreadNumber('19');
+    const states: { [key: string]: string } = {
+      "/login": "auth",
+      "/register": "auth",
+      "/feeds/list": "feed-list",
+      "/settings": "setting",
+      "/feeds": "empty",
+      "/reset_password": "auth",
     };
+    setState(states[location.pathname] || "feed-details");
+  }, [location.pathname]);
 
-    fetchData()
-      .catch(console.error);
-  }, [context]);
+  if (state === "empty") return null;
 
-  if (state === "empty" || state == "") return null;
-
-  const switchLayout = (layout: string) => {
-    switch (layout) {
-      case "tileList":
-        setLayout("imageList");
-        break;
-      case "imageList":
-        setLayout("textList");
-        break;
-      default:
-        setLayout("tileList");
-        break;
-    }
+  const switchLayout = () => {
+    const layouts: { [key: string]: string } = {
+      tileList: "imageList",
+      imageList: "textList",
+      textList: "tileList",
+    };
+    setLayout(layouts[layout] || "tileList");
   };
 
   return (
@@ -139,7 +85,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
       {...props}
     >
       <Link to="/">
-        <Icon iconName="logo" color="#C0C0C0" />
+        <Icon iconName="logo" color="#000" />
       </Link>
       {state === "setting" && (
         <Link to="/feeds">
@@ -153,27 +99,27 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <fetcher.Form className="!bg-transparent p-0" method="post">
+                  <fetcher.Form
+                    className="!bg-transparent p-0"
+                    method="delete"
+                    action={`/feeds/${context.postId}`}
+                  >
                     <Input
                       type="hidden"
                       name="postId"
                       defaultValue={context.postId}
                     />
-                    <Button
-                      className="!bg-transparent p-0"
+                    <button
+                      className="!bg-transparent p-0 block"
                       type="submit"
                       value="markAsUnRead"
                       name="_action"
-                      asChild
                     >
                       <Icon iconName="checkmark" color="#c0c0c0" />
-                    </Button>
+                    </button>
                   </fetcher.Form>
                 </TooltipTrigger>
-                <TooltipContent
-                  className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
-                  sideOffset={15}
-                >
+                <TooltipContent className="flex gap-[9px] items-center text-[14px] rounded-[2px]">
                   <Category className="text-[14px]">Mark as unread</Category>
                   <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     E
@@ -186,24 +132,29 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <fetcher.Form className="!bg-transparent p-0" method="post">
+                  <fetcher.Form
+                    className="!bg-transparent p-0"
+                    method="post"
+                    action="/feeds/list"
+                  >
                     <Input
                       type="hidden"
-                      name="postId"
-                      defaultValue={context.postId}
+                      name="userId"
+                      defaultValue={context.userId}
                     />
-                    <Button
+                    <button
                       className="!bg-transparent p-0"
                       type="submit"
                       value="markAsAllRead"
                       name="_action"
-                      asChild
                     >
                       <div className="relative">
                         <Icon iconName="checkmark" color="#c0c0c0" />
-                        <Text className="text-[#c0c0c0] absolute right-[-10px] bottom-0">{unreadNumber}</Text>
+                        <Text className="text-[#c0c0c0] absolute right-[-5px] bottom-0 text-[10px] font-bold">
+                          {context.unread}
+                        </Text>
                       </div>
-                    </Button>
+                    </button>
                   </fetcher.Form>
                 </TooltipTrigger>
                 <TooltipContent
@@ -247,11 +198,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       layout === "tileList"
                         ? "tiles"
                         : layout === "textList"
-                          ? "imageList"
-                          : "list"
+                        ? "imageList"
+                        : "list"
                     }
                     color="#c0c0c0"
-                    onClick={() => switchLayout(layout)}
+                    onClick={() => switchLayout()}
                   />
                 </TooltipTrigger>
                 <TooltipContent
@@ -321,9 +272,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   <Button
                     className="!bg-transparent p-0"
                     onClick={() =>
-                      setTheme(
-                        theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
-                      )
+                      setTheme(theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT)
                     }
                     asChild
                   >

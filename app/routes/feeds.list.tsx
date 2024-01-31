@@ -1,10 +1,14 @@
-import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
 import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState, useContext } from "react";
-import { FeedPost, FeedSubscription } from "@prisma/client";
+import { FeedPost } from "@prisma/client";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
-import { getPosts, getUnreadPostsNumber } from "~/models/post.server";
+import {
+  getPostAll,
+  getPosts,
+  getUnreadPostsNumber,
+} from "~/models/post.server";
 import { getFeedById } from "~/models/feed.server";
 
 import { ThreeDots } from "react-loading-icons";
@@ -21,6 +25,7 @@ import { Text } from "~/components/ui/text";
 
 import preview from "../assets/preview-placeholder.png";
 import { compareByDate } from "~/utils/utils";
+import { markAsRead } from "~/models/read.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -65,10 +70,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  const user = await getUser(request);
+  const formData = await request.formData();
+
+  const _action = await formData.get("_action");
+
+  if (_action === "markAsAllRead" && user) {
+    const posts = await getPostAll();
+    return await Promise.all(posts.map((item) => markAsRead(user.id, item.id)));
+  } else return null;
+};
+
 const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
+
   const navigate = useNavigate();
-  const { layout, setLayout } = useContext(layoutContext);
+  const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
 
@@ -109,7 +127,8 @@ const FeedList = () => {
     if (newItems) {
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
     }
-  }, [fetcher.data?.data, fetcher.state]);
+    setContext({ ...context, unread: initial.sidebarData.at(0)["unread"] });
+  }, [fetcher.data?.data, fetcher.state, initial.sidebarData]);
 
   return (
     <div className="relative w-full h-full">

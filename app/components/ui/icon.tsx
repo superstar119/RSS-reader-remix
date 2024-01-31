@@ -68,6 +68,24 @@ export const ICONS = {
       />
     </svg>
   ),
+  linkBill: ({ className, color }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="26"
+      height="26"
+      viewBox="0 0 26 26"
+      fill="none"
+      className={`${className}`}
+    >
+      <path
+        d="M17.875 2.4375H23.5625V8.125M22.3438 3.65625L16.25 9.75M13.8125 4.0625H6.5C5.15381 4.0625 4.0625 5.15381 4.0625 6.5V19.5C4.0625 20.8462 5.15381 21.9375 6.5 21.9375H19.5C20.8462 21.9375 21.9375 20.8462 21.9375 19.5V12.1875"
+        stroke={color ?? "white"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
   return: ({ className, color }) => (
     <svg
       width="16"
@@ -198,7 +216,6 @@ export const ICONS = {
     </svg>
   ),
   close: ({ className, color }) => {
-
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -220,7 +237,6 @@ export const ICONS = {
     );
   },
   reload: ({ className, color }) => {
-
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -248,7 +264,6 @@ export const ICONS = {
     );
   },
   tiles: ({ className, color }) => {
-
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -342,7 +357,6 @@ export const ICONS = {
     );
   },
   imageList: ({ className, color }) => {
-
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -418,7 +432,6 @@ export const ICONS = {
   },
 
   list: ({ className, color }) => {
-
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -588,9 +601,47 @@ export const ICONS = {
   },
   loading: ({ className, color }) => {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="26" height="26" preserveAspectRatio="xMidYMid meet" style={{ transform: 'translate3d(0px, 0px, 0px)', animation: 'spin 1s infinite linear', color: color }} className={`${className} hover-icon`}><defs><clipPath id="__lottie_element_2"><rect width="50" height="50" x="0" y="0"></rect></clipPath></defs><g clipPath="url(#__lottie_element_2)"><g transform="matrix(0.9961947202682495,-0.08715574443340302,0.08715574443340302,0.9961947202682495,-2.083761215209961,2.274026870727539)" opacity="1" style={{ display: 'block' }}><g opacity="1" transform="matrix(1,0,0,1,25,25)"><path strokeLinecap="round" strokeLinejoin="miter" fillOpacity="0" strokeMiterlimit="4" stroke={color} strokeOpacity="1" strokeWidth="4" d=" M13.222999572753906,-16.315000534057617 C9.61299991607666,-19.2450008392334 5.011000156402588,-21 0,-21 C0,-21 0,-21 0,-21 C-2.8380000591278076,-21 -5.544000148773193,-20.437000274658203 -8.013999938964844,-19.41699981689453"></path></g></g></g></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 50 50"
+        width="26"
+        height="26"
+        preserveAspectRatio="xMidYMid meet"
+        style={{
+          transform: "translate3d(0px, 0px, 0px)",
+          animation: "spin 1s infinite linear",
+          color: color,
+        }}
+        className={`${className} hover-icon`}
+      >
+        <defs>
+          <clipPath id="__lottie_element_2">
+            <rect width="50" height="50" x="0" y="0"></rect>
+          </clipPath>
+        </defs>
+        <g clipPath="url(#__lottie_element_2)">
+          <g
+            transform="matrix(0.9961947202682495,-0.08715574443340302,0.08715574443340302,0.9961947202682495,-2.083761215209961,2.274026870727539)"
+            opacity="1"
+            style={{ display: "block" }}
+          >
+            <g opacity="1" transform="matrix(1,0,0,1,25,25)">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+                fillOpacity="0"
+                strokeMiterlimit="4"
+                stroke={color}
+                strokeOpacity="1"
+                strokeWidth="4"
+                d=" M13.222999572753906,-16.315000534057617 C9.61299991607666,-19.2450008392334 5.011000156402588,-21 0,-21 C0,-21 0,-21 0,-21 C-2.8380000591278076,-21 -5.544000148773193,-20.437000274658203 -8.013999938964844,-19.41699981689453"
+              ></path>
+            </g>
+          </g>
+        </g>
+      </svg>
     );
-  }
+  },
 } as const satisfies Record<string, FC<TSvgProps>>;
 
 export const Icon = forwardRef<HTMLDivElement, IconProps>(
@@ -611,7 +662,8 @@ export const Icon = forwardRef<HTMLDivElement, IconProps>(
     return (
       <span
         className={cn(
-          `flex flex-row items-center justify-center ${onClick ? "cursor-pointer" : ""
+          `flex flex-row items-center justify-center ${
+            onClick ? "cursor-pointer" : ""
           }`,
           className
         )}

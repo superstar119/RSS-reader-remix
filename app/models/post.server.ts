@@ -53,7 +53,7 @@ export async function getPosts(
 }
 
 export async function getPostAll() {
-  return prisma.feedPost.findMany({});
+  return await prisma.feedPost.findMany({});
 }
 
 export async function getPostCount() {

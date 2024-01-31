@@ -1,6 +1,6 @@
 import {
-  LoaderFunctionArgs,
   ActionFunctionArgs,
+  LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
@@ -8,187 +8,111 @@ import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
 import { Icon } from "~/components/ui/icon";
-import "~/assets/style.css";
 import { useEffect, useContext } from "react";
-import { FeedPost } from "@prisma/client";
 import layoutContext from "~/lib/context";
 import { getUser } from "~/models/session.server";
 import { copyToClipboard } from "~/components/layout/nav-bar";
 import { Theme, useTheme } from "remix-themes";
+import { FeedLoaderType } from "~/utils/type";
+import { normalizeDate, processHtmlContent } from "~/utils/utils";
 
-type loaderType = {
-  post: FeedPost;
-  userId: string;
-  nextId?: string;
-  prevId?: string;
-};
+import "~/assets/style.css";
+import { markAsUnRead } from "~/models/read.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const postId = url.pathname.split("/").slice(-1);
 
-  const post = await getPost(postId[0]);
-  const next = await getNextRecord(postId[0]);
-  const prev = await getPrevRecord(postId[0]);
+  const [user, post, next, prev] = await Promise.all([
+    getUser(request),
+    getPost(postId[0]),
+    getNextRecord(postId[0]),
+    getPrevRecord(postId[0]),
+  ]);
 
-  const user = await getUser(request);
   if (!user) return redirect("/");
-
   return { userId: user.id, post: post, nextId: next?.id, prevId: prev?.id };
 };
 
-const normalizeDate = (pubDateString: string) => {
-  const pubDate = new Date(pubDateString);
-  const date = pubDate.getDate();
-  const monthNumber = pubDate.getMonth();
-  const year = pubDate.getFullYear();
-  let month: string;
-  switch (monthNumber) {
-    case 0:
-      month = "January";
-      break;
-    case 1:
-      month = "February";
-      break;
-    case 2:
-      month = "March";
-      break;
-    case 3:
-      month = "April";
-      break;
-    case 4:
-      month = "May";
-      break;
-    case 5:
-      month = "June";
-      break;
-    case 6:
-      month = "July";
-      break;
-    case 7:
-      month = "August";
-      break;
-    case 8:
-      month = "September";
-      break;
-    case 9:
-      month = "October";
-      break;
-    case 10:
-      month = "November";
-      break;
-    default:
-      month = "December";
-      break;
-  }
-  return date + ". " + month + " " + year;
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const user = await getUser(request);
+  const formData = await request.formData();
+  const postId = formData.get("postId") as string;
+  if (!postId || !user) return null;
+  return await markAsUnRead(user.id, postId);
 };
-const FeedDetails = () => {
-  const loadData = useLoaderData<loaderType>();
-  const { context, setContext } = useContext(layoutContext);
 
-  const pubDate = loadData
-    ? normalizeDate(loadData.post.pubDate)
+const FeedDetails = () => {
+  const navigate = useNavigate();
+  const { post, userId, nextId, prevId } = useLoaderData<FeedLoaderType>();
+
+  const pubDate = post
+    ? normalizeDate(post.pubDate)
     : normalizeDate(new Date().toString());
 
-  const areSiblings = (node1: Element, node2: Element): boolean => {
-    return node1.nextElementSibling === node2;
-  };
-
-  // Process the HTML content to satisfy the image display requirement
-  function processHtmlContent(htmlString: string): string {
-    let parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, "text/html");
-
-    const images = Array.from(doc.querySelectorAll("img"));
-    let imgContainer: HTMLDivElement | null;
-    images.forEach((img, index) => {
-      const nextImg = images[index + 1];
-
-      if (nextImg && areSiblings(img, nextImg)) {
-        if (!imgContainer) {
-          imgContainer = doc.createElement("div");
-          // Apply a class for styling of two images per row
-          imgContainer.className =
-            "w-full flex gap-[40px] justify-between flex-wrap";
-          img.classList.add("aspect-square", "box-border", "shrink", "grow");
-          img.parentNode?.insertBefore(imgContainer, img);
-        }
-        if (imgContainer != null) {
-          img.classList.add("aspect-square", "box-border", "shrink", "grow");
-          imgContainer.appendChild(img);
-        }
-      } else {
-        imgContainer = null;
-        // Apply a class or inline style for full width if not already wrapped
-        img.classList.add("w-full");
-      }
-    });
-
-    return doc.body.innerHTML;
-  }
-
-  const processedHTMLContent = loadData
-    ? processHtmlContent(loadData.post.content)
-    : "";
-
-  let navigate = useNavigate();
+  const { context, setContext } = useContext(layoutContext);
   const [theme, setTheme] = useTheme();
+
   useEffect(() => {
     setContext({
       unread: context.unread,
-      userId: loadData.userId,
-      postId: loadData.post.id,
-      link: loadData.post.link,
+      userId: userId,
+      postId: post.id,
+      link: post.link,
     });
 
+    const handleKeydown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case "escape":
+          navigate("/feeds/list");
+          break;
+        case "arrowright":
+          if (nextId) navigate(`/feeds/${nextId}`);
+          break;
+        case "arrowleft":
+          if (prevId) navigate(`/feeds/${prevId}`);
+          break;
+        case "enter":
+          window.open(context.link, "_blank");
+          break;
+        case "c":
+          copyToClipboard(context.link);
+          break;
+        case "s":
+          navigate("/settings");
+          break;
+        case "t":
+          setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
+          break;
+      }
+    };
+
+    if (typeof window !== "undefined" && post) {
+      const processedHTMLContent = processHtmlContent(post.content);
+      const contentDiv = document.querySelector("#container");
+      if (contentDiv) contentDiv.innerHTML = processedHTMLContent;
+    }
+
     window.addEventListener("keydown", handleKeydown);
-
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [navigate, loadData.nextId, loadData.prevId, theme]);
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      navigate("/feeds/list");
-    }
-
-    if (event.key === "ArrowRight" && loadData.nextId) {
-      navigate(`/feeds/${loadData.nextId}`);
-    }
-    if (event.key === "ArrowLeft" && loadData.prevId) {
-      navigate(`/feeds/${loadData.prevId}`);
-    }
-    if (event.key === "Enter") {
-      window.open(context.link, "_blank");
-    }
-    if (event.key === "c" || event.key === "C") {
-      copyToClipboard(context.link);
-    }
-    if (event.key === "s" || event.key === "S") {
-      navigate("/settings");
-    }
-    if (event.key === "t" || event.key === "T") {
-      setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
-    }
-  }
+  }, [navigate, nextId, prevId, theme, post]);
 
   return (
     <div className="w-[560px] flex flex-col gap-[40px] mx-auto py-[180px] pb-[80px] animate-fade-in">
       <div className="flex flex-col gap-[10px] animate-fade-in">
         <div className="flex flex-col">
           <Text className="text-[#272727] mb-[6px] dark:opacity-90">
-            {loadData?.post.author}
+            {post.author}
           </Text>
-          <Heading>{loadData?.post.title}</Heading>
+          <Heading>{post.title}</Heading>
         </div>
         <Text className="text-[#c0c0c0] dark:opacity-30 dark:text-white">
           {pubDate}
         </Text>
       </div>
-      <div
-        className="flex flex-col gap-[40px] w-full flex-1"
-        dangerouslySetInnerHTML={{ __html: processedHTMLContent }}
-      ></div>
+      <div className="flex flex-col gap-[40px] w-full flex-1" id="container" />
       <div className="mt-[40px] flex px-[12px] py-[8px] gap-[9px] justify-center opacity-30 ">
         <Text className="text-[14px] text-[#272727]">
           Use arrow keys to go to previous/next
