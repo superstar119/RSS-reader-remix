@@ -208,9 +208,9 @@ const FeedList = () => {
             );
           })}
         </div>
-        <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
+        <div className="w-full flex justify-center items-center py-[50px] mb-[180px]">
           {fetcher.state === "loading" && (
-            <span className="loader text-[#272727] dark:text-[#c0c0c0] w-[30px] h-[30px]"></span>
+            <span className="loader text-[#272727] dark:text-[#c0c0c0]"></span>
           )}
         </div>
       </InfiniteScroller>
