@@ -217,7 +217,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
                   <Link to={context.link} target="_blank">
-                    <Icon iconName="linkOut" color="#c0c0c0" />
+                    <Icon iconName="link" color="#c0c0c0" />
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent
@@ -229,7 +229,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                     <Icon
                       iconName="return"
                       className="w-[14px] h-[20px]"
-                      color="#fff"
+                      color="#7b7b7b"
                     />
                   </span>
                 </TooltipContent>

@@ -52,16 +52,16 @@ export const ICONS = {
   ),
   link: ({ className, color }) => (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="26"
-      height="26"
-      viewBox="0 0 26 26"
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
       fill="none"
-      className={`${className} hover-icon`}
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <path
-        d="M17.875 2.4375H23.5625V8.125M22.3438 3.65625L16.25 9.75M13.8125 4.0625H6.5C5.15381 4.0625 4.0625 5.15381 4.0625 6.5V19.5C4.0625 20.8462 5.15381 21.9375 6.5 21.9375H19.5C20.8462 21.9375 21.9375 20.8462 21.9375 19.5V12.1875"
-        stroke={color ?? "white"}
+        d="M14.875 1.11353H20.5625V6.80103M19.3438 2.33228L13.25 8.42603M10.8125 2.73853H3.5C2.15381 2.73853 1.0625 3.82983 1.0625 5.17603V18.176C1.0625 19.5222 2.15381 20.6135 3.5 20.6135H16.5C17.8462 20.6135 18.9375 19.5222 18.9375 18.176V10.8635"
+        stroke={color ?? "#C0C0C0"}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

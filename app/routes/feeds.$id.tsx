@@ -81,7 +81,7 @@ const FeedDetails = () => {
           break;
         case "e":
           fetcher.submit(
-            { postId: context.postId, _action: "markAsAllRead" },
+            { postId: context.postId, _action: "markAsRead" },
             { method: "delete" }
           );
           break;

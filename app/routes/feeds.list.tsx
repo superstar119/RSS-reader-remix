@@ -83,10 +83,11 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (_action === "markAsAllRead" && user) {
     const posts = await getPostAll();
-    return await Promise.all(
+    await Promise.all(
       posts.map((item) => markAsRead(user.id, item.id, item.feedId))
     );
-  } else return null;
+  }
+  return null;
 };
 
 const FeedList = () => {
@@ -116,7 +117,7 @@ const FeedList = () => {
       case "e":
         fetcher.submit(
           { userId: context.userId, _action: "markAsAllRead" },
-          { method: "post" }
+          { method: "post", action: "/feeds/list" }
         );
         break;
       case "t":
@@ -132,7 +133,7 @@ const FeedList = () => {
 
   useEffect(() => {
     if (fetcher.state === "loading") return;
-
+    // if (fetcher.state === "idle" && fetcher.data === true) return;
     const newItems = fetcher.data?.data;
     if (newItems) {
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
@@ -149,6 +150,7 @@ const FeedList = () => {
             ? Number(fetcher.data.page) + 1
             : Number(initial.page) + 1;
           const query = `?page=${page}`;
+          console.log(initial.page);
           fetcher.load(query);
         }}
         loading={fetcher.state === "loading"}
