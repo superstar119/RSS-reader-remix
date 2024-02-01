@@ -32,13 +32,14 @@ type SubmitAction = {
   postId: string;
 };
 
-export const copyToClipboard = async (text: string) => {
+export const copyToClipboard = async (text: string, callback: () => void) => {
   if (!navigator.clipboard) {
     console.warn("Clipboard not available");
     return;
   }
   try {
     await navigator.clipboard.writeText(text);
+    callback();
   } catch (err) {
     console.error("Failed to copy to clipboard", err);
   }
@@ -51,6 +52,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
   const fetcher = useFetcher();
 
   const [state, setState] = useState<string>("empty");
+  const [tooltipText, setTooltipText] = useState("Copy link");
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     const states: { [key: string]: string } = {
@@ -198,8 +201,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       layout === "tileList"
                         ? "tiles"
                         : layout === "textList"
-                        ? "imageList"
-                        : "list"
+                          ? "imageList"
+                          : "list"
                     }
                     color="#c0c0c0"
                     onClick={() => switchLayout()}
@@ -243,11 +246,20 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
           )}
           {state === "feed-details" && (
             <TooltipProvider>
-              <Tooltip delayDuration={0}>
+              <Tooltip delayDuration={0} open={showTooltip}>
                 <TooltipTrigger>
                   <Button
                     className="!bg-transparent p-0"
-                    onClick={() => copyToClipboard(context.link)}
+                    onClick={() => {
+                      copyToClipboard(context.link, () => {
+                        setTooltipText("Copied link");
+                        setTimeout(() => setTooltipText("Copy link"), 1000);
+                        setShowTooltip(true);
+                        setTimeout(() => setShowTooltip(false), 1000);
+                      });
+                    }}
+                    onMouseOver={() => setShowTooltip(true)}
+                    onMouseOut={() => setTimeout(() => setShowTooltip(false), 1000)}
                     asChild
                   >
                     <Icon iconName="linkCopy" color="#c0c0c0" />
@@ -257,7 +269,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <Category className="text-[14px]">Copy link</Category>
+                  <Category className="text-[14px]">{tooltipText}</Category>
                   <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
                     C
                   </span>
@@ -315,8 +327,9 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             </TooltipProvider>
           )}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
