@@ -1,16 +1,11 @@
 import { FC, ReactNode, useState } from "react";
-import {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
 import { useNavigation } from "@remix-run/react";
@@ -18,8 +13,6 @@ import styles from "./tailwind.css";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar, { NavbarData } from "./components/layout/nav-bar";
 import layoutContext from "./lib/context";
-import { markAsRead } from "./models/read.server";
-import { getUser } from "./models/session.server";
 import {
   PreventFlashOnWrongTheme,
   ThemeProvider,
@@ -38,11 +31,6 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-type SubmitAction = {
-  _action: "markAsRead";
-  postId: string;
-};
-
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -53,19 +41,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return {
     theme: getTheme(),
   };
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const user = await getUser(request);
-
-  if (!user) return null;
-  const formData = await request.formData();
-  const action = Object.fromEntries(formData.entries()) as SubmitAction;
-  if (action._action === "markAsRead") {
-    const postId = action.postId;
-    return await markAsRead(user.id, postId);
-  }
-  return;
 };
 
 const Loading = () => {
@@ -137,7 +112,6 @@ const App: FC = () => (
       <SpeedInsights />
       <Loading />
       <Outlet />
-      <ScrollRestoration />
       <Scripts />
     </Layout>
   </Document>

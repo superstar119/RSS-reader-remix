@@ -62,6 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
         if (!feed) {
           const rss = await fetchRSSFeed(action.url);
+          if (rss.title === "" && !rss.posts.length) return null;
           feed = await createFeed(action.url, rss.title);
           const id = feed.id;
           const postsPromise = rss.posts.map((post) =>
@@ -182,7 +183,7 @@ const Settings = () => {
                         autoFocus
                         required
                         placeholder="https://minimal.gallery/feed/"
-                        className="rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in"
+                        className="rounded-[3px] px-[22px] py-[6px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0] h-[38px] animate-fade-in !bg-transparent"
                       />
                       <Button
                         className="!bg-transparent h-content p-0"

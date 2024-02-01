@@ -60,23 +60,18 @@ export async function getPostCount() {
   return prisma.feedPost.count({});
 }
 
-export const getPostsNumberByFeedIds = async (feedId: Array<Feed["id"]>) => {
+export const getPostsNumberByFeedIds = async (feedId: Feed["id"]) => {
   return await prisma.feedPost.count({
-    where: {
-      feedId: {
-        in: feedId,
-      },
-    },
+    where: { feedId },
   });
 };
 
 export const getUnreadPostsNumber = async (
   userId: string,
-  subscriptions: Array<FeedSubscription>
+  subscription: FeedSubscription
 ) => {
-  const feedId = subscriptions.map((subscription) => subscription.feedId);
-  const total = await getPostsNumberByFeedIds(feedId);
-  const read = await getReadNumber(userId);
+  const total = await getPostsNumberByFeedIds(subscription.feedId);
+  const read = await getReadNumber(userId, subscription.feedId);
 
   return total - read;
 };

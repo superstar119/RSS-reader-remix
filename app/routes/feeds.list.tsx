@@ -1,4 +1,9 @@
-import { ActionFunction, LoaderFunction, json } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState, useContext } from "react";
 import { FeedPost } from "@prisma/client";
@@ -28,7 +33,7 @@ import { markAsRead } from "~/models/read.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
-  if (!user) return null;
+  if (!user) return redirect("/");
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || "0");
@@ -46,12 +51,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const sidebarDataPromises = subscriptions.map(async (item) => {
     const feed = await getFeedById(item.feedId);
-    const unread = await getUnreadPostsNumber(user.id, [item]);
+    const unread = await getUnreadPostsNumber(user.id, item);
 
     return feed ? { item: feed.title, unread } : null;
   });
 
   const sidebarDataResults = await Promise.all(sidebarDataPromises);
+
   const totalUnread = sidebarDataResults.reduce(
     (sum, current) => sum + (current?.unread || 0),
     0
@@ -77,7 +83,9 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (_action === "markAsAllRead" && user) {
     const posts = await getPostAll();
-    return await Promise.all(posts.map((item) => markAsRead(user.id, item.id)));
+    return await Promise.all(
+      posts.map((item) => markAsRead(user.id, item.id, item.feedId))
+    );
   } else return null;
 };
 
@@ -106,7 +114,10 @@ const FeedList = () => {
         navigate("/settings");
         break;
       case "e":
-        navigate("/feeds/list");
+        fetcher.submit(
+          { userId: context.userId, _action: "markAsAllRead" },
+          { method: "post" }
+        );
         break;
       case "t":
         setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
@@ -155,7 +166,7 @@ const FeedList = () => {
               <Link
                 to={`/feeds/${item.id}`}
                 key={index}
-                className="hover:bg-gray-100 rounded-[8px]"
+                className="hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800"
               >
                 <div
                   className={cn(

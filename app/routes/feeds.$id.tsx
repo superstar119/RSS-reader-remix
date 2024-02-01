@@ -3,7 +3,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
@@ -53,6 +53,8 @@ const FeedDetails = () => {
   const { context, setContext } = useContext(layoutContext);
   const [theme, setTheme] = useTheme();
 
+  const fetcher = useFetcher();
+
   useEffect(() => {
     setContext({
       unread: context.unread,
@@ -77,8 +79,14 @@ const FeedDetails = () => {
         case "enter":
           window.open(context.link, "_blank");
           break;
+        case "e":
+          fetcher.submit(
+            { postId: context.postId, _action: "markAsAllRead" },
+            { method: "delete" }
+          );
+          break;
         case "c":
-          copyToClipboard(context.link, () => { });
+          copyToClipboard(context.link, () => {});
           break;
         case "s":
           navigate("/settings");

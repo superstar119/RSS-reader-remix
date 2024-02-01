@@ -63,10 +63,13 @@ model Read {
   id        String      @id   @default(cuid())
   userId    String
   postId    String
+  feedId    String
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      FeedPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
     
   @@index([id], map: "Read_id_index")
   @@index([userId], map: "read_user_id_index")
+  @@index([feedId], map: "read_feed_id_index")
   @@index([postId], map: "read_post_id_index")
+  @@index([userId, feedId, postId], map: "read_index")
 }
