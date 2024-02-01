@@ -57,6 +57,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await getUser(request);
+
   if (!user) return null;
   const formData = await request.formData();
   const action = Object.fromEntries(formData.entries()) as SubmitAction;
@@ -84,6 +85,7 @@ const Loading = () => {
 const Document: FC<DocumentProps> = ({ children, title }) => {
   const data = useLoaderData<typeof loader>();
   const [theme] = useTheme();
+
   return (
     <html lang="en" className={cn(theme)}>
       <head>

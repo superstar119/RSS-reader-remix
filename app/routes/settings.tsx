@@ -30,6 +30,7 @@ import { cn } from "~/lib/utils";
 import { fetchRSSFeed } from "~/utils/utils";
 import { FeedItem } from "~/components/layout/feed-item";
 import type { SettingSubmitAction } from "~/utils/type";
+import { ToastContainer, toast } from "react-toastify";
 
 declare global {
   interface Window {

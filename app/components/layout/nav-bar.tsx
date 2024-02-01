@@ -13,10 +13,7 @@ import { Category, Text } from "../ui/text";
 import layoutContext from "~/lib/context";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { getUser } from "~/models/session.server";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { getReadNumber, markAsRead, markAsUnRead } from "~/models/read.server";
-import { getPostAll } from "~/models/post.server";
+import { Toast } from "../ui/toast";
 
 export type NavbarData = {
   postId: string;
@@ -27,11 +24,6 @@ export type NavbarData = {
 
 type NavbarProps = HTMLAttributes<HTMLDivElement>;
 
-type SubmitAction = {
-  _action: "markAsUnRead" | "markAsAllRead";
-  postId: string;
-};
-
 export const copyToClipboard = async (text: string, callback: () => void) => {
   if (!navigator.clipboard) {
     console.warn("Clipboard not available");
@@ -39,7 +31,7 @@ export const copyToClipboard = async (text: string, callback: () => void) => {
   }
   try {
     await navigator.clipboard.writeText(text);
-    callback();
+    console.log("copied");
   } catch (err) {
     console.error("Failed to copy to clipboard", err);
   }
@@ -201,8 +193,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       layout === "tileList"
                         ? "tiles"
                         : layout === "textList"
-                          ? "imageList"
-                          : "list"
+                        ? "imageList"
+                        : "list"
                     }
                     color="#c0c0c0"
                     onClick={() => switchLayout()}
@@ -253,9 +245,9 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                     onClick={() => {
                       copyToClipboard(context.link, () => {
                         setTooltipText("Copied link");
-                        setTimeout(() => setTooltipText("Copy link"), 1000);
+                        setTimeout(() => setTooltipText("Copy link"), 2000);
                         setShowTooltip(true);
-                        setTimeout(() => setShowTooltip(false), 1000);
+                        setTimeout(() => setShowTooltip(false), 2000);
                       });
                     }}
                     onMouseOver={() => setShowTooltip(true)}
@@ -270,7 +262,12 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   sideOffset={15}
                 >
                   <Category className="text-[14px]">{tooltipText}</Category>
-                  <span className="min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center">
+                  <span
+                    className={cn(
+                      "min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center",
+                      !showTooltip ? "hidden" : ""
+                    )}
+                  >
                     C
                   </span>
                 </TooltipContent>

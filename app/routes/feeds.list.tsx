@@ -98,8 +98,8 @@ const FeedList = () => {
           layout === "tileList"
             ? "imageList"
             : layout === "imageList"
-              ? "textList"
-              : "tileList"
+            ? "textList"
+            : "tileList"
         );
         break;
       case "s":
@@ -152,15 +152,19 @@ const FeedList = () => {
         >
           {posts.map((item: any, index) => {
             return (
-              <Link to={`/feeds/${item.id}`} key={index} className="hover:bg-gray-500">
+              <Link
+                to={`/feeds/${item.id}`}
+                key={index}
+                className="hover:bg-gray-100 rounded-[8px]"
+              >
                 <div
                   className={cn(
                     "flex px-[15px] gap-[15px] items-center",
                     layout === "textList"
                       ? "py-[12px]"
                       : layout === "imageList"
-                        ? "py-[15px] flex-col"
-                        : "py-[15px]"
+                      ? "py-[15px] flex-col"
+                      : "py-[15px]"
                   )}
                 >
                   <div
@@ -169,12 +173,13 @@ const FeedList = () => {
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
-                          ? "w-full aspect-square"
-                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                        ? "w-full aspect-square"
+                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
                     )}
                     style={{
-                      backgroundImage: `url(${item.imgSrc ? item.imgSrc : preview
-                        })`,
+                      backgroundImage: `url(${
+                        item.imgSrc ? item.imgSrc : preview
+                      })`,
                     }}
                   />
                   <div className="grid gap-[5px]">
@@ -191,9 +196,7 @@ const FeedList = () => {
           })}
         </div>
         <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
-          {fetcher.state === "loading" && (
-            <span className="loader"></span>
-          )}
+          {fetcher.state === "loading" && <span className="loader"></span>}
         </div>
       </InfiniteScroller>
     </div>
