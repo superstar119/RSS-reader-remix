@@ -78,7 +78,7 @@ const FeedDetails = () => {
           window.open(context.link, "_blank");
           break;
         case "c":
-          copyToClipboard(context.link);
+          copyToClipboard(context.link, () => { });
           break;
         case "s":
           navigate("/settings");
