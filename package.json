@@ -13,6 +13,7 @@
     "deploy": "prisma generate && remix build"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^16.5.0",
     "@prisma/client": "^5.8.1",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-separator": "^1.0.3",
@@ -40,7 +41,6 @@
     "node-html-parser": "^6.1.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-draggable-list": "latest",
     "react-loading-icons": "^1.1.0",
     "react-toastify": "^10.0.4",
     "remix-themes": "^1.2.2",

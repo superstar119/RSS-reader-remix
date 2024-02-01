@@ -10,7 +10,6 @@ import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Category, Heading, Text } from "~/components/ui/text";
 import { createFeed, getFeedById, getFeedByUrl } from "~/models/feed.server";
-import DraggableList from "react-draggable-list";
 import { getUser } from "~/models/session.server";
 import { Icon } from "~/components/ui/icon";
 import { AccountItem } from "~/components/layout/account-item";
@@ -18,6 +17,14 @@ import { Button } from "~/components/ui/button";
 import { ShortcutTab } from "~/components/layout/shortcut-tab";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+  DroppableProvided,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
 
 import { createPost } from "~/models/post.server";
 import {
@@ -27,7 +34,7 @@ import {
 } from "~/models/feed-subscription.server";
 import { Theme, useTheme } from "remix-themes";
 import { cn } from "~/lib/utils";
-import { fetchRSSFeed } from "~/utils/utils";
+import { fetchRSSFeed, reorder } from "~/utils/utils";
 import { FeedItem } from "~/components/layout/feed-item";
 import type { SettingSubmitAction } from "~/utils/type";
 import { ToastContainer, toast } from "react-toastify";
@@ -104,6 +111,19 @@ const Settings = () => {
 
   const [feeds, setFeeds] = useState<Array<any>>([]);
 
+  const onDragEnd = (result: DropResult): void => {
+    if (!result.destination) {
+      return;
+    }
+
+    if (result.source.index === result.destination.index) {
+      return;
+    }
+
+    const items = reorder(feeds, result.source.index, result.destination.index);
+    setFeeds(items);
+  };
+
   useEffect(() => {
     setFeeds(
       loaderData.map((item, idx) => {
@@ -167,14 +187,44 @@ const Settings = () => {
                 className="w-full px-[16px] py-[20px] flex flex-col rounded-[3px] border-[#f1f1f1] border gap-[12px] dark:border-slate-800"
                 ref={containerRef}
               >
-                <DraggableList
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <div className="flex flex-col">
+                    <Droppable droppableId="droppable">
+                      {(droppableProvided: DroppableProvided) => (
+                        <div
+                          ref={droppableProvided.innerRef}
+                          {...droppableProvided.droppableProps}
+                        >
+                          {feeds.map((item, idx) => (
+                            <Draggable
+                              key={item.idx}
+                              draggableId={item.id}
+                              disableInteractiveElementBlocking={true}
+                              index={idx}
+                            >
+                              {(draggableProvided: DraggableProvided) => (
+                                <FeedItem
+                                  ref={draggableProvided.innerRef}
+                                  item={item}
+                                  {...draggableProvided.dragHandleProps}
+                                  {...draggableProvided.draggableProps}
+                                />
+                              )}
+                            </Draggable>
+                          ))}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                </DragDropContext>
+                {/* <DraggableList
                   itemKey="idx"
                   list={feeds}
                   onMoveEnd={(newList: any) => setFeeds(newList)}
                   container={() => containerRef.current}
                   template={FeedItem}
                   commonProps={{ fetcher: useFetcher() }}
-                />
+                /> */}
                 <settingsForm.Form method="post" action="/settings">
                   {edit ? (
                     <div className="flex justify-between hover:opacity-70 p-0 gap-[20px]">
