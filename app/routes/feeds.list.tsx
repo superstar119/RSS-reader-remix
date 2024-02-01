@@ -153,7 +153,7 @@ const FeedList = () => {
         >
           {posts.map((item: any, index) => {
             return (
-              <Link to={`/feeds/${item.id}`} key={index}>
+              <Link to={`/feeds/${item.id}`} key={index} className="hover:bg-gray-200	">
                 <div
                   className={cn(
                     "flex px-[15px] gap-[15px] items-center",
@@ -178,11 +178,11 @@ const FeedList = () => {
                         })`,
                     }}
                   />
-                  <div className="flex flex-col gap-[5px] w-full">
+                  <div className="grid gap-[5px]">
                     <Text className="truncate w-full overflow-hidden">
                       {item.title}
                     </Text>
-                    <Text className="text-[14px] text-[#c0c0c0] dark:opacity-50">
+                    <Text className="truncate text-[14px] text-[#c0c0c0] dark:opacity-50">
                       {item.author + " / " + ago(new Date(item.pubDate))}
                     </Text>
                   </div>
