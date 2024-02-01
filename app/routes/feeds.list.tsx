@@ -99,8 +99,8 @@ const FeedList = () => {
           layout === "tileList"
             ? "imageList"
             : layout === "imageList"
-            ? "textList"
-            : "tileList"
+              ? "textList"
+              : "tileList"
         );
         break;
       case "s":
@@ -160,8 +160,8 @@ const FeedList = () => {
                     layout === "textList"
                       ? "py-[12px]"
                       : layout === "imageList"
-                      ? "py-[15px] flex-col"
-                      : "py-[15px]"
+                        ? "py-[15px] flex-col"
+                        : "py-[15px]"
                   )}
                 >
                   <div
@@ -170,13 +170,12 @@ const FeedList = () => {
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
-                        ? "w-full aspect-square"
-                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                          ? "w-full aspect-square"
+                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
                     )}
                     style={{
-                      backgroundImage: `url(${
-                        item.imgSrc ? item.imgSrc : preview
-                      })`,
+                      backgroundImage: `url(${item.imgSrc ? item.imgSrc : preview
+                        })`,
                     }}
                   />
                   <div className="flex flex-col gap-[5px] w-full">
@@ -191,11 +190,11 @@ const FeedList = () => {
               </Link>
             );
           })}
-          <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
-            {fetcher.state === "loading" && (
-              <ThreeDots fill="#c0c0c0" className="w-[40px] h-[20px]" />
-            )}
-          </div>
+        </div>
+        <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
+          {fetcher.state === "loading" && (
+            <ThreeDots fill="#c0c0c0" className="w-[40px] h-[20px]" />
+          )}
         </div>
       </InfiniteScroller>
     </div>
