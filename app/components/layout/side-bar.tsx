@@ -17,9 +17,9 @@ export const Sidebar: FC<SidebarProps> = ({ items }) => {
     >
       {items.map((item, index) => (
         <div className="flex gap-[5px] items-baseline w-full" key={index}>
-          <Text className="">{item.item}</Text>
+          <Text className="truncate">{item.item}</Text>
           <sup>
-            <Text className="text-[#c0c0c0] text-[14px] dark:opacity-40">
+            <Text className="text-[#c0c0c0] trancate text-[14px] dark:opacity-40">
               {item.unread}
             </Text>
           </sup>
