@@ -18,7 +18,6 @@ import styles from "./tailwind.css";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import Navbar, { NavbarData } from "./components/layout/nav-bar";
 import layoutContext from "./lib/context";
-import { ThreeDots } from "react-loading-icons";
 import { markAsRead } from "./models/read.server";
 import { getUser } from "./models/session.server";
 import {
@@ -77,7 +76,7 @@ const Loading = () => {
   return (
     <div className="w-screen h-screen bg-white bg-opacity-40 flex justify-center items-center fixed z-[100] animate-fade-in top-0 left-0">
       {" "}
-      <ThreeDots fill="#c0c0c0" className="w-[80px]" />
+      <span className="loader"></span>
     </div>
   );
 };

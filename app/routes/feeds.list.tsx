@@ -11,7 +11,6 @@ import {
 } from "~/models/post.server";
 import { getFeedById } from "~/models/feed.server";
 
-import { ThreeDots } from "react-loading-icons";
 import ago from "s-ago";
 
 import layoutContext from "~/lib/context";
@@ -153,7 +152,7 @@ const FeedList = () => {
         >
           {posts.map((item: any, index) => {
             return (
-              <Link to={`/feeds/${item.id}`} key={index} className="hover:bg-gray-200	">
+              <Link to={`/feeds/${item.id}`} key={index} className="hover:bg-gray-500">
                 <div
                   className={cn(
                     "flex px-[15px] gap-[15px] items-center",
@@ -193,7 +192,7 @@ const FeedList = () => {
         </div>
         <div className="w-full flex justify-center items-center py-[20px] mb-[180px]">
           {fetcher.state === "loading" && (
-            <ThreeDots fill="#c0c0c0" className="w-[40px] h-[20px]" />
+            <span className="loader"></span>
           )}
         </div>
       </InfiniteScroller>
