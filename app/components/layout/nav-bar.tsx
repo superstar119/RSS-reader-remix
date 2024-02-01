@@ -259,7 +259,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                       });
                     }}
                     onMouseOver={() => setShowTooltip(true)}
-                    onMouseOut={() => setTimeout(() => setShowTooltip(false), 1000)}
+                    onMouseOut={() => setShowTooltip(false)}
                     asChild
                   >
                     <Icon iconName="linkCopy" color="#c0c0c0" />
@@ -327,9 +327,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
             </TooltipProvider>
           )}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 
