@@ -53,7 +53,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     const feed = await getFeedById(item.feedId);
     const unread = await getUnreadPostsNumber(user.id, item);
 
-    return feed ? { item: feed.title, unread } : null;
+    return feed ? { item: feed.title, unread, feedId: item.feedId } : null;
   });
 
   const sidebarDataResults = await Promise.all(sidebarDataPromises);
@@ -64,7 +64,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 
   const sidebarData = [
-    { item: "All", unread: totalUnread },
+    { item: "All", unread: totalUnread, feedId: 0 },
     ...sidebarDataResults.filter(Boolean),
   ];
 
@@ -75,19 +75,37 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+export type SubmitAction =
+  | {
+    _action: "filterPost";
+    id: string | number;
+  } | {
+    _action: "markAsAllRead";
+    id: string | number;
+  };
+
 export const action: ActionFunction = async ({ request }) => {
   const user = await getUser(request);
   const formData = await request.formData();
-
-  const _action = await formData.get("_action");
-
-  if (_action === "markAsAllRead" && user) {
-    const posts = await getPostAll();
-    await Promise.all(
-      posts.map((item) => markAsRead(user.id, item.id, item.feedId))
-    );
+  const action = Object.fromEntries(formData.entries()) as SubmitAction;
+  switch (action._action) {
+    case "filterPost": {
+      {
+        // filter feed post list by feed id
+        console.log('feed id: ', action.id);
+        return null;
+      }
+    }
+    case "markAsAllRead": {
+      if (user) {
+        const posts = await getPostAll();
+        await Promise.all(
+          posts.map((item) => markAsRead(user.id, item.id, item.feedId))
+        );
+      }
+      return null;
+    }
   }
-  return null;
 };
 
 const FeedList = () => {
@@ -107,8 +125,8 @@ const FeedList = () => {
           layout === "tileList"
             ? "imageList"
             : layout === "imageList"
-            ? "textList"
-            : "tileList"
+              ? "textList"
+              : "tileList"
         );
         break;
       case "s":
@@ -176,8 +194,8 @@ const FeedList = () => {
                     layout === "textList"
                       ? "py-[12px]"
                       : layout === "imageList"
-                      ? "py-[15px] flex-col"
-                      : "py-[15px]"
+                        ? "py-[15px] flex-col"
+                        : "py-[15px]"
                   )}
                 >
                   <div
@@ -186,13 +204,12 @@ const FeedList = () => {
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
-                        ? "w-full aspect-square"
-                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                          ? "w-full aspect-square"
+                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
                     )}
                     style={{
-                      backgroundImage: `url(${
-                        item.imgSrc ? item.imgSrc : preview
-                      })`,
+                      backgroundImage: `url(${item.imgSrc ? item.imgSrc : preview
+                        })`,
                     }}
                   />
                   <div className="grid gap-[5px]">
