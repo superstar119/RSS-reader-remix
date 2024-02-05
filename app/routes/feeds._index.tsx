@@ -8,6 +8,7 @@ import { getUserFeedSubscription } from "~/models/feed-subscription.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
   if (!user) return redirect("/");
+
   const feeds = await getUserFeedSubscription(user.id);
   if (feeds.length) return redirect("/feeds/list");
   return null;

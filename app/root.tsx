@@ -1,5 +1,11 @@
-import { FC, ReactNode, useState } from "react";
-import { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { FC, useState } from "react";
+import {
+  LinksFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -8,10 +14,13 @@ import {
   Scripts,
   useLoaderData,
 } from "@remix-run/react";
-import { useNavigation } from "@remix-run/react";
-import styles from "./tailwind.css";
+
+// import stylesheets
 import { cssBundleHref } from "@remix-run/css-bundle";
-import Navbar, { NavbarData } from "./components/layout/nav-bar";
+import styles from "./tailwind.css";
+import { Navbar } from "./components/layout/nav-bar";
+import { Toaster } from "./components/ui/sonner";
+import { Loading } from "./components/layout/loading";
 import layoutContext from "./lib/context";
 import {
   PreventFlashOnWrongTheme,
@@ -19,61 +28,52 @@ import {
   useTheme,
 } from "remix-themes";
 import { themeSessionResolver } from "./utils/session.server";
-import { cn } from "./lib/utils";
 import { SpeedInsights } from "@vercel/speed-insights/remix";
+import { ContextType, DocumentProps, LayoutProps } from "./utils/type";
+import { cn } from "./lib/utils";
+import { createThemeAction } from "remix-themes";
+import { getUser } from "./models/session.server";
+import { getUserFeedSubscription } from "./models/feed-subscription.server";
 
-interface DocumentProps {
-  children: ReactNode;
-  title?: string;
-}
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // Fetch current theme
+  const { getTheme } = await themeSessionResolver(request);
+  return json({
+    theme: getTheme(),
+  });
+};
 
-interface LayoutProps {
-  children: ReactNode;
-}
+export const action = createThemeAction(themeSessionResolver);
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { getTheme } = await themeSessionResolver(request);
-  return {
-    theme: getTheme(),
-  };
-};
-
-const Loading = () => {
-  const navigation = useNavigation();
-  const active = navigation.state !== "idle";
-
-  if (!active) return null;
-
-  return (
-    <div className="w-screen h-screen bg-white bg-opacity-40 flex justify-center items-center fixed z-[100] animate-fade-in top-0 left-0">
-      <span className="loader text-[#272727] dark:text-[#c0c0c0]"></span>
-    </div>
-  );
-};
+export const meta: MetaFunction = () => [
+  {
+    charset: "utf-8",
+    title: "RSS Feed",
+    viewport: "width=device-width,initial-scale=1",
+  },
+];
 
 const Document: FC<DocumentProps> = ({ children, title }) => {
-  const data = useLoaderData<typeof loader>();
+  const loadData = useLoaderData<typeof loader>();
   const [theme] = useTheme();
 
   return (
     <html lang="en" className={cn(theme)}>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <script src="https://app.lemonsqueezy.com/js/lemon.js"></script>
         <Meta />
-        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
-        <title>{title ? title : "RSS Feed"}</title>
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(loadData.theme)} />
       </head>
       <body>
         {children}
         <LiveReload />
+        <Toaster />
       </body>
     </html>
   );
@@ -81,7 +81,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
 
 const Layout: FC<LayoutProps> = ({ children }) => {
   const [layout, setLayout] = useState<string>("tileList");
-  const [navData, setNavData] = useState<NavbarData>({
+  const [context, setContext] = useState<ContextType>({
     userId: "",
     postId: "",
     unread: 0,
@@ -91,8 +91,8 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   const layoutValue = {
     layout,
     setLayout,
-    context: navData,
-    setContext: setNavData,
+    context: context,
+    setContext: setContext,
   };
 
   return (
@@ -105,25 +105,18 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   );
 };
 
-const App: FC = () => (
-  <Document>
-    <Layout>
-      <SpeedInsights />
-      <Loading />
-      <Outlet />
-      <Scripts />
-    </Layout>
-  </Document>
-);
-
-const AppWithProviders = () => {
-  const data = useLoaderData<typeof loader>();
-
+export default function App() {
+  const { theme } = useLoaderData<typeof loader>();
   return (
-    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/theme">
-      <App />
+    <ThemeProvider specifiedTheme={theme} themeAction="/">
+      <Document>
+        <Layout>
+          <SpeedInsights />
+          <Loading />
+          <Outlet />
+          <Scripts />
+        </Layout>
+      </Document>
     </ThemeProvider>
   );
-};
-
-export default AppWithProviders;
+}

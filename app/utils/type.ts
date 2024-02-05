@@ -1,4 +1,5 @@
 import { FeedPost } from "@prisma/client";
+import { ReactNode } from "react";
 
 export type SettingSubmitAction =
   | {
@@ -20,4 +21,30 @@ export type FeedLoaderType = {
   userId: string;
   nextId?: string;
   prevId?: string;
+};
+
+export type FeedListSubmitAction =
+  | {
+      _action: "filterPost";
+      id: string | number;
+    }
+  | {
+      _action: "markAsAllRead";
+      id: string | number;
+    };
+
+export interface DocumentProps {
+  children: ReactNode;
+  title?: string;
+}
+
+export interface LayoutProps {
+  children: ReactNode;
+}
+
+export type ContextType = {
+  postId: string;
+  userId: string;
+  link: string;
+  unread: number;
 };

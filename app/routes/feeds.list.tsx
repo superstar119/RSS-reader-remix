@@ -1,10 +1,17 @@
 import {
   ActionFunction,
   LoaderFunction,
+  MetaFunction,
   json,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
+import {
+  useLoaderData,
+  useFetcher,
+  Link,
+  useNavigate,
+  useActionData,
+} from "@remix-run/react";
 import { useEffect, useState, useContext } from "react";
 import { FeedPost } from "@prisma/client";
 
@@ -30,6 +37,9 @@ import { Text } from "~/components/ui/text";
 import preview from "../assets/preview-placeholder.png";
 import { compareByDate } from "~/utils/utils";
 import { markAsRead } from "~/models/read.server";
+import { FeedListSubmitAction } from "~/utils/type";
+
+export const meta: MetaFunction = () => [{ title: "Feeds | RSS Feed" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -52,7 +62,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const sidebarDataPromises = subscriptions.map(async (item) => {
     const feed = await getFeedById(item.feedId);
     const unread = await getUnreadPostsNumber(user.id, item);
-
     return feed ? { item: feed.title, unread, feedId: item.feedId } : null;
   });
 
@@ -75,24 +84,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export type SubmitAction =
-  | {
-    _action: "filterPost";
-    id: string | number;
-  } | {
-    _action: "markAsAllRead";
-    id: string | number;
-  };
-
 export const action: ActionFunction = async ({ request }) => {
   const user = await getUser(request);
   const formData = await request.formData();
-  const action = Object.fromEntries(formData.entries()) as SubmitAction;
+  const action = Object.fromEntries(formData.entries()) as FeedListSubmitAction;
   switch (action._action) {
     case "filterPost": {
       {
-        // filter feed post list by feed id
-        console.log('feed id: ', action.id);
         return null;
       }
     }
@@ -110,14 +108,14 @@ export const action: ActionFunction = async ({ request }) => {
 
 const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
+  const filter = useActionData<typeof action>();
 
   const navigate = useNavigate();
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
 
-  const fetcher = useFetcher<typeof loader>();
-
+  // keyboard shortcut
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key.toLowerCase()) {
       case "l":
@@ -125,8 +123,8 @@ const FeedList = () => {
           layout === "tileList"
             ? "imageList"
             : layout === "imageList"
-              ? "textList"
-              : "tileList"
+            ? "textList"
+            : "tileList"
         );
         break;
       case "s":
@@ -143,15 +141,24 @@ const FeedList = () => {
         break;
     }
   };
-
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
+  // infinite data fetching
+  const fetcher = useFetcher<typeof loader>();
+
+  const loadNext = () => {
+    const page = fetcher.data
+      ? Number(fetcher.data.page) + 1
+      : Number(initial.page + 1);
+    const query = `?page=${page}`;
+    fetcher.load(query);
+  };
+
   useEffect(() => {
     if (fetcher.state === "loading") return;
-    // if (fetcher.state === "idle" && fetcher.data === true) return;
     const newItems = fetcher.data?.data;
     if (newItems) {
       setPosts((prevPosts) => [...prevPosts, ...newItems]);
@@ -163,14 +170,7 @@ const FeedList = () => {
     <div className="relative w-full h-full">
       <Sidebar items={initial.sidebarData} />
       <InfiniteScroller
-        loadNext={() => {
-          const page = fetcher.data
-            ? Number(fetcher.data.page) + 1
-            : Number(initial.page) + 1;
-          const query = `?page=${page}`;
-          console.log(initial.page);
-          fetcher.load(query);
-        }}
+        loadNext={loadNext}
         loading={fetcher.state === "loading"}
       >
         <div
@@ -194,8 +194,8 @@ const FeedList = () => {
                     layout === "textList"
                       ? "py-[12px]"
                       : layout === "imageList"
-                        ? "py-[15px] flex-col"
-                        : "py-[15px]"
+                      ? "py-[15px] flex-col"
+                      : "py-[15px]"
                   )}
                 >
                   <div
@@ -204,12 +204,13 @@ const FeedList = () => {
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
-                          ? "w-full aspect-square"
-                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                        ? "w-full aspect-square"
+                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
                     )}
                     style={{
-                      backgroundImage: `url(${item.imgSrc ? item.imgSrc : preview
-                        })`,
+                      backgroundImage: `url(${
+                        item.imgSrc ? item.imgSrc : preview
+                      })`,
                     }}
                   />
                   <div className="grid gap-[5px]">

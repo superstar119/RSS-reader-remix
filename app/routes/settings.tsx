@@ -37,7 +37,6 @@ import { cn } from "~/lib/utils";
 import { fetchRSSFeed, reorder } from "~/utils/utils";
 import { FeedItem } from "~/components/layout/feed-item";
 import type { SettingSubmitAction } from "~/utils/type";
-import { ToastContainer, toast } from "react-toastify";
 
 declare global {
   interface Window {
@@ -46,8 +45,11 @@ declare global {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // Validate User Session
   const user = await getUser(request);
   if (!user) return redirect("/login");
+
+  // Get FeedSubscription urls by user id
   const feedSubscriptions = await getUserFeedSubscription(user.id);
   const feedPromise = feedSubscriptions.map((subscription) =>
     getFeedById(subscription.feedId)

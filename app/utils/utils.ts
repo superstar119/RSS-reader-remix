@@ -123,3 +123,25 @@ export const reorder = <TItem>(
 
   return result;
 };
+
+export const copyToClipboard = async (
+  text: string,
+  callback: (title: string, val: object) => void
+) => {
+  if (!navigator.clipboard) {
+    console.warn("Clipboard not available");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    callback("Link copied successfully", {});
+  } catch (err) {
+    callback("Failed to copy to clipboard", {
+      variant: "destructive",
+    });
+  }
+};
+
+export const generateResetToken = (email: string) => {
+  return Buffer.from(email).toString("base64url");
+};

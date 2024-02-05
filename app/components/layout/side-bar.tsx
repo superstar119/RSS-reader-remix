@@ -21,7 +21,12 @@ export const Sidebar: FC<SidebarProps> = ({ items }) => {
       style={{ height: "calc(100% - 96px)" }}
     >
       {items.map((item, index) => (
-        <sidebarForm.Form method="post" action="/feeds/list" key={index} className="w-full">
+        <sidebarForm.Form
+          method="get"
+          action="/feeds/list"
+          key={index}
+          className="w-full"
+        >
           <Input type="hidden" name="id" defaultValue={item.feedId} />
           <Button
             className="flex gap-[15px] items-baseline justify-between w-full hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800 p-[11px]"

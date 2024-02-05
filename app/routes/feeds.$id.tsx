@@ -4,33 +4,34 @@ import {
   redirect,
 } from "@remix-run/node";
 import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
-import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
+import { useEffect, useContext } from "react";
 import { Text } from "~/components/ui/text";
 import { Heading } from "~/components/ui/text";
 import { Icon } from "~/components/ui/icon";
-import { useEffect, useContext } from "react";
 import layoutContext from "~/lib/context";
+import { toast } from "sonner";
 import { getUser } from "~/models/session.server";
-import { copyToClipboard } from "~/components/layout/nav-bar";
-import { Theme, useTheme } from "remix-themes";
+import { copyToClipboard } from "~/utils/utils";
 import { FeedLoaderType } from "~/utils/type";
+import { Theme, useTheme } from "remix-themes";
 import { normalizeDate, processHtmlContent } from "~/utils/utils";
 
 import "~/assets/style.css";
-import { markAsUnRead } from "~/models/read.server";
+import { getNextRecord, getPost, getPrevRecord } from "~/models/post.server";
+import { markAsRead, markAsUnRead } from "~/models/read.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const postId = url.pathname.split("/").slice(-1);
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const postId = params.id as string;
 
   const [user, post, next, prev] = await Promise.all([
     getUser(request),
-    getPost(postId[0]),
-    getNextRecord(postId[0]),
-    getPrevRecord(postId[0]),
+    getPost(postId),
+    getNextRecord(postId),
+    getPrevRecord(postId),
   ]);
 
   if (!user) return redirect("/");
+  await markAsRead(user.id, postId, post?.feedId as string);
   return { userId: user.id, post: post, nextId: next?.id, prevId: prev?.id };
 };
 
@@ -42,16 +43,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return await markAsUnRead(user.id, postId);
 };
 
-const FeedDetails = () => {
-  const navigate = useNavigate();
+export default function FeedDetails() {
   const { post, userId, nextId, prevId } = useLoaderData<FeedLoaderType>();
+  const { context, setContext } = useContext(layoutContext);
 
+  const [theme, setTheme] = useTheme();
+  const navigate = useNavigate();
   const pubDate = post
     ? normalizeDate(post.pubDate)
     : normalizeDate(new Date().toString());
-
-  const { context, setContext } = useContext(layoutContext);
-  const [theme, setTheme] = useTheme();
 
   const fetcher = useFetcher();
 
@@ -65,7 +65,7 @@ const FeedDetails = () => {
 
     const handleKeydown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
-
+      console.log(key);
       switch (key) {
         case "escape":
           navigate("/feeds/list");
@@ -86,7 +86,7 @@ const FeedDetails = () => {
           );
           break;
         case "c":
-          copyToClipboard(context.link, () => {});
+          copyToClipboard(context.link, toast);
           break;
         case "s":
           navigate("/settings");
@@ -134,6 +134,4 @@ const FeedDetails = () => {
       </div>
     </div>
   );
-};
-
-export default FeedDetails;
+}

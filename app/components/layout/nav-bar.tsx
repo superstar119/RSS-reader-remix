@@ -1,4 +1,4 @@
-import { HTMLAttributes, FC, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { cn } from "~/lib/utils";
 import { Icon } from "../ui/icon";
 import { Link, useFetcher, useLocation } from "@remix-run/react";
@@ -13,39 +13,16 @@ import { Category, Text } from "../ui/text";
 import layoutContext from "~/lib/context";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Toast } from "../ui/toast";
+import { copyToClipboard } from "~/utils/utils";
+import { toast } from "sonner";
 
-export type NavbarData = {
-  postId: string;
-  userId: string;
-  link: string;
-  unread: number;
-};
-
-type NavbarProps = HTMLAttributes<HTMLDivElement>;
-
-export const copyToClipboard = async (text: string, callback: () => void) => {
-  if (!navigator.clipboard) {
-    console.warn("Clipboard not available");
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(text);
-    callback();
-  } catch (err) {
-    console.error("Failed to copy to clipboard", err);
-  }
-};
-
-const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
+export function Navbar() {
   const location = useLocation();
   const [theme, setTheme] = useTheme();
   const { layout, context, setLayout } = useContext(layoutContext);
   const fetcher = useFetcher();
 
   const [state, setState] = useState<string>("empty");
-  const [tooltipText, setTooltipText] = useState("Copy link");
-  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     const states: { [key: string]: string } = {
@@ -54,9 +31,11 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
       "/feeds/list": "feed-list",
       "/settings": "setting",
       "/feeds": "empty",
-      "/reset_password": "auth",
+      "/reset": "auth",
     };
     setState(states[location.pathname] || "feed-details");
+
+    if (location.pathname.startsWith("/reset/")) setState("auth");
   }, [location.pathname]);
 
   if (state === "empty") return null;
@@ -74,10 +53,8 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
     <div
       className={cn(
         "w-full h-[96px] min-h-[96px] py-[22px] flex  items-center fixed top-0 left-0 z-40",
-        state === "auth" ? "justify-center" : "justify-between px-[30px]",
-        className
+        state === "auth" ? "justify-center" : "justify-between px-[30px]"
       )}
-      {...props}
     >
       <Link to="/">
         <Icon iconName="logo" color="#000" />
@@ -145,7 +122,7 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                     >
                       <div className="relative">
                         <Icon iconName="checkmark" color="#c0c0c0" />
-                        <Text className="text-[#c0c0c0] absolute right-[-5px] bottom-0 text-[10px] font-bold">
+                        <Text className="text-[#c0c0c0] absolute left-3/4 bottom-0 text-[10px] font-bold">
                           {context.unread}
                         </Text>
                       </div>
@@ -238,20 +215,13 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
           )}
           {state === "feed-details" && (
             <TooltipProvider>
-              <Tooltip delayDuration={0} open={showTooltip}>
+              <Tooltip delayDuration={0}>
                 <TooltipTrigger>
                   <Button
                     className="!bg-transparent p-0"
                     onClick={() => {
-                      copyToClipboard(context.link, () => {
-                        setTooltipText("Copied link");
-                        setTimeout(() => setTooltipText("Copy link"), 2000);
-                        setShowTooltip(true);
-                        setTimeout(() => setShowTooltip(false), 2000);
-                      });
+                      copyToClipboard(context.link, toast);
                     }}
-                    onMouseOver={() => setShowTooltip(true)}
-                    onMouseOut={() => setShowTooltip(false)}
                     asChild
                   >
                     <Icon iconName="linkCopy" color="#c0c0c0" />
@@ -261,11 +231,10 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
                   className="flex gap-[9px] items-center text-[14px] rounded-[2px]"
                   sideOffset={15}
                 >
-                  <Category className="text-[14px]">{tooltipText}</Category>
+                  <Category className="text-[14px]">Copy Link</Category>
                   <span
                     className={cn(
-                      "min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center",
-                      !showTooltip ? "hidden" : ""
+                      "min-w-[20px] min-h-[20px] rounded-[4px] border-white border-opacity-30 bg-[#7b7b7b] border bg-opacity-10 border flex justify-center items-center items-center"
                     )}
                   >
                     C
@@ -327,6 +296,4 @@ const Navbar: FC<NavbarProps> = ({ className, ...props }) => {
       )}
     </div>
   );
-};
-
-export default Navbar;
+}

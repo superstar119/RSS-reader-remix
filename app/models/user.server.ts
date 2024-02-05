@@ -37,3 +37,13 @@ export async function verifyUser(email: User["email"], password: string) {
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
 }
+
+export async function updateUser(email: User["email"], password: string) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return prisma.user.update({
+    where: { email },
+    data: {
+      password: hashedPassword,
+    },
+  });
+}

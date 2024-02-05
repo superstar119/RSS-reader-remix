@@ -1,15 +1,22 @@
-import { useEffect, useRef } from "react";
 import { Form, Link, MetaFunction, useActionData } from "@remix-run/react";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { validateEmail } from "~/utils/utils";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { useEffect, useRef } from "react";
+
+import { generateResetToken, validateEmail } from "~/utils/utils";
+import emailjs from "@emailjs/nodejs";
+import dotenv from "dotenv";
+
 import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
+
 import { getUserByEmail } from "~/models/user.server";
 
-export const meta: MetaFunction = () => [{ title: "Reset Password | RSS Feed" }];
+export const meta: MetaFunction = () => [
+  { title: "Reset Password | RSS Feed" },
+];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -17,22 +24,39 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (!validateEmail(email)) {
     return json(
-      { errors: { email: "Email is invalid", password: null } },
+      { errors: "Email is invalid", success: "fail" },
       { status: 400 }
     );
   }
 
   const existingUser = await getUserByEmail(email);
-  if (!existingUser) {
+  if (!existingUser)
     return json(
-      {
-        errors: {
-          email: "This user wasn't registered.",
-          password: null,
-        },
-      },
+      { errors: "This user wasn't registered.", success: "fail" },
       { status: 400 }
     );
+
+  dotenv.config();
+  emailjs.init({
+    publicKey: process.env.EMAILJS_PUBLIC_KEY as string,
+    privateKey: process.env.EMAILJS_PRIVATE_KEY as string,
+  });
+  const service = process.env.EMAILJS_SERVICE_ID as string;
+  const template = process.env.EMAILJS_TEMPLATE_ID as string;
+
+  const resetToken = generateResetToken(email);
+  const resetLink = `${request.url}/${resetToken}`;
+
+  try {
+    await emailjs.send(service, template, {
+      user: email,
+      link: resetLink,
+      reply_to: "wlelaki777@gmail.com",
+    });
+
+    return json({ errors: null, success: "ok" }, { status: 200 });
+  } catch (err) {
+    return json({ errors: null, success: "fail" }, { status: 400 });
   }
 };
 
@@ -41,15 +65,22 @@ export default function ResetPassword() {
   const actionData = useActionData<typeof action>();
 
   useEffect(() => {
-    if (actionData?.errors.email) {
+    if (actionData?.errors) {
       emailRef.current?.focus();
     }
+    if (actionData?.success === "ok") {
+      toast("Email was sent successfully");
+    }
   }, [actionData]);
+
   return (
     <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
         <Heading>Forgot password?</Heading>
-        <div>Enter the email associated with your account and we’ll send you a link to reset your password.</div>
+        <div>
+          Enter the email associated with your account and we’ll send you a link
+          to reset your password.
+        </div>
 
         <Form
           className="w-full flex flex-col gap-[16px] items-start"
@@ -65,14 +96,14 @@ export default function ResetPassword() {
               autoFocus={true}
               name="email"
               ref={emailRef}
-              aria-invalid={actionData?.errors.email ? true : undefined}
+              aria-invalid={actionData?.errors ? true : undefined}
               required
               placeholder="richard@piedpiper.com"
               className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
             />
-            {actionData?.errors.email && (
+            {actionData?.errors && (
               <div className="pt-1 text-red-700 animate-fade-in">
-                {actionData.errors.email}
+                {actionData.errors}
               </div>
             )}
           </div>

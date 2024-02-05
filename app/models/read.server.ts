@@ -14,7 +14,7 @@ export const markAsRead = async (
   feedId: Read["feedId"]
 ) => {
   const readInfo = await prisma.read.findMany({
-    where: { userId, postId, feedId },
+    where: { userId, postId },
   });
   if (readInfo.length) return;
 

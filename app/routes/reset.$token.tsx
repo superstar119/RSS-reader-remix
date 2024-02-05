@@ -1,12 +1,12 @@
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { MetaFunction, json, redirect } from "@remix-run/node";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { validateEmail } from "~/utils/utils";
+
 import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { verifyUser } from "~/models/user.server";
+import { getUserByEmail, updateUser, verifyUser } from "~/models/user.server";
 import { useEffect, useRef } from "react";
 import { createUserSession, getUser } from "~/models/session.server";
 import { toast } from "sonner";
@@ -18,66 +18,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return user ? redirect("/") : null;
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const password = formData.get("password") as string;
+  const password2 = formData.get("password2") as string;
 
-  if (!validateEmail(email)) {
+  console.log(password, password2);
+
+  if (!password || password.length <= 8)
     return json(
-      { errors: { email: "Email is invalid.", password: null } },
+      { errors: "Password should be longer than 8" },
       { status: 400 }
     );
-  }
+  if (password !== password2)
+    return json({ errors: "Password is not matched." }, { status: 400 });
 
-  if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { email: null, password: "Password is required." } },
-      { status: 400 }
-    );
-  }
+  const token = params.token as string;
+  const decodedEmail = Buffer.from(token, "base64url").toString("utf-8");
+  const user = await getUserByEmail(decodedEmail);
 
-  const user = await verifyUser(email, password);
-
-  if (user === null)
-    return json(
-      { errors: { email: "User is not registered.", password: null } },
-      { status: 400 }
-    );
-
-  if (typeof user === "boolean") {
-    return json(
-      { errors: { email: null, password: "Password is invalid." } },
-      { status: 400 }
-    );
-  }
-  return createUserSession({
-    redirectTo: "/",
-    remember: false,
-    request,
-    userId: user.id,
-  });
+  if (!user) return json({ errors: "Unavailable token" }, { status: 400 });
+  await updateUser(user.email, password);
+  return json({ errors: null }, { status: 200 });
 };
 
 export default function Login() {
   const actionData = useActionData<typeof action>();
-  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (actionData) {
-      const { email, password } = actionData.errors;
-      if (email)
-        toast(actionData.errors.email, {
-          action: {
-            label: "Try again",
-            onClick: function () {
-              emailRef.current?.focus();
-            },
-          },
-        });
-      if (password)
-        toast(actionData.errors.password, {
+      const { errors } = actionData;
+      if (errors) {
+        toast(errors, {
           action: {
             label: "Try again",
             onClick: function () {
@@ -85,40 +59,42 @@ export default function Login() {
             },
           },
         });
+      } else {
+        toast("Password was reset successfully");
+        navigate("/");
+      }
     }
   }, [actionData]);
 
   return (
     <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full m-[16px] flex flex-col gap-[40px] items-start box-border">
-        <Heading>Login</Heading>
+        <Heading>Reset Password</Heading>
         <Form
           className="w-full flex flex-col gap-[16px] items-start"
           method="post"
         >
           <div className="w-full flex flex-col gap-[8px] items-start">
             <Label htmlFor="email" className="text-[16px] leading-[150%]">
-              Email address
+              New Password
             </Label>
             <Input
-              type="email"
-              id="email"
+              type="password"
               autoFocus
-              ref={emailRef}
-              name="email"
-              placeholder="richard@piedpiper.com"
+              ref={passwordRef}
+              name="password"
+              placeholder="•••••••••••"
               className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
             />
           </div>
 
           <div className="w-full flex flex-col gap-[8px] items-start">
             <Label htmlFor="password" className="text-[16px] leading-[150%]">
-              Password
+              Confirm Password
             </Label>
             <Input
               type="password"
-              name="password"
-              ref={passwordRef}
+              name="password2"
               placeholder="•••••••••••"
               className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
             />
@@ -129,27 +105,10 @@ export default function Login() {
               className="w-[150px] text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px]"
               type="submit"
             >
-              Login
+              Reset
             </Button>
-            <Link
-              to="/reset"
-              className="text-[#7b7b7b] underline p-0 font-normal"
-            >
-              Forgot password?
-            </Link>
           </div>
         </Form>
-
-        <div className="text-[#7b7b7b] text-[16px] leading-[150%] font-normal">
-          Or{" "}
-          <Link
-            className="underline p-0 text-[#7b7b7b] text-[16px] leading-[150%] font-normal"
-            to={{ pathname: "/register" }}
-          >
-            sign up
-          </Link>{" "}
-          if you don't have an account.
-        </div>
       </div>
     </div>
   );

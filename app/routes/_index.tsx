@@ -1,6 +1,5 @@
-import { User } from "@prisma/client";
-import { LoaderFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
 import { getUser } from "~/models/session.server";
 
@@ -15,8 +14,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return redirect("/feeds/list");
   }
 };
-export default function Index() {
-  const user = useLoaderData<User>();
 
-  return <>Hello, everyone</>;
+export default function Index() {
+  return <></>;
 }
