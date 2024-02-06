@@ -116,7 +116,9 @@ const getImageFromURL = async (url: string) => {
 };
 
 const getTitleFromURL = async (url: string) => {
-  const response = await fetch(url);
+  const Url = new URL(url);
+  const hostname = Url.hostname;
+  const response = await fetch(hostname);
   if (!response.ok) return null;
   const html = await response.text();
   const titleElement = parse(html).querySelector("title");
