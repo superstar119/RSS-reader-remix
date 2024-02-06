@@ -4,7 +4,6 @@ import {
   LoaderFunctionArgs,
   MetaFunction,
   json,
-  redirect,
 } from "@remix-run/node";
 import {
   Links,
@@ -29,7 +28,7 @@ import {
   useTheme,
 } from "remix-themes";
 import { themeSessionResolver } from "./utils/session.server";
-import { SpeedInsights } from "@vercel/speed-insights/remix";
+
 import { ContextType, DocumentProps, LayoutProps } from "./utils/type";
 import { cn } from "./lib/utils";
 import { createThemeAction } from "remix-themes";
@@ -111,7 +110,6 @@ export default function App() {
     <ThemeProvider specifiedTheme={theme} themeAction="/">
       <Document>
         <Layout>
-          <SpeedInsights />
           <Loading />
           <ScrollRestoration />
           <Outlet />
