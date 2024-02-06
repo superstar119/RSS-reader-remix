@@ -18,7 +18,9 @@ export type SettingActionType =
     };
 
 export type FeedLoaderType = {
-  post: FeedPost;
+  post: FeedPost & {
+    feed: any;
+  };
   userId: string;
   nextId?: string;
   prevId?: string;
