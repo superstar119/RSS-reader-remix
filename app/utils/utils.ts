@@ -121,9 +121,11 @@ const getImageSrc = async (item: string) => {
 
   let mediaElements: Array<MediaType> = [];
   if (image) {
-    const isValid = Number(image.getAttribute("width")) > PREVIEW_MIN_WIDTH;
+    let isValid: boolean = true;
+    if (image.getAttribute("width"))
+      isValid = Number(image.getAttribute("width")) > PREVIEW_MIN_WIDTH;
 
-    if (isValid === true) mediaElements.push({ type: "img", value: image });
+    if (isValid) mediaElements.push({ type: "img", value: image });
   }
   if (iframe) mediaElements.push({ type: "iframe", value: iframe });
 
