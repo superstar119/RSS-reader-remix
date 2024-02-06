@@ -1,22 +1,23 @@
-import { Feed, FeedPost, FeedSubscription, User } from "@prisma/client";
+import { Feed, FeedPost, FeedSubscription } from "@prisma/client";
 import { db as prisma } from "~/utils/db.server";
 import { getReadNumber } from "./read.server";
-import { Post } from "~/utils/type";
+import { PostType } from "~/utils/type";
 
 export async function createPost(
   feedId: Feed["id"],
   title: string,
   imgSrc: string,
+  imgSrcType: string,
   pubDate: string,
   content: string,
-  link: string,
-  author: string
+  link: string
 ) {
   return prisma.feedPost.create({
     data: {
       feedId: feedId,
       title: title,
       imgSrc: imgSrc,
+      imgSrcType: imgSrcType,
       pubDate: pubDate,
       link: link,
       content: content,
@@ -24,7 +25,7 @@ export async function createPost(
   });
 }
 
-export async function createPosts(feedId: Feed["id"], posts: Array<Post>) {
+export async function createPosts(feedId: Feed["id"], posts: Array<PostType>) {
   return prisma.feedPost.createMany({
     data: posts.map((post) => {
       return { ...post, feedId };
@@ -93,7 +94,16 @@ export const getUnreadPostsNumber = async (
 };
 
 export const getPost = async (id: FeedPost["id"]) => {
-  return prisma.feedPost.findUnique({ where: { id } });
+  return prisma.feedPost.findUnique({
+    where: { id },
+    include: {
+      feed: {
+        select: {
+          title: true,
+        },
+      },
+    },
+  });
 };
 
 export const getNextRecord = async (id: FeedPost["id"]) => {

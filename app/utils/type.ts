@@ -48,15 +48,22 @@ export type ContextType = {
   userId: string;
   link: string;
   unread: number;
+  category: string;
 };
 
-export type Post = {
+export type PostType = {
   title: string;
   imgSrc: string;
   imgSrcType: string;
   pubDate: string;
   content: string;
   link: string;
+};
+
+export type SidebarDataType = {
+  item?: string;
+  unread?: number;
+  feedId?: string;
 };
 
 export type MediaType = { type: string; value: ParsedElement };

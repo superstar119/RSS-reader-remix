@@ -8,6 +8,7 @@ const layoutContext = createContext({
     userId: "",
     unread: 0,
     link: "",
+    category: "",
   },
   setContext: (newContext: any) => {},
 });

@@ -57,6 +57,7 @@ export default function FeedDetails() {
 
   useEffect(() => {
     setContext({
+      category: context.category,
       unread: context.unread,
       userId: userId,
       postId: post.id,
@@ -112,7 +113,7 @@ export default function FeedDetails() {
       <div className="flex flex-col gap-[10px] animate-fade-in">
         <div className="flex flex-col">
           <Text className="text-[#272727] mb-[6px] dark:opacity-90">
-            {post.author}
+            {post.}
           </Text>
           <Heading>{post.title}</Heading>
         </div>

@@ -18,7 +18,4 @@ export default {
       fs: true,
     },
   },
-  // appDirectory: "app",
-  // publicPath: "/build/",
-  // serverBuildPath: "build/index.js",
 };

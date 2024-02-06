@@ -1,7 +1,12 @@
 import { parse } from "node-html-parser";
 import Parser from "rss-parser";
-import sizeOf from "image-size";
-import { MediaType, PREVIEW_MIN_WIDTH, Post, YOUTUBE_HOSTNAME } from "./type";
+
+import {
+  MediaType,
+  PostType,
+  PREVIEW_MIN_WIDTH,
+  YOUTUBE_HOSTNAME,
+} from "./type";
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
@@ -74,7 +79,7 @@ export const parseRSS = async (url: string) => {
         link,
         imgSrc,
         imgSrcType,
-      } as Post;
+      } as PostType;
     });
 
     const title = feed.title as string;
@@ -94,16 +99,6 @@ const getImageFromURL = async (url: string) => {
   return getImageSrc(html);
 };
 
-const isValidImage = async (src: string): Promise<boolean> => {
-  let isValid = true;
-  sizeOf(src, (error, dimentions) => {
-    if (error || Number(dimentions?.width) < PREVIEW_MIN_WIDTH) {
-      isValid = false;
-    }
-  });
-  return isValid;
-};
-
 const getImageSrc = async (item: string) => {
   const html = parse(item);
   const image = html.querySelector("img");
@@ -111,7 +106,7 @@ const getImageSrc = async (item: string) => {
 
   let mediaElements: Array<MediaType> = [];
   if (image) {
-    const isValid = await isValidImage(image.getAttribute("src") as string);
+    const isValid = Number(image.getAttribute("width")) > PREVIEW_MIN_WIDTH;
 
     if (isValid === true) mediaElements.push({ type: "img", value: image });
   }

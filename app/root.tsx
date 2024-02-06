@@ -12,6 +12,7 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
 
@@ -84,6 +85,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     postId: "",
     unread: 0,
     link: "",
+    category: "all",
   });
 
   const layoutValue = {
@@ -111,6 +113,7 @@ export default function App() {
         <Layout>
           <SpeedInsights />
           <Loading />
+          <ScrollRestoration />
           <Outlet />
           <Scripts />
         </Layout>

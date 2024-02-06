@@ -32,7 +32,7 @@ import { Text } from "~/components/ui/text";
 import preview from "../assets/preview-placeholder.png";
 import { compareByDate } from "~/utils/utils";
 import { markAsRead } from "~/models/read.server";
-import { FeedListSubmitAction } from "~/utils/type";
+import { FeedListSubmitAction, SidebarDataType } from "~/utils/type";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import styles from "~/assets/style.css";
 import { Icon } from "~/components/ui/icon";
@@ -50,23 +50,32 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || "0");
+
+  const category = String(url.searchParams.get("category") || "all");
   const skip = page * 10;
   const take = 10;
 
   const subscriptions = await getUserFeedSubscription(user.id);
+  const filteredSubscriptions =
+    category === "all"
+      ? subscriptions
+      : subscriptions.filter((item) => item.feedId === category);
+
   const posts = await getPosts(
-    subscriptions.map((item) => item.feedId),
+    filteredSubscriptions.map((item) => item.feedId),
     skip,
     take
   );
 
   posts.sort(compareByDate);
 
-  const sidebarDataPromises = subscriptions.map(async (item) => {
-    const feed = await getFeedById(item.feedId);
-    const unread = await getUnreadPostsNumber(user.id, item);
-    return feed ? { item: feed.title, unread, feedId: item.feedId } : null;
-  });
+  const sidebarDataPromises = subscriptions.map(
+    async (item): Promise<SidebarDataType> => {
+      const feed = await getFeedById(item.feedId);
+      const unread = await getUnreadPostsNumber(user.id, item);
+      return feed ? { item: feed.title, unread, feedId: item.feedId } : {};
+    }
+  );
 
   const sidebarDataResults = await Promise.all(sidebarDataPromises);
 
@@ -76,9 +85,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 
   const sidebarData = [
-    { item: "All", unread: totalUnread, feedId: 0 },
+    { item: "all", unread: totalUnread, feedId: "all" },
     ...sidebarDataResults.filter(Boolean),
-  ];
+  ] as Array<SidebarDataType>;
 
   return json({
     sidebarData,
@@ -92,11 +101,6 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const action = Object.fromEntries(formData.entries()) as FeedListSubmitAction;
   switch (action._action) {
-    case "filterPost": {
-      {
-        return null;
-      }
-    }
     case "markAsAllRead": {
       if (user) {
         const posts = await getPostAll();
@@ -116,7 +120,6 @@ const FeedList = () => {
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
-  const ref = useRef([]);
 
   // keyboard shortcut
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -156,18 +159,28 @@ const FeedList = () => {
     const page = fetcher.data
       ? Number(fetcher.data.page) + 1
       : Number(initial.page + 1);
-    const query = `?page=${page}`;
+    const query = `?page=${page}&&category=${context.category}`;
     fetcher.load(query);
   };
 
   useEffect(() => {
     if (fetcher.state === "loading") return;
     const newItems = fetcher.data?.data;
-    if (newItems) {
-      setPosts((prevPosts) => [...prevPosts, ...newItems]);
-    }
+    const page = fetcher.data?.page;
+
+    if (page && page > 0)
+      setPosts((prevPosts) => {
+        if (prevPosts) return prevPosts.concat(newItems);
+        return newItems;
+      });
+    else setPosts(newItems);
+
     setContext({ ...context, unread: initial.sidebarData.at(0)["unread"] });
   }, [fetcher.data?.data, fetcher.state, initial.sidebarData]);
+
+  useEffect(() => {
+    fetcher.load(`/feeds/list?category=${context.category}&page=0`);
+  }, [context.category]);
 
   return (
     <div className="relative w-full h-full">
@@ -184,65 +197,68 @@ const FeedList = () => {
               : "flex flex-col gap-[10px]"
           )}
         >
-          {posts.map((item: any, index) => {
-            return (
-              <Link
-                to={`/feeds/${item.id}`}
-                key={index}
-                className="hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800"
-              >
-                <div
-                  className={cn(
-                    "flex px-[15px] gap-[15px] items-center",
-                    layout === "textList"
-                      ? "py-[12px]"
-                      : layout === "imageList"
-                      ? "py-[15px] flex-col"
-                      : "py-[15px]"
-                  )}
+          {posts &&
+            posts.map((item: any, index) => {
+              return (
+                <Link
+                  to={`/feeds/${item.id}`}
+                  key={index}
+                  className="hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800"
                 >
                   <div
                     className={cn(
-                      " bg-cover bg-center rounded-[3px] relative",
+                      "flex px-[15px] gap-[15px] items-center",
                       layout === "textList"
-                        ? "hidden"
+                        ? "py-[12px]"
                         : layout === "imageList"
-                        ? "w-full aspect-square"
-                        : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                        ? "py-[15px] flex-col"
+                        : "py-[15px]"
                     )}
-                    style={{
-                      backgroundImage: `url(${
-                        (item.imgSrc && item.imgSrcType === "img") ||
-                        item.imgSrcType === "youtube"
-                          ? item.imgSrc
-                          : preview
-                      })`,
-                    }}
                   >
-                    {item.imgSrcType === "youtube" && (
-                      <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
-                        <Icon
-                          iconName="youtube"
-                          className={
-                            layout === "imageList" ? "scale-110" : "scale-[40%]"
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
+                    <div
+                      className={cn(
+                        " bg-cover bg-center rounded-[3px] relative",
+                        layout === "textList"
+                          ? "hidden"
+                          : layout === "imageList"
+                          ? "w-full aspect-square"
+                          : "w-[60px] min-w-[60px] min-h-[60px] h-[60px]"
+                      )}
+                      style={{
+                        backgroundImage: `url(${
+                          (item.imgSrc && item.imgSrcType === "img") ||
+                          item.imgSrcType === "youtube"
+                            ? item.imgSrc
+                            : preview
+                        })`,
+                      }}
+                    >
+                      {item.imgSrcType === "youtube" && (
+                        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
+                          <Icon
+                            iconName="youtube"
+                            className={
+                              layout === "imageList"
+                                ? "scale-110"
+                                : "scale-[40%]"
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="grid gap-[5px]">
-                    <Text className="truncate w-full overflow-hidden">
-                      {item.title}
-                    </Text>
-                    <Text className="truncate text-[14px] text-[#c0c0c0] dark:opacity-50">
-                      {item.feed.title + " / " + ago(new Date(item.pubDate))}
-                    </Text>
+                    <div className="grid gap-[5px]">
+                      <Text className="truncate w-full overflow-hidden">
+                        {item.title}
+                      </Text>
+                      <Text className="truncate text-[14px] text-[#c0c0c0] dark:opacity-50">
+                        {item.feed.title + " / " + ago(new Date(item.pubDate))}
+                      </Text>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
         </div>
         <div className="w-full flex justify-center items-center py-[50px] mb-[180px]">
           {fetcher.state === "loading" && (

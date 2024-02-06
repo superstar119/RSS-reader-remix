@@ -120,9 +120,9 @@ export function Navbar() {
                       value="markAsAllRead"
                       name="_action"
                     >
-                      <div className="relative">
+                      <div className="relative text-[#c0c0c0] hover:text-[#272727] dark:hover:text-[#fff]">
                         <Icon iconName="checkmark" color="#c0c0c0" />
-                        <Text className="text-[#c0c0c0] absolute left-3/4 bottom-0 text-[10px] font-bold">
+                        <Text className="text-inherit absolute left-3/4 bottom-0 text-[10px] font-bold transition-all transition-duration-500">
                           {context.unread}
                         </Text>
                       </div>
