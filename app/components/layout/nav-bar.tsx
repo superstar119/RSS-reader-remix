@@ -122,7 +122,7 @@ export function Navbar() {
                     >
                       <div className="relative text-[#c0c0c0] hover:text-[#272727] dark:hover:text-[#fff]">
                         <Icon iconName="checkmark" color="#c0c0c0" />
-                        <Text className="text-inherit absolute left-3/4 bottom-0 text-[10px] font-bold transition-all transition-duration-500">
+                        <Text className="text-inherit absolute left-3/4 bottom-0 text-[10px] font-bold transition-all transition-duration-500 hover:!text-[#c0c0c0]">
                           {context.unread}
                         </Text>
                       </div>

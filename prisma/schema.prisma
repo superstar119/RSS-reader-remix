@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL") // uses connection pooling
+  url = env("DATABASE_URL_PRISMA_URL") // uses connection pooling
   
 }
 
@@ -14,6 +14,7 @@ model User {
   password          String
   feedSubscription  FeedSubscription[]
   read              Read[]
+  
 
   @@index([id], map: "user_index")
 }
