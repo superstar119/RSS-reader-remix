@@ -1,5 +1,6 @@
 import { parse } from "node-html-parser";
 import Parser from "rss-parser";
+import he from "he";
 
 import {
   MediaType,
@@ -95,10 +96,7 @@ export const parseRSS = async (url: string) => {
       } as PostType;
     });
 
-    console.log(getTitleFromURL((feed.link || feed.feedUrl) as string));
-    const title = feed.title
-      ? feed.title
-      : await getTitleFromURL((feed.link || feed.feedUrl) as string);
+    const title = await getTitleFromURL((feed.link || feed.feedUrl) as string);
     const posts = await Promise.all(postsPromise);
 
     return { title, posts };
@@ -115,14 +113,16 @@ const getImageFromURL = async (url: string) => {
   return getImageSrc(html);
 };
 
-const getTitleFromURL = async (url: string) => {
+const getTitleFromURL = async (url: string): Promise<string> => {
   const Url = new URL(url);
-  const hostname = Url.hostname;
-  const response = await fetch(hostname);
-  if (!response.ok) return null;
+  const hostname = await Url.host;
+  const protocol = await Url.protocol;
+  const response = await fetch(protocol.concat("//", hostname));
+  if (!response.ok) return await Url.hostname;
   const html = await response.text();
   const titleElement = parse(html).querySelector("title");
-  return titleElement?.innerText as string;
+  const title = he.decode(titleElement?.innerHTML as string);
+  return title as string;
 };
 
 const getImageSrc = async (item: string) => {
