@@ -8,7 +8,7 @@ import {
 } from "@remix-run/node";
 import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState, useContext, useRef } from "react";
-import { FeedPost } from "@prisma/client";
+import { FeedPost, FeedSubscription } from "@prisma/client";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
 import {
@@ -50,8 +50,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || "0");
-
   const category = String(url.searchParams.get("category") || "all");
+
   const skip = page * 10;
   const take = 10;
 
@@ -59,10 +59,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   const filteredSubscriptions =
     category === "all"
       ? subscriptions
-      : subscriptions.filter((item) => item.feedId === category);
+      : subscriptions.filter(
+          (item: FeedSubscription) => item.feedId === category
+        );
 
   const posts = await getPosts(
-    filteredSubscriptions.map((item) => item.feedId),
+    filteredSubscriptions.map((item: FeedSubscription) => item.feedId),
     skip,
     take
   );
@@ -70,7 +72,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   posts.sort(compareByDate);
 
   const sidebarDataPromises = subscriptions.map(
-    async (item): Promise<SidebarDataType> => {
+    async (item: FeedSubscription): Promise<SidebarDataType> => {
       const feed = await getFeedById(item.feedId);
       const unread = await getUnreadPostsNumber(user.id, item);
       return feed ? { item: feed.title, unread, feedId: item.feedId } : {};
@@ -80,7 +82,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const sidebarDataResults = await Promise.all(sidebarDataPromises);
 
   const totalUnread = sidebarDataResults.reduce(
-    (sum, current) => sum + (current?.unread || 0),
+    (sum: number, current: SidebarDataType) => sum + (current?.unread || 0),
     0
   );
 
@@ -105,7 +107,9 @@ export const action: ActionFunction = async ({ request }) => {
       if (user) {
         const posts = await getPostAll();
         await Promise.all(
-          posts.map((item) => markAsRead(user.id, item.id, item.feedId))
+          posts.map((item: FeedPost) =>
+            markAsRead(user.id, item.id, item.feedId)
+          )
         );
       }
       return null;
@@ -114,13 +118,12 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const FeedList = () => {
-  const initial = useLoaderData<typeof loader>();
-
   const navigate = useNavigate();
-  const { layout, setLayout, context, setContext } = useContext(layoutContext);
-  const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
-
+  const loaderData = useLoaderData<typeof loader>();
+  const { layout, setLayout, context, setContext } = useContext(layoutContext);
+  const [posts, setPosts] = useState<FeedPost[]>(loaderData.data);
+  const markFetcher = useFetcher();
   // keyboard shortcut
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key.toLowerCase()) {
@@ -137,7 +140,7 @@ const FeedList = () => {
         navigate("/settings");
         break;
       case "e":
-        fetcher.submit(
+        markFetcher.submit(
           { userId: context.userId, _action: "markAsAllRead" },
           { method: "post", action: "/feeds/list" }
         );
@@ -158,13 +161,14 @@ const FeedList = () => {
   const loadNext = () => {
     const page = fetcher.data
       ? Number(fetcher.data.page) + 1
-      : Number(initial.page + 1);
+      : Number(loaderData.page + 1);
     const query = `?page=${page}&&category=${context.category}`;
     fetcher.load(query);
   };
 
   useEffect(() => {
     if (fetcher.state === "loading") return;
+    console.log();
     const newItems = fetcher.data?.data;
     const page = fetcher.data?.page;
 
@@ -175,8 +179,8 @@ const FeedList = () => {
       });
     else setPosts(newItems);
 
-    setContext({ ...context, unread: initial.sidebarData.at(0)["unread"] });
-  }, [fetcher.data?.data, fetcher.state, initial.sidebarData]);
+    setContext({ ...context, unread: loaderData.sidebarData.at(0)["unread"] });
+  }, [fetcher.data?.data, fetcher.state, loaderData.sidebarData]);
 
   useEffect(() => {
     fetcher.load(`/feeds/list?category=${context.category}&page=0`);
@@ -184,7 +188,7 @@ const FeedList = () => {
 
   return (
     <div className="relative w-full h-full">
-      <Sidebar items={initial.sidebarData} />
+      <Sidebar items={loaderData.sidebarData} />
       <InfiniteScroller
         loadNext={loadNext}
         loading={fetcher.state === "loading"}
@@ -207,12 +211,12 @@ const FeedList = () => {
                 >
                   <div
                     className={cn(
-                      "flex px-[15px] gap-[15px] items-center",
+                      "flex px-[15px]  items-center gap-[15px]",
                       layout === "textList"
                         ? "py-[12px]"
                         : layout === "imageList"
-                        ? "py-[15px] flex-col"
-                        : "py-[15px]"
+                        ? "py-[15px] flex-col items-start"
+                        : "py-[15px] "
                     )}
                   >
                     <div

@@ -11,7 +11,6 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
 
@@ -111,7 +110,7 @@ export default function App() {
       <Document>
         <Layout>
           <Loading />
-          <ScrollRestoration />
+
           <Outlet />
           <Scripts />
         </Layout>

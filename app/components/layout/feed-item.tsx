@@ -8,6 +8,7 @@ import { Icon } from "../ui/icon";
 
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 type FeedItemProps = {
   item: any;

@@ -71,7 +71,7 @@ export function Navbar() {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <fetcher.Form
+                  {/* <fetcher.Form
                     className="!bg-transparent p-0"
                     method="delete"
                     action={`/feeds/${context.postId}`}
@@ -81,15 +81,24 @@ export function Navbar() {
                       name="postId"
                       defaultValue={context.postId}
                     />
-                    <button
+                    <Input type="hidden" name="_action" value="markAsAllRead" />
+                    <Button
                       className="!bg-transparent p-0 block"
                       type="submit"
-                      value="markAsUnRead"
-                      name="_action"
-                    >
-                      <Icon iconName="checkmark" color="#c0c0c0" />
-                    </button>
-                  </fetcher.Form>
+                      asChild
+                    > */}
+                  <Icon
+                    iconName="checkmark"
+                    color="#c0c0c0"
+                    onClick={async () => {
+                      await fetcher.submit(
+                        { postId: context.postId, _action: "markAsUnread" },
+                        { method: "delete", action: `/feeds/${context.postId}` }
+                      );
+                    }}
+                  />
+                  {/* </Button>
+                  </fetcher.Form> */}
                 </TooltipTrigger>
                 <TooltipContent className="flex gap-[9px] items-center text-[14px] rounded-[2px]">
                   <Category className="text-[14px]">Mark as unread</Category>
@@ -104,30 +113,20 @@ export function Navbar() {
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger>
-                  <fetcher.Form
-                    className="!bg-transparent p-0"
-                    method="post"
-                    action="/feeds/list"
+                  <div
+                    className="relative text-[#c0c0c0] hover:text-[#272727] dark:hover:text-[#fff]"
+                    onClick={async () => {
+                      await fetcher.submit(
+                        { userId: context.userId, _action: "markAsAllRead" },
+                        { method: "post", action: `/feeds/list` }
+                      );
+                    }}
                   >
-                    <Input
-                      type="hidden"
-                      name="userId"
-                      defaultValue={context.userId}
-                    />
-                    <button
-                      className="!bg-transparent p-0"
-                      type="submit"
-                      value="markAsAllRead"
-                      name="_action"
-                    >
-                      <div className="relative text-[#c0c0c0] hover:text-[#272727] dark:hover:text-[#fff]">
-                        <Icon iconName="checkmark" color="#c0c0c0" />
-                        <Text className="text-inherit absolute left-3/4 bottom-0 text-[10px] font-bold transition-all transition-duration-500 hover:!text-[#c0c0c0]">
-                          {context.unread}
-                        </Text>
-                      </div>
-                    </button>
-                  </fetcher.Form>
+                    <Icon iconName="checkmark" color="#c0c0c0" />
+                    <Text className="text-inherit absolute left-3/4 bottom-0 text-[10px] font-bold transition-all transition-duration-500 hover:!text-[#c0c0c0]">
+                      {context.unread}
+                    </Text>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent
                   className="flex gap-[9px] items-center text-[14px] rounded-[2px]"

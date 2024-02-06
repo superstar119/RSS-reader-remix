@@ -64,7 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Get FeedSubscription urls by user id
   const feedSubscriptions = await getUserFeedSubscription(user.id);
-  const feedPromise = feedSubscriptions.map((subscription) =>
+  const feedPromise = feedSubscriptions.map((subscription: any) =>
     getFeedById(subscription.feedId)
   );
   const feed = await Promise.all(feedPromise);
