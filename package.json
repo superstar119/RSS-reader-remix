@@ -13,9 +13,7 @@
     "deploy": "prisma generate && remix build"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.1.0",
     "@emailjs/nodejs": "^2.2.0",
-    "@extractus/feed-extractor": "^7.0.9",
     "@hello-pangea/dnd": "^16.5.0",
     "@lemonsqueezy/lemonsqueezy.js": "^1.2.5",
     "@prisma/client": "^5.8.1",
@@ -29,19 +27,12 @@
     "@remix-run/node": "^2.5.0",
     "@remix-run/react": "^2.5.0",
     "@remix-run/serve": "^2.5.0",
-    "@types/jsdom": "^21.1.6",
-    "@types/xml2js": "^0.4.14",
-    "@vercel/remix": "^2.5.1",
-    "@vercel/speed-insights": "^1.0.8",
     "awesome-snackbar": "^2.0.7",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cross-env": "^7.0.3",
-    "fast-xml-parser": "^4.3.4",
-    "image-size": "^1.1.1",
     "isbot": "^4.1.0",
-    "jsdom": "^24.0.0",
     "lucide-react": "^0.311.0",
     "mongoose": "^8.1.0",
     "next-themes": "^0.2.1",
@@ -54,8 +45,7 @@
     "s-ago": "^2.2.0",
     "sonner": "^1.4.0",
     "tailwind-merge": "^2.2.0",
-    "tailwindcss-animate": "^1.0.7",
-    "xml2js": "^0.6.2"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.5.0",
