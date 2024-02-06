@@ -86,7 +86,10 @@ export const parseRSS = async (url: string) => {
       } as PostType;
     });
 
-    const title = feed.title as string;
+    console.log(getTitleFromURL((feed.link || feed.feedUrl) as string));
+    const title = feed.title
+      ? feed.title
+      : await getTitleFromURL((feed.link || feed.feedUrl) as string);
     const posts = await Promise.all(postsPromise);
 
     return { title, posts };
@@ -101,6 +104,14 @@ const getImageFromURL = async (url: string) => {
   if (!response.ok) return null;
   const html = await response.text();
   return getImageSrc(html);
+};
+
+const getTitleFromURL = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) return null;
+  const html = await response.text();
+  const titleElement = parse(html).querySelector("title");
+  return titleElement?.innerText as string;
 };
 
 const getImageSrc = async (item: string) => {
