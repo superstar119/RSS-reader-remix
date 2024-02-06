@@ -27,7 +27,11 @@ export const parseRSS = async (url: string) => {
       },
     });
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: new Headers({
+        "content-Type": "text/xml",
+      }),
+    });
     if (!response.ok) return { title: "", posts: [] };
     const payload = await response.text();
     const feed = await parser.parseString(payload);
