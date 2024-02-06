@@ -1,21 +1,13 @@
-import {
-  FC,
-  HTMLAttributes,
-  MouseEventHandler,
-  TouchEventHandler,
-  useEffect,
-  useState,
-  Component,
-  forwardRef,
-} from "react";
+import { HTMLAttributes, useEffect, useState, forwardRef } from "react";
+import { useFetcher } from "@remix-run/react";
+
+import { Separator } from "@radix-ui/react-separator";
+import { Input } from "../ui/input";
 import { Text } from "../ui/text";
 import { Icon } from "../ui/icon";
-import { Separator } from "@radix-ui/react-separator";
+
 import { cn } from "~/lib/utils";
-import { Feed } from "@prisma/client";
-import { FormProps, SubmitOptions, useFetcher } from "@remix-run/react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { toast } from "sonner";
 
 type FeedItemProps = {
   item: any;
@@ -25,6 +17,30 @@ export const FeedItem = forwardRef<HTMLDivElement, FeedItemProps>(
   ({ item, ...props }, ref) => {
     const [hover, setHover] = useState<boolean>(false);
     const fetcher = useFetcher();
+
+    useEffect(() => {
+      if (fetcher.state === "idle") {
+        const response = fetcher.data as {
+          _action?: string;
+          errors?: string;
+        };
+        if (response?.errors === "none") {
+          toast("Feed is deleted succssfully.", {
+            action: {
+              label: "Dismiss",
+              onClick: () => {},
+            },
+          });
+        } else if (typeof response?.errors === "string") {
+          toast(response.errors, {
+            action: {
+              label: "Dismiss",
+              onClick: () => {},
+            },
+          });
+        }
+      }
+    });
 
     return (
       <div

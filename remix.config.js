@@ -2,6 +2,7 @@
 export default {
   tailwind: true,
   postcss: true,
+
   browserNodeBuiltinsPolyfill: {
     modules: {
       stream: true,
@@ -14,6 +15,7 @@ export default {
       path: true,
       os: true,
       crypto: true,
+      fs: true,
     },
   },
   // appDirectory: "app",

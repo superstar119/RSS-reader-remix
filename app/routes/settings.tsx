@@ -3,13 +3,25 @@ import {
   LoaderFunctionArgs,
   redirect,
   ActionFunctionArgs,
+  json,
 } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
-import { FC, useEffect, useState, useRef } from "react";
+import {
+  Link,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
+import { useEffect, useState, useRef } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Category, Heading, Text } from "~/components/ui/text";
-import { createFeed, getFeedById, getFeedByUrl } from "~/models/feed.server";
+import {
+  createFeed,
+  getFeedById,
+  getFeedByUrl,
+  updateFeed,
+} from "~/models/feed.server";
 import { getUser } from "~/models/session.server";
 import { Icon } from "~/components/ui/icon";
 import { AccountItem } from "~/components/layout/account-item";
@@ -26,17 +38,18 @@ import {
   DraggableProvided,
 } from "@hello-pangea/dnd";
 
-import { createPost } from "~/models/post.server";
+import { createPosts } from "~/models/post.server";
+import { Theme, useTheme } from "remix-themes";
 import {
   createFeedSubscription,
   deleteFeedSubscription,
   getUserFeedSubscription,
 } from "~/models/feed-subscription.server";
-import { Theme, useTheme } from "remix-themes";
 import { cn } from "~/lib/utils";
-import { fetchRSSFeed, reorder } from "~/utils/utils";
+import { parseRSS, reorder } from "~/utils/utils";
+import type { SettingActionType } from "~/utils/type";
 import { FeedItem } from "~/components/layout/feed-item";
-import type { SettingSubmitAction } from "~/utils/type";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -59,45 +72,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  // Validate User session
   const user = await getUser(request);
   if (!user) return redirect("/login");
 
   const formData = await request.formData();
-  const action = Object.fromEntries(formData.entries()) as SettingSubmitAction;
+  const action = Object.fromEntries(formData.entries()) as SettingActionType;
+
   switch (action._action) {
     case "addFeed": {
-      {
-        let feed = await getFeedByUrl(action.url);
-
-        if (!feed) {
-          const rss = await fetchRSSFeed(action.url);
-          if (rss.title === "" && !rss.posts.length) return null;
-          feed = await createFeed(action.url, rss.title);
-          const id = feed.id;
-          const postsPromise = rss.posts.map((post) =>
-            createPost(
-              id,
-              post.title,
-              post.imgSrc,
-              post.pubDate,
-              post.content,
-              post.link,
-              rss.title
-            )
-          );
-          await Promise.all(postsPromise);
-        }
-        await createFeedSubscription(user.id, feed.id);
-        return feed;
+      let feed = await getFeedByUrl(action.url);
+      if (!feed || feed.updatedAt.toString() !== Date.now().toString()) {
+        const rss = await parseRSS(action.url);
+        if (rss.title === "" && !rss.posts.length)
+          return json({
+            errors: "Something went wrong. Try again.",
+          });
+        if (!feed) feed = await createFeed(action.url, rss.title);
+        feed = await updateFeed(action.url, rss.title);
+        await createPosts(feed.id, rss.posts);
       }
+      await createFeedSubscription(user.id, feed.id);
+      return json({ errors: "none" });
     }
     case "deleteFeed": {
       const feed = await getFeedById(action.id);
-      if (feed) {
-        await deleteFeedSubscription(feed.id, user.id);
-        return true;
-      }
-      return false;
+      if (feed) await deleteFeedSubscription(feed.id, user.id);
+      return json({ errors: "none" });
     }
   }
 };
@@ -137,6 +138,25 @@ const Settings = () => {
   useEffect(() => {
     if (settingsForm.state === "idle") {
       setEdit(false);
+      const response = settingsForm.data as {
+        _action?: string;
+        errors?: string;
+      };
+      if (response?.errors === "none") {
+        toast("Feed is added succssfully.", {
+          action: {
+            label: "Dismiss",
+            onClick: () => {},
+          },
+        });
+      } else if (typeof response?.errors === "string") {
+        toast(response.errors, {
+          action: {
+            label: "Dismiss",
+            onClick: () => {},
+          },
+        });
+      }
     }
   }, [settingsForm]);
 
@@ -219,14 +239,7 @@ const Settings = () => {
                     </Droppable>
                   </div>
                 </DragDropContext>
-                {/* <DraggableList
-                  itemKey="idx"
-                  list={feeds}
-                  onMoveEnd={(newList: any) => setFeeds(newList)}
-                  container={() => containerRef.current}
-                  template={FeedItem}
-                  commonProps={{ fetcher: useFetcher() }}
-                /> */}
+
                 <settingsForm.Form method="post" action="/settings">
                   {edit ? (
                     <div className="flex justify-between hover:opacity-70 p-0 gap-[20px]">

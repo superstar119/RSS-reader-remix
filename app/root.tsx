@@ -32,8 +32,6 @@ import { SpeedInsights } from "@vercel/speed-insights/remix";
 import { ContextType, DocumentProps, LayoutProps } from "./utils/type";
 import { cn } from "./lib/utils";
 import { createThemeAction } from "remix-themes";
-import { getUser } from "./models/session.server";
-import { getUserFeedSubscription } from "./models/feed-subscription.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Fetch current theme
@@ -97,7 +95,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 
   return (
     <layoutContext.Provider value={layoutValue}>
-      <div className="dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-center items-center">
+      <div className="dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-start items-center">
         <Navbar />
         {children}
       </div>

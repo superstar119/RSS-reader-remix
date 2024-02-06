@@ -18,6 +18,13 @@ export async function createFeed(
   return prisma.feed.create({ data: { url, title: title || url } });
 }
 
+export async function updateFeed(url: Feed["url"], title: Feed["title"]) {
+  return prisma.feed.update({
+    where: { url },
+    data: { title },
+  });
+}
+
 export async function deleteFeed(id: Feed["id"]) {
   await prisma.feed.delete({
     where: { id },

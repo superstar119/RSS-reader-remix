@@ -1,18 +1,13 @@
 import {
   ActionFunction,
+  LinksFunction,
   LoaderFunction,
   MetaFunction,
   json,
   redirect,
 } from "@remix-run/node";
-import {
-  useLoaderData,
-  useFetcher,
-  Link,
-  useNavigate,
-  useActionData,
-} from "@remix-run/react";
-import { useEffect, useState, useContext } from "react";
+import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { FeedPost } from "@prisma/client";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
@@ -38,8 +33,16 @@ import preview from "../assets/preview-placeholder.png";
 import { compareByDate } from "~/utils/utils";
 import { markAsRead } from "~/models/read.server";
 import { FeedListSubmitAction } from "~/utils/type";
+import { cssBundleHref } from "@remix-run/css-bundle";
+import styles from "~/assets/style.css";
+import { Icon } from "~/components/ui/icon";
 
 export const meta: MetaFunction = () => [{ title: "Feeds | RSS Feed" }];
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -108,12 +111,12 @@ export const action: ActionFunction = async ({ request }) => {
 
 const FeedList = () => {
   const initial = useLoaderData<typeof loader>();
-  const filter = useActionData<typeof action>();
 
   const navigate = useNavigate();
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(initial.data);
   const [theme, setTheme] = useTheme();
+  const ref = useRef([]);
 
   // keyboard shortcut
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -200,7 +203,7 @@ const FeedList = () => {
                 >
                   <div
                     className={cn(
-                      " bg-cover bg-center rounded-[3px]",
+                      " bg-cover bg-center rounded-[3px] relative",
                       layout === "textList"
                         ? "hidden"
                         : layout === "imageList"
@@ -209,16 +212,31 @@ const FeedList = () => {
                     )}
                     style={{
                       backgroundImage: `url(${
-                        item.imgSrc ? item.imgSrc : preview
+                        (item.imgSrc && item.imgSrcType === "img") ||
+                        item.imgSrcType === "youtube"
+                          ? item.imgSrc
+                          : preview
                       })`,
                     }}
-                  />
+                  >
+                    {item.imgSrcType === "youtube" && (
+                      <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
+                        <Icon
+                          iconName="youtube"
+                          className={
+                            layout === "imageList" ? "scale-110" : "scale-[40%]"
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <div className="grid gap-[5px]">
                     <Text className="truncate w-full overflow-hidden">
                       {item.title}
                     </Text>
                     <Text className="truncate text-[14px] text-[#c0c0c0] dark:opacity-50">
-                      {item.author + " / " + ago(new Date(item.pubDate))}
+                      {item.feed.title + " / " + ago(new Date(item.pubDate))}
                     </Text>
                   </div>
                 </div>

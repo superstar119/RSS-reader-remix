@@ -1,6 +1,7 @@
 import { Feed, FeedPost, FeedSubscription, User } from "@prisma/client";
 import { db as prisma } from "~/utils/db.server";
 import { getReadNumber } from "./read.server";
+import { Post } from "~/utils/type";
 
 export async function createPost(
   feedId: Feed["id"],
@@ -19,8 +20,16 @@ export async function createPost(
       pubDate: pubDate,
       link: link,
       content: content,
-      author: author,
     },
+  });
+}
+
+export async function createPosts(feedId: Feed["id"], posts: Array<Post>) {
+  return prisma.feedPost.createMany({
+    data: posts.map((post) => {
+      return { ...post, feedId };
+    }),
+    skipDuplicates: true,
   });
 }
 
@@ -45,6 +54,13 @@ export async function getPosts(
     where: {
       feedId: {
         in: feedId,
+      },
+    },
+    include: {
+      feed: {
+        select: {
+          title: true,
+        },
       },
     },
     skip: skip,

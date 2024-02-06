@@ -1,7 +1,8 @@
 import { FeedPost } from "@prisma/client";
 import { ReactNode } from "react";
+import { HTMLElement as ParsedElement } from "node-html-parser";
 
-export type SettingSubmitAction =
+export type SettingActionType =
   | {
       _action: "addFeed";
       url: string;
@@ -48,3 +49,17 @@ export type ContextType = {
   link: string;
   unread: number;
 };
+
+export type Post = {
+  title: string;
+  imgSrc: string;
+  imgSrcType: string;
+  pubDate: string;
+  content: string;
+  link: string;
+};
+
+export type MediaType = { type: string; value: ParsedElement };
+
+export const PREVIEW_MIN_WIDTH = 200;
+export const YOUTUBE_HOSTNAME = "www.youtube.com";

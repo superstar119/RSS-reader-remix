@@ -1,5 +1,7 @@
 import { parse } from "node-html-parser";
 import Parser from "rss-parser";
+import sizeOf from "image-size";
+import { MediaType, PREVIEW_MIN_WIDTH, Post, YOUTUBE_HOSTNAME } from "./type";
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
@@ -9,50 +11,127 @@ export const compareByDate = (a: any, b: any): number => {
   return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
 };
 
-export const fetchRSSFeed = async (url: string) => {
+export const parseRSS = async (url: string) => {
   try {
     const parser = new Parser({
       customFields: {
         item: [
           ["content:encoded", "contentEncoded"],
           ["description", "description"],
-          ["dc:creator", "author", { keepArray: true }],
         ],
       },
     });
-    const feed = await parser.parseURL(url);
 
-    const posts = feed.items.map((item) => {
+    const response = await fetch(url);
+    if (!response.ok) return { title: "", posts: [] };
+    const payload = await response.text();
+    const feed = await parser.parseString(payload);
+
+    const postsPromise = feed.items.map(async (item) => {
+      const title = item.title as string;
+      const pubDate = item.pubDate as string;
+      const link = item.link as string;
+
+      let content = (
+        item.contentEncoded
+          ? item.contentEncoded
+          : item.content
+          ? item.content
+          : item.description
+      ) as string;
+
+      let imgSrc: string, imgSrcType: string;
+      let preview = await getImageSrc(content);
+      if (preview) {
+        imgSrc = preview.src;
+        imgSrcType = preview.type;
+      } else {
+        preview = await getImageFromURL(link);
+        if (preview) {
+          imgSrc = preview.src;
+          imgSrcType = preview.type;
+        } else {
+          imgSrc = "";
+          imgSrcType = "img";
+        }
+      }
+
+      if (imgSrcType === "iframe") {
+        const parsedUrl = new URL(imgSrc);
+        const hostname = parsedUrl.hostname;
+
+        if (hostname === YOUTUBE_HOSTNAME) {
+          imgSrcType = "youtube";
+          const id = imgSrc.split("/").pop();
+          imgSrc = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+        }
+      }
+
       return {
-        title: item.title || "",
-        pubDate: item.pubDate || item.isoDate || Date.now.toString(),
-        content: item.contentEncoded || item.content || item.description || "",
-        author: item.creator || item.author || "",
-        link: item.link || "",
-        imgSrc: extractImageSrc(item),
-      };
+        title,
+        pubDate,
+        content,
+        link,
+        imgSrc,
+        imgSrcType,
+      } as Post;
     });
 
-    const title = feed.title || url;
+    const title = feed.title as string;
+    const posts = await Promise.all(postsPromise);
+
     return { title, posts };
   } catch (err) {
-    console.error("Error fetching RSS Feed: ", err);
+    console.log(err);
     return { title: "", posts: [] };
   }
 };
 
-export const extractImageSrc = (item: any): string => {
-  if (item.enclosure && item.enclosure.type?.startsWith("image/")) {
-    return item.enclosure.url;
+const getImageFromURL = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) return null;
+  const html = await response.text();
+  return getImageSrc(html);
+};
+
+const isValidImage = async (src: string): Promise<boolean> => {
+  let isValid = true;
+  sizeOf(src, (error, dimentions) => {
+    if (error || Number(dimentions?.width) < PREVIEW_MIN_WIDTH) {
+      isValid = false;
+    }
+  });
+  return isValid;
+};
+
+const getImageSrc = async (item: string) => {
+  const html = parse(item);
+  const image = html.querySelector("img");
+  const iframe = html.querySelector("iframe");
+
+  let mediaElements: Array<MediaType> = [];
+  if (image) {
+    const isValid = await isValidImage(image.getAttribute("src") as string);
+
+    if (isValid === true) mediaElements.push({ type: "img", value: image });
   }
+  if (iframe) mediaElements.push({ type: "iframe", value: iframe });
 
-  const content = item.contentEncoded || item.content || item.description || "";
+  mediaElements.sort((a, b) => {
+    const positionA = item.indexOf(a.value.outerHTML);
+    const positionB = item.indexOf(b.value.outerHTML);
+    if (positionA < positionB) return -1;
+    else if (positionA > positionB) return 1;
+    return 0;
+  });
 
-  const html = parse(content);
-  const imgElement = html.querySelector("img");
-  const match = imgElement?.getAttribute("src");
-
-  return match ? match : "";
+  if (mediaElements.length > 0) {
+    const preview: MediaType = mediaElements[0];
+    const src = preview.value.getAttribute("src") as string;
+    const type = preview.type;
+    return { src, type };
+  }
+  return null;
 };
 
 export const normalizeDate = (pubDateString: string) => {
@@ -74,9 +153,11 @@ export const processHtmlContent = (htmlString: string): string => {
 
   const images = Array.from(doc.querySelectorAll("img"));
   let imgContainer: HTMLDivElement | null;
+  let count: number;
   images.forEach((img, index) => {
     const nextImg = images[index + 1];
-
+    img.style.setProperty("height", "auto", "important");
+    img.classList.add("rounded-sm");
     if (nextImg && areSiblings(img, nextImg)) {
       if (!imgContainer) {
         imgContainer = doc.createElement("div");

@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL_PRISMA_URL") // uses connection pooling
-  directUrl = env("DATABASE_URL_URL_NON_POOLING")
+  url = env("DATABASE_URL") // uses connection pooling
+  
 }
 
 model User {
@@ -39,6 +39,7 @@ model Feed {
   title             String
   FeedPost          FeedPost[]
   feedSubscription  FeedSubscription[]
+  updatedAt         DateTime  @default(now())
 
   @@index([id], map: "Feed_id_index")
 }
@@ -47,10 +48,10 @@ model FeedPost {
   id      String   @id @default(cuid())
   title   String
   imgSrc  String
+  imgSrcType String
   pubDate String
   content String
-  author  String
-  link    String
+  link    String  @unique
   feedId  String
   feed    Feed     @relation(fields:[feedId], references: [id], onDelete: Cascade)
   read    Read[]
