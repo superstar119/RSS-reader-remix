@@ -23,6 +23,7 @@ export const parseRSS = async (url: string) => {
         item: [
           ["content:encoded", "contentEncoded"],
           ["description", "description"],
+          ["media:content", "mediaContent"],
         ],
       },
     });
@@ -50,29 +51,37 @@ export const parseRSS = async (url: string) => {
       ) as string;
 
       let imgSrc: string, imgSrcType: string;
-      let preview = await getImageSrc(content);
-      if (preview) {
-        imgSrc = preview.src;
-        imgSrcType = preview.type;
+
+      if (item.mediaContent) {
+        const mediaContent = item.mediaContent["$"];
+        imgSrc = mediaContent.url;
+        imgSrcType = "img";
+        content = `<img src='${imgSrc}' />` + content;
       } else {
-        preview = await getImageFromURL(link);
+        let preview = await getImageSrc(content);
         if (preview) {
           imgSrc = preview.src;
           imgSrcType = preview.type;
         } else {
-          imgSrc = "";
-          imgSrcType = "img";
+          preview = await getImageFromURL(link);
+          if (preview) {
+            imgSrc = preview.src;
+            imgSrcType = preview.type;
+          } else {
+            imgSrc = "";
+            imgSrcType = "img";
+          }
         }
-      }
 
-      if (imgSrcType === "iframe") {
-        const parsedUrl = new URL(imgSrc);
-        const hostname = parsedUrl.hostname;
+        if (imgSrcType === "iframe") {
+          const parsedUrl = new URL(imgSrc);
+          const hostname = parsedUrl.hostname;
 
-        if (hostname === YOUTUBE_HOSTNAME) {
-          imgSrcType = "youtube";
-          const id = imgSrc.split("/").pop();
-          imgSrc = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+          if (hostname === YOUTUBE_HOSTNAME) {
+            imgSrcType = "youtube";
+            const id = imgSrc.split("/").pop();
+            imgSrc = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+          }
         }
       }
 
