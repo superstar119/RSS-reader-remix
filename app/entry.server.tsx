@@ -5,24 +5,22 @@
  */
 
 // import { PassThrough } from "node:stream";
-import type { EntryContext } from "@remix-run/cloudflare";
-import { RemixServer } from "@remix-run/react";
-import { renderToString } from "react-dom/server";
 
-export default function handleRequest(
+import type { EntryContext } from "@remix-run/node";
+import { RemixServer } from "@remix-run/react";
+import { handleRequest } from "@vercel/remix";
+
+export default function (
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  let markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
+  const remixServer = <RemixServer context={remixContext} url={request.url} />;
+  return handleRequest(
+    request,
+    responseStatusCode,
+    responseHeaders,
+    remixServer
   );
-
-  responseHeaders.set("Content-Type", "text/html");
-
-  return new Response("<!DOCTYPE html>" + markup, {
-    status: responseStatusCode,
-    headers: responseHeaders,
-  });
 }
