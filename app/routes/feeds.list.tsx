@@ -32,7 +32,11 @@ import { Text } from "~/components/ui/text";
 import preview from "../assets/preview-placeholder.png";
 import { compareByDate } from "~/utils/utils";
 import { markAsRead } from "~/models/read.server";
-import { FeedListSubmitAction, SidebarDataType } from "~/utils/type";
+import {
+  FeedListSubmitAction,
+  FeedsListLoaderType,
+  SidebarDataType,
+} from "~/utils/type";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import styles from "~/assets/style.css";
 import { Icon } from "~/components/ui/icon";
@@ -120,7 +124,7 @@ export const action: ActionFunction = async ({ request }) => {
 const FeedList = () => {
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
-  const loaderData = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<FeedsListLoaderType>();
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(loaderData.data);
   const markFetcher = useFetcher();
@@ -156,7 +160,7 @@ const FeedList = () => {
   }, [handleKeyDown]);
 
   // infinite data fetching
-  const fetcher = useFetcher<typeof loader>();
+  const fetcher = useFetcher<FeedsListLoaderType>();
 
   const loadNext = () => {
     const page = fetcher.data
@@ -168,16 +172,15 @@ const FeedList = () => {
 
   useEffect(() => {
     if (fetcher.state === "loading") return;
-    console.log();
     const newItems = fetcher.data?.data;
     const page = fetcher.data?.page;
 
     if (page && page > 0)
-      setPosts((prevPosts) => {
+      setPosts((prevPosts: FeedPost) => {
         if (prevPosts) return prevPosts.concat(newItems);
         return newItems;
       });
-    else setPosts(newItems);
+    else setPosts(newItems ?? []);
 
     setContext({ ...context, unread: loaderData.sidebarData.at(0)["unread"] });
   }, [fetcher.data?.data, fetcher.state, loaderData.sidebarData]);

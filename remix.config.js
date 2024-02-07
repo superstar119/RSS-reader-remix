@@ -18,4 +18,10 @@ export default {
       fs: true,
     },
   },
+
+  serverBuildTarget: "cloudflare-workers",
+  server: "./server.ts",
+  serverBuildPath: "api/edge.js",
+  devServerBroadcastDelay: 1000,
+  ignoredRouteFiles: ["**/.*"],
 };

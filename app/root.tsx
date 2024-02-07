@@ -1,10 +1,6 @@
 import { FC, useState } from "react";
-import {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
-  json,
-} from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/cloudflare";
 import {
   Links,
   LiveReload,

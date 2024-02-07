@@ -26,6 +26,12 @@ export type FeedLoaderType = {
   prevId?: string;
 };
 
+export type FeedsListLoaderType = {
+  sidebarData: Array<SidebarDataType>;
+  data: Array<FeedPost>;
+  page: number;
+};
+
 export type FeedListSubmitAction =
   | {
       _action: "filterPost";
