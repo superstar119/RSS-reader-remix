@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@vercel/remix";
 import { Button } from "~/components/ui/button";
 import { Heading, Text } from "~/components/ui/text";
 import { getUser } from "~/models/session.server";

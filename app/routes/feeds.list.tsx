@@ -5,7 +5,7 @@ import {
   MetaFunction,
   json,
   redirect,
-} from "@remix-run/node";
+} from "@vercel/remix";
 import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState, useContext, useRef } from "react";
 import { FeedPost, FeedSubscription } from "@prisma/client";

@@ -8,15 +8,17 @@
 
 import type { EntryContext } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
-import { handleRequest } from "@vercel/remix";
+import { handleRequest, EntryContext as VercelContext } from "@vercel/remix";
 
 export default function (
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  remixContext: VercelContext
 ) {
-  const remixServer = <RemixServer context={remixContext} url={request.url} />;
+  const remixServer = (
+    <RemixServer context={remixContext as EntryContext} url={request.url} />
+  );
   return handleRequest(
     request,
     responseStatusCode,

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@vercel/remix";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
 import { getUser } from "~/models/session.server";

@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "@vercel/remix";
 import { User, getUserById } from "./user.server";
 
 export const sessionStorage = createCookieSessionStorage({

@@ -6,8 +6,8 @@ import {
   useActionData,
   useNavigate,
 } from "@remix-run/react";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { ActionFunctionArgs } from "@vercel/remix";
+import { json } from "@vercel/remix";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils/utils";
 import { Heading } from "~/components/ui/text";

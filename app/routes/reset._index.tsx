@@ -1,5 +1,5 @@
 import { Form, Link, MetaFunction, useActionData } from "@remix-run/react";
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@vercel/remix";
 import { useEffect, useRef } from "react";
 
 import { generateResetToken, validateEmail } from "~/utils/utils";

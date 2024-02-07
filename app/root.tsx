@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, json } from "@vercel/remix";
 import type { MetaFunction } from "@remix-run/cloudflare";
 import {
   Links,

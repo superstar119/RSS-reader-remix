@@ -2,7 +2,7 @@ import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
+} from "@vercel/remix";
 import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect, useContext } from "react";
 import { Text } from "~/components/ui/text";

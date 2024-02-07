@@ -3,7 +3,7 @@ import {
   LoaderFunctionArgs,
   redirect,
   ActionFunctionArgs,
-} from "@remix-run/node";
+} from "@vercel/remix";
 import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@vercel/remix";
 import { useEffect, useState, useRef } from "react";

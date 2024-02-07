@@ -1,6 +1,6 @@
 import { Form, Link, useActionData } from "@remix-run/react";
-import { MetaFunction, json, redirect } from "@remix-run/node";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { MetaFunction, json, redirect } from "@vercel/remix";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
 import { validateEmail } from "~/utils/utils";
 import { Heading } from "~/components/ui/text";
 import { Label } from "~/components/ui/label";
