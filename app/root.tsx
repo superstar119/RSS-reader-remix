@@ -11,6 +11,7 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
 
@@ -49,7 +50,6 @@ export const links: LinksFunction = () => [
 
 export const meta: MetaFunction = () => [
   {
-    charset: "utf-8",
     title: "RSS Feed",
     viewport: "width=device-width,initial-scale=1",
   },
@@ -64,6 +64,7 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
       <head>
         <script src="https://app.lemonsqueezy.com/js/lemon.js"></script>
         <Meta />
+        <meta charSet="UTF-8" />
         <Links />
         <PreventFlashOnWrongTheme ssrTheme={Boolean(loadData.theme)} />
       </head>
@@ -110,7 +111,7 @@ export default function App() {
       <Document>
         <Layout>
           <Loading />
-
+          <ScrollRestoration />
           <Outlet />
           <Scripts />
         </Layout>
