@@ -3,15 +3,9 @@ import {
   LoaderFunctionArgs,
   redirect,
   ActionFunctionArgs,
-  json,
 } from "@remix-run/node";
-import {
-  Link,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
+import { json } from "@vercel/remix";
 import { useEffect, useState, useRef } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -70,7 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     getFeedById(subscription.feedId)
   );
   const feed = await Promise.all(feedPromise);
-  return feed;
+  return json(feed);
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
