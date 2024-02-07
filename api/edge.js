@@ -1,1 +1,1 @@
-"export const config = {runtime: 'experimental-edge'};" 
+export const config = { runtime: "experimental-edge" };
