@@ -51,7 +51,7 @@ declare global {
   }
 }
 
-export const config = { runtime: "edge" };
+export const config = { runtime: "nodejs" };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Validate User Session
