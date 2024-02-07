@@ -7,7 +7,7 @@ import {
   redirect,
 } from "@vercel/remix";
 import { useLoaderData, useFetcher, Link, useNavigate } from "@remix-run/react";
-import { useEffect, useState, useContext, useRef } from "react";
+import { useEffect, useState, useContext } from "react";
 import { FeedPost, FeedSubscription } from "@prisma/client";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
@@ -26,7 +26,7 @@ import { cn } from "~/lib/utils";
 import { Theme, useTheme } from "remix-themes";
 import { InfiniteScroller } from "~/components/layout/infinite-scroll";
 import { getUser } from "~/models/session.server";
-import { Sidebar } from "~/components/layout/side-bar";
+import { Sidebar, SidebarType } from "~/components/layout/side-bar";
 import { Text } from "~/components/ui/text";
 
 import preview from "../assets/preview-placeholder.png";
@@ -127,6 +127,7 @@ const FeedList = () => {
   const loaderData = useLoaderData<FeedsListLoaderType>();
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
   const [posts, setPosts] = useState<FeedPost[]>(loaderData.data);
+  const [disabled, setDisable] = useState<boolean>(false);
   const markFetcher = useFetcher();
   // keyboard shortcut
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -163,6 +164,7 @@ const FeedList = () => {
   const fetcher = useFetcher<FeedsListLoaderType>();
 
   const loadNext = () => {
+    if (disabled) return;
     const page = fetcher.data
       ? Number(fetcher.data.page) + 1
       : Number(loaderData.page + 1);
@@ -174,7 +176,7 @@ const FeedList = () => {
     if (fetcher.state === "loading") return;
     const newItems = fetcher.data?.data;
     const page = fetcher.data?.page;
-
+    if (newItems && newItems.length < 10) setDisable(true);
     if (page && page > 0)
       setPosts((prevPosts: FeedPost) => {
         if (prevPosts) return prevPosts.concat(newItems);
@@ -182,16 +184,17 @@ const FeedList = () => {
       });
     else setPosts(newItems ?? []);
 
-    setContext({ ...context, unread: loaderData.sidebarData.at(0)["unread"] });
+    setContext({ ...context, unread: loaderData.sidebarData[0]["unread"] });
   }, [fetcher.data?.data, fetcher.state, loaderData.sidebarData]);
 
   useEffect(() => {
+    setDisable(false);
     fetcher.load(`/feeds/list?category=${context.category}&page=0`);
   }, [context.category]);
 
   return (
     <div className="relative w-full h-full">
-      <Sidebar items={loaderData.sidebarData} />
+      <Sidebar items={(loaderData.sidebarData ?? []) as Array<SidebarType>} />
       <InfiniteScroller
         loadNext={loadNext}
         loading={fetcher.state === "loading"}
