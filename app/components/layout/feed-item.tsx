@@ -8,10 +8,10 @@ import { Icon } from "../ui/icon";
 
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { SettingFeedItemType } from "~/utils/type";
 
 type FeedItemProps = {
-  item: any;
+  item: SettingFeedItemType;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const FeedItem = forwardRef<HTMLDivElement, FeedItemProps>(
@@ -25,6 +25,7 @@ export const FeedItem = forwardRef<HTMLDivElement, FeedItemProps>(
           _action?: string;
           errors?: string;
         };
+
         if (response?.errors === "none") {
           toast("Feed is deleted succssfully.", {
             action: {
@@ -63,7 +64,7 @@ export const FeedItem = forwardRef<HTMLDivElement, FeedItemProps>(
                 className={cn("animate-fade-in transition-all")}
               />
             </div>
-            <Text>{item.url}</Text>
+            <Text>{item.feed.url}</Text>
           </div>
           <fetcher.Form method="delete" action="/settings" className="z-40">
             <Input type="hidden" name="id" defaultValue={item.id} />

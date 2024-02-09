@@ -8,6 +8,7 @@ import {
   PREVIEW_MIN_WIDTH,
   YOUTUBE_HOSTNAME,
 } from "./type";
+import { User } from "@prisma/client";
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
@@ -248,4 +249,12 @@ export const copyToClipboard = async (
 
 export const generateResetToken = (email: string) => {
   return Buffer.from(email).toString("base64url");
+};
+
+export const isTrialExpired = (user: User) => {
+  const TRIAL_DURATION_DAYS = 7;
+  const trialEnd = new Date(user.trialStartedAt);
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);
+
+  return new Date() >= trialEnd;
 };

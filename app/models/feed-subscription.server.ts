@@ -8,6 +8,20 @@ export const getUserFeedSubscription = async (id: User["id"]) => {
   });
 };
 
+export const getUserFeeds = async (id: User["id"]) => {
+  return prisma.feedSubscription.findMany({
+    where: { userId: id },
+    orderBy: { order: "asc" },
+    include: {
+      feed: {
+        select: {
+          url: true,
+        },
+      },
+    },
+  });
+};
+
 export const createFeedSubscription = async (
   userId: User["id"],
   feedId: Feed["id"]

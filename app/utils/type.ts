@@ -17,6 +17,18 @@ export type SettingActionType =
       orderId: number;
     };
 
+export type SettingFeedItemType = {
+  id: string;
+  feedId: string;
+  userId: string;
+  order: number;
+  feed: {
+    url: string;
+  };
+};
+
+export type StatusType = "subscribed" | "trial";
+
 export type FeedLoaderType = {
   post: FeedPost & {
     feed: any;
@@ -78,3 +90,4 @@ export type MediaType = { type: string; value: ParsedElement };
 
 export const PREVIEW_MIN_WIDTH = 200;
 export const YOUTUBE_HOSTNAME = "www.youtube.com";
+export const TRIAL_DATE = "free";

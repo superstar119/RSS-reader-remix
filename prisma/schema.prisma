@@ -12,22 +12,21 @@ model User {
   id                String @id @default(cuid()) 
   email             String @unique
   password          String
+  trialStartedAt    DateTime  @default(now())
+  subscribed        Boolean   @default(false)
   feedSubscription  FeedSubscription[]
   read              Read[]
-  
-
   @@index([id], map: "user_index")
 }
 
 model FeedSubscription {
-  id        String @id @default(cuid())
-  feedId    String  
-  userId    String  
-  order     Int     @unique
-  feed      Feed    @relation(fields: [feedId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String @id @default(cuid())
+  feedId        String  
+  userId        String  
+  order         Int     @unique
+  feed          Feed    @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)  
   @@unique([userId, feedId, order])
-  
   @@index([feedId, userId], map: "feedId_userId_index")
   @@index([feedId], map: "subscription_feedId_index")
   @@index([userId], map: "subscription_userId_index")

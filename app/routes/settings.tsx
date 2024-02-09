@@ -1,9 +1,4 @@
-import { Feed } from "@prisma/client";
-import {
-  LoaderFunctionArgs,
-  redirect,
-  ActionFunctionArgs,
-} from "@vercel/remix";
+import { redirect, LoaderFunctionArgs, ActionFunction } from "@vercel/remix";
 import { Link, useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@vercel/remix";
 import { useEffect, useState, useRef } from "react";
@@ -37,11 +32,15 @@ import { Theme, useTheme } from "remix-themes";
 import {
   createFeedSubscription,
   deleteFeedSubscription,
-  getUserFeedSubscription,
+  getUserFeeds,
 } from "~/models/feed-subscription.server";
 import { cn } from "~/lib/utils";
-import { parseRSS, reorder } from "~/utils/utils";
-import type { SettingActionType } from "~/utils/type";
+import { isTrialExpired, parseRSS, reorder } from "~/utils/utils";
+import type {
+  SettingActionType,
+  SettingFeedItemType,
+  StatusType,
+} from "~/utils/type";
 import { FeedItem } from "~/components/layout/feed-item";
 import { toast } from "sonner";
 
@@ -51,6 +50,12 @@ declare global {
   }
 }
 
+export const Meta = () => [
+  {
+    title: "RSS Feed | Settings",
+  },
+];
+
 export const config = { runtime: "nodejs" };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -58,16 +63,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
   if (!user) return redirect("/login");
 
-  // Get FeedSubscription urls by user id
-  const feedSubscriptions = await getUserFeedSubscription(user.id);
-  const feedPromise = feedSubscriptions.map((subscription: any) =>
-    getFeedById(subscription.feedId)
-  );
-  const feed = await Promise.all(feedPromise);
-  return json(feed);
+  // Validate Subscribed or Trial
+  let plan: StatusType,
+    trialStartedAt: string = "";
+  if (user.subscribed) plan = "subscribed";
+  else if (!isTrialExpired(user)) {
+    plan = "trial";
+    trialStartedAt = user.trialStartedAt;
+  } else return redirect("/checkout");
+  const feed = await getUserFeeds(user.id);
+
+  return json({ feeds: feed, plan, startedAt: trialStartedAt });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action: ActionFunction = async ({ request }) => {
   // Validate User session
   const user = await getUser(request);
   if (!user) return redirect("/login");
@@ -100,7 +109,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 const Settings = () => {
-  const loaderData = useLoaderData<Feed[]>();
+  const loaderData = useLoaderData<typeof loader>();
   const settingsForm = useFetcher();
   const [theme] = useTheme();
   const navigate = useNavigate();
@@ -108,7 +117,7 @@ const Settings = () => {
   const [hover, setHover] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [feeds, setFeeds] = useState<Array<any>>([]);
+  const [feeds, setFeeds] = useState<Array<SettingFeedItemType>>([]);
 
   const onDragEnd = (result: DropResult): void => {
     if (!result.destination) {
@@ -124,11 +133,7 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    setFeeds(
-      loaderData.map((item, idx) => {
-        return { idx: idx, ...item };
-      })
-    );
+    if (loaderData.feeds) setFeeds(loaderData.feeds);
   }, [loaderData]);
 
   useEffect(() => {
@@ -157,9 +162,6 @@ const Settings = () => {
   }, [settingsForm]);
 
   useEffect(() => {
-    if (!window.createLemonSqueezy) return;
-
-    window.createLemonSqueezy();
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         navigate("/");
@@ -169,6 +171,15 @@ const Settings = () => {
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [navigate]);
+
+  const diffDays = (date: string) => {
+    console.log(date);
+    const from: Date = new Date();
+    const to: Date = new Date(date);
+    const diff = (from.getTime() - to.getTime()) / (24 * 60 * 60 * 1000);
+
+    return 7 - Math.ceil(diff);
+  };
 
   return (
     <div className="w-[560px] mx-auto flex flex-col justify-start items-center py-[180px] gap-[40px] animate-fade-in">
@@ -213,23 +224,25 @@ const Settings = () => {
                           ref={droppableProvided.innerRef}
                           {...droppableProvided.droppableProps}
                         >
-                          {feeds.map((item, idx) => (
-                            <Draggable
-                              key={item.idx}
-                              draggableId={item.id}
-                              disableInteractiveElementBlocking={true}
-                              index={idx}
-                            >
-                              {(draggableProvided: DraggableProvided) => (
-                                <FeedItem
-                                  ref={draggableProvided.innerRef}
-                                  item={item}
-                                  {...draggableProvided.dragHandleProps}
-                                  {...draggableProvided.draggableProps}
-                                />
-                              )}
-                            </Draggable>
-                          ))}
+                          {loaderData.feeds.map(
+                            (item: SettingFeedItemType, idx: number) => (
+                              <Draggable
+                                key={item.id}
+                                draggableId={item.id}
+                                disableInteractiveElementBlocking={true}
+                                index={idx}
+                              >
+                                {(draggableProvided: DraggableProvided) => (
+                                  <FeedItem
+                                    ref={draggableProvided.innerRef}
+                                    item={item}
+                                    {...draggableProvided.dragHandleProps}
+                                    {...draggableProvided.draggableProps}
+                                  />
+                                )}
+                              </Draggable>
+                            )
+                          )}
                         </div>
                       )}
                     </Droppable>
@@ -321,22 +334,46 @@ const Settings = () => {
         </TabsContent>
         <TabsContent value="account" className="m-0 animate-fade-in">
           <div className="flex flex-col w-full items-stretch justify-start gap-[40px]">
-            <div className="flex flex-col gap-[16px]">
-              <AccountItem>Change payment details</AccountItem>
-              <AccountItem>Pause, upgrade, downgrade or cancel</AccountItem>
-              <AccountItem>Billing history & invoices</AccountItem>
-            </div>
+            {loaderData.plan === "subscribed" ? (
+              <div className="flex flex-col gap-[16px]">
+                <AccountItem>Change payment details</AccountItem>
+                <AccountItem>Pause, upgrade, downgrade or cancel</AccountItem>
+                <AccountItem>Billing history & invoices</AccountItem>
+              </div>
+            ) : (
+              <div className="">
+                <Category className="flex items-center gap-[8px]">
+                  You have
+                  <span className="w-[40px] h-[40px] inline-flex justify-center items-center rounded-full border-2 border-[#f07743] text-[#f07743]">
+                    {diffDays(loaderData.startedAt)}
+                  </span>
+                  days left in your free trial.
+                </Category>
+              </div>
+            )}
             <Link
               to="https://sortable.lemonsqueezy.com/checkout/buy/9317ae94-00bc-4f23-9ebb-3ad5b4b417c0?embed=1"
               target="_blank"
+              className="inline-block"
             >
-              <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
-                Open billing
-                <Icon
-                  iconName="linkBill"
-                  color={theme === Theme.LIGHT ? "white" : "#020617"}
-                />
-              </Button>
+              {loaderData.plan === "subscribed" ? (
+                <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
+                  Open billing
+                  <Icon
+                    iconName="linkBill"
+                    color={theme === Theme.LIGHT ? "white" : "#020617"}
+                  />
+                </Button>
+              ) : (
+                <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
+                  Select a plan
+                  <Icon
+                    iconName="arrowRight"
+                    iconClassName="w-[20px] h-[16px]"
+                    color={theme === Theme.LIGHT ? "white" : "#020617"}
+                  />
+                </Button>
+              )}
             </Link>
           </div>
         </TabsContent>

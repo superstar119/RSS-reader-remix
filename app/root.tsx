@@ -47,7 +47,6 @@ export const links: LinksFunction = () => [
 export const meta: MetaFunction = () => [
   {
     title: "RSS Feed",
-    viewport: "width=device-width,initial-scale=1",
   },
 ];
 
@@ -58,9 +57,10 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
   return (
     <html lang="en" className={cn(theme)}>
       <head>
-        <script src="https://app.lemonsqueezy.com/js/lemon.js"></script>
-        <Meta />
+        {/* <script src="https://app.lemonsqueezy.com/js/lemon.js"></script> */}
         <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
         <Links />
         <PreventFlashOnWrongTheme ssrTheme={Boolean(loadData.theme)} />
       </head>
