@@ -92,7 +92,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 
   return (
     <layoutContext.Provider value={layoutValue}>
-      <div className="dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-start items-center">
+      <div className="bg-white dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-start items-center">
         <Navbar />
         {children}
       </div>

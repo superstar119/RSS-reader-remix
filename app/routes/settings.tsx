@@ -379,7 +379,7 @@ const Settings = () => {
                 <AccountItem>Billing history & invoices</AccountItem>
               </div>
             ) : (
-              <div className="">
+              <div className="dark:text-white text-[#272727]">
                 <Category className="flex items-center gap-[8px]">
                   You have
                   <span className="w-[40px] h-[40px] inline-flex justify-center items-center rounded-full border-2 border-[#f07743] text-[#f07743]">
