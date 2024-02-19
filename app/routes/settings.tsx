@@ -76,7 +76,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const apiKey =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5NGQ1OWNlZi1kYmI4LTRlYTUtYjE3OC1kMjU0MGZjZDY5MTkiLCJqdGkiOiJhZWRjOTQxZDgyMGVmNjNkMjRjOGE2YTliNzZlOWEyZWUyNGRhOWQyMzg2NDc2NTgzYzRjYTg2NzBmY2ZlYWMzMDUwNDYzMzVhNWMxMDY0ZCIsImlhdCI6MTcwNzQwMDUxMS42NzA5OSwibmJmIjoxNzA3NDAwNTExLjY3MDk5MywiZXhwIjoyMDIzMDE5NzExLjY1NDA0Miwic3ViIjoiMTg5MjQzMSIsInNjb3BlcyI6W119.Ucoe6jQ-tkO7EqWjElLOVNXttcqcA2hufZqAe38JzkggCqn7ft2SBVcOCKd42eVLnYa5dkKMN8TNGZ_LCiRp9cDulN1eINiQfJE1wVlra0Hgz7eSGL10ha3w623ScRp1yLQsMEdhapQfa7CyXKFFRxm9Ws_0GrJMkH7WhaCbJE2c2P7BdbAXtA4-Kmfc5j3Yxhy24otO1xK-mwA9pC-CJSuBj3S4V7EXrVCkklXtdFdQnYujwEahRWjXzmF1VqQZlB_fQRzlB-LBVdB2Uv50IM5Eftj2d-pmDZouKrO2uLKlWkBIMp9bOG0Pu7g0Xy86ShHtZcTwDTzV_oP38nnDKMj_SAfoLTCwOKFENwDgMPW2GpFRNZ_hUfShPngnChKhgvDtmXoq8SLJ3Km6ngH0ZvOSPtc2FJ1RGUdKyfdb_OjY_kObi9GPM1RhXFMF_DyYWTjO6MlGtSN58pcl-HnadN9kdpZ0gKtPNzl3uPcGMlQzCVO8TD0a-M_MvZJqNAV6";
-  const storeID = "65457";
+  const storeID = "171169";
 
   const lemonsqueezyResponse = await fetch(fetchURL, {
     headers: {
@@ -390,7 +390,7 @@ const Settings = () => {
               </div>
             )}
             <Link
-              to="https://sortable.lemonsqueezy.com/checkout/buy/9317ae94-00bc-4f23-9ebb-3ad5b4b417c0?embed=1"
+              to="https://sortable.lemonsqueezy.com/checkout/buy/87685d22-4a7a-46f1-bc70-89d78c8ce64a?embed=1"
               target="_blank"
               className="inline-block"
             >
