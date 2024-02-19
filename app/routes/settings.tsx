@@ -43,11 +43,18 @@ import type {
 } from "~/utils/type";
 import { FeedItem } from "~/components/layout/feed-item";
 import { toast } from "sonner";
+import dayjs from "dayjs";
 
 declare global {
   interface Window {
     createLemonSqueezy: any;
   }
+}
+
+interface LemonsqueezyCustomersResponse {
+  data: Array<{
+    [key: string]: any;
+  }>;
 }
 
 export const Meta = () => [
@@ -63,17 +70,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
   if (!user) return redirect("/login");
 
-  // Validate Subscribed or Trial
-  let plan: StatusType,
-    trialStartedAt: string = "";
-  if (user.subscribed) plan = "subscribed";
-  else if (!isTrialExpired(user)) {
-    plan = "trial";
-    trialStartedAt = user.trialStartedAt;
-  } else return redirect("/checkout");
+  const fetchURL =
+    "https://api.lemonsqueezy.com/v1/subscriptions?email=" +
+    encodeURIComponent(user.email);
+
+  const apiKey =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5NGQ1OWNlZi1kYmI4LTRlYTUtYjE3OC1kMjU0MGZjZDY5MTkiLCJqdGkiOiJhZWRjOTQxZDgyMGVmNjNkMjRjOGE2YTliNzZlOWEyZWUyNGRhOWQyMzg2NDc2NTgzYzRjYTg2NzBmY2ZlYWMzMDUwNDYzMzVhNWMxMDY0ZCIsImlhdCI6MTcwNzQwMDUxMS42NzA5OSwibmJmIjoxNzA3NDAwNTExLjY3MDk5MywiZXhwIjoyMDIzMDE5NzExLjY1NDA0Miwic3ViIjoiMTg5MjQzMSIsInNjb3BlcyI6W119.Ucoe6jQ-tkO7EqWjElLOVNXttcqcA2hufZqAe38JzkggCqn7ft2SBVcOCKd42eVLnYa5dkKMN8TNGZ_LCiRp9cDulN1eINiQfJE1wVlra0Hgz7eSGL10ha3w623ScRp1yLQsMEdhapQfa7CyXKFFRxm9Ws_0GrJMkH7WhaCbJE2c2P7BdbAXtA4-Kmfc5j3Yxhy24otO1xK-mwA9pC-CJSuBj3S4V7EXrVCkklXtdFdQnYujwEahRWjXzmF1VqQZlB_fQRzlB-LBVdB2Uv50IM5Eftj2d-pmDZouKrO2uLKlWkBIMp9bOG0Pu7g0Xy86ShHtZcTwDTzV_oP38nnDKMj_SAfoLTCwOKFENwDgMPW2GpFRNZ_hUfShPngnChKhgvDtmXoq8SLJ3Km6ngH0ZvOSPtc2FJ1RGUdKyfdb_OjY_kObi9GPM1RhXFMF_DyYWTjO6MlGtSN58pcl-HnadN9kdpZ0gKtPNzl3uPcGMlQzCVO8TD0a-M_MvZJqNAV6";
+  const storeID = "65457";
+
+  const lemonsqueezyResponse = await fetch(fetchURL, {
+    headers: {
+      Authorization: "Bearer " + apiKey,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!lemonsqueezyResponse.ok) {
+    throw new Error("Failed to fetch subscriptions from Lemonsqueezy.");
+  }
+
+  const subscriptions =
+    (await lemonsqueezyResponse.json()) as LemonsqueezyCustomersResponse;
+
+  if (!subscriptions) {
+    throw new Error("Failed to parse subscriptions from Lemonsqueezy.");
+  }
+
+  const subscription = subscriptions.data.filter(
+    (item) =>
+      item.attributes.store_id == storeID &&
+      item.attributes.user_email == user.email &&
+      dayjs().isBefore(dayjs(item.attributes.renews_at))
+  );
+
+  let startedAt = null;
+  const plan: StatusType = subscription.length ? "subscribed" : "trial";
+
+  if (plan === "trial" && !isTrialExpired(user)) startedAt = user.createdAt;
+  if (plan === "trial" && isTrialExpired(user)) return redirect("/checkout");
+
   const feed = await getUserFeeds(user.id);
 
-  return json({ feeds: feed, plan, startedAt: trialStartedAt });
+  return json({ feeds: feed, plan, startedAt });
 };
 
 export const action: ActionFunction = async ({ request }) => {

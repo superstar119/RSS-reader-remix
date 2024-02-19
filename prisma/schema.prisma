@@ -12,8 +12,8 @@ model User {
   id                String @id @default(cuid()) 
   email             String @unique
   password          String
-  trialStartedAt    DateTime  @default(now())
-  subscribed        Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  // subscribed        Boolean   @default(false)
   feedSubscription  FeedSubscription[]
   read              Read[]
   @@index([id], map: "user_index")

@@ -2,6 +2,19 @@ import { FeedPost } from "@prisma/client";
 import { ReactNode } from "react";
 import { HTMLElement as ParsedElement } from "node-html-parser";
 
+export type FeedItemType = {
+  id: string;
+  userId: string;
+  order: number;
+  feed: {
+    url: string;
+  };
+};
+
+export type SettingLoaderType = {
+  feeds: FeedItemType[];
+};
+
 export type SettingActionType =
   | {
       _action: "addFeed";
