@@ -57,7 +57,7 @@ export function Navbar() {
       )}
     >
       <Link to="/">
-        <Icon iconName="logo" color="#000" />
+        <Icon iconName="logo" color={theme === Theme.DARK ? "#fff" : "#000"} />
       </Link>
       {state === "setting" && (
         <Link to="/feeds">
