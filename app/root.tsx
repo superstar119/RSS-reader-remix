@@ -30,7 +30,6 @@ import { cn } from "./lib/utils";
 import { createThemeAction } from "remix-themes";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  // Fetch current theme
   const { getTheme } = await themeSessionResolver(request);
   return json({
     theme: getTheme(),
@@ -40,15 +39,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = createThemeAction(themeSessionResolver);
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  ...(cssBundleHref
+    ? [
+        { rel: "stylesheet", href: cssBundleHref },
+        { rel: "stylesheet", href: styles },
+      ]
+    : []),
 ];
 
-export const meta: MetaFunction = () => [
-  {
-    title: "RSS Feed",
-  },
-];
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Rss Feed Reader" },
+    { name: "description", content: "This app is the best rss reader" },
+  ];
+};
 
 const Document: FC<DocumentProps> = ({ children, title }) => {
   const loadData = useLoaderData<typeof loader>();
@@ -57,17 +61,16 @@ const Document: FC<DocumentProps> = ({ children, title }) => {
   return (
     <html lang="en" className={cn(theme)}>
       <head>
-        {/* <script src="https://app.lemonsqueezy.com/js/lemon.js"></script> */}
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <title>RSS Feed</title>
         <PreventFlashOnWrongTheme ssrTheme={Boolean(loadData.theme)} />
       </head>
       <body>
         {children}
         <LiveReload />
-        <Toaster />
       </body>
     </html>
   );
@@ -107,6 +110,7 @@ export default function App() {
       <Document>
         <Layout>
           <Loading />
+          <Toaster />
           <ScrollRestoration />
           <Outlet />
           <Scripts />

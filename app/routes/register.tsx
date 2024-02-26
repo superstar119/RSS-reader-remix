@@ -15,7 +15,6 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
-import { TRIAL_DATE } from "~/utils/type";
 
 export const meta: MetaFunction = () => [{ title: "Register | RSS Feed" }];
 
@@ -36,14 +35,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       { status: 400 }
     );
   }
-
   if (password.length < 8) {
     return json(
       { errors: { email: null, password: "Password is too short." } },
       { status: 400 }
     );
   }
-
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
     return json(

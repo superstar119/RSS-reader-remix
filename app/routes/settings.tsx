@@ -39,6 +39,7 @@ import { isTrialExpired, parseRSS, reorder } from "~/utils/utils";
 import type {
   SettingActionType,
   SettingFeedItemType,
+  SettingFormResponseType,
   StatusType,
 } from "~/utils/type";
 import { FeedItem } from "~/components/layout/feed-item";
@@ -57,18 +58,18 @@ interface LemonsqueezyCustomersResponse {
   }>;
 }
 
-export const Meta = () => [
-  {
-    title: "RSS Feed | Settings",
-  },
-];
+// export const meta = () => [
+//   {
+//     title: "RSS Feed | Settings",
+//   },
+// ];
 
 export const config = { runtime: "nodejs" };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Validate User Session
   const user = await getUser(request);
-  if (!user) return redirect("/login");
+  if (!user) redirect("/login");
 
   const fetchURL =
     "https://api.lemonsqueezy.com/v1/subscriptions?email=" +
@@ -135,9 +136,11 @@ export const action: ActionFunction = async ({ request }) => {
         feed = await updateFeed(action.url, rss.title);
         await createPosts(feed.id, rss.posts);
       }
+
       await createFeedSubscription(user.id, feed.id);
       return json({ errors: "none" });
     }
+
     case "deleteFeed": {
       const feed = await getFeedById(action.id);
       if (feed) await deleteFeedSubscription(feed.id, user.id);
@@ -177,10 +180,7 @@ const Settings = () => {
   useEffect(() => {
     if (settingsForm.state === "idle") {
       setEdit(false);
-      const response = settingsForm.data as {
-        _action?: string;
-        errors?: string;
-      };
+      const response = settingsForm.data as SettingFormResponseType;
       if (response?.errors === "none") {
         toast("Feed is added succssfully.", {
           action: {
@@ -211,12 +211,11 @@ const Settings = () => {
   }, [navigate]);
 
   const diffDays = (date: string) => {
-    console.log(date);
-    const from: Date = new Date();
-    const to: Date = new Date(date);
-    const diff = (from.getTime() - to.getTime()) / (24 * 60 * 60 * 1000);
+    const from = dayjs();
+    const to = dayjs(date);
+    const diff = from.diff(to, "day");
 
-    return 7 - Math.ceil(diff);
+    return 7 - diff;
   };
 
   return (
@@ -302,6 +301,7 @@ const Settings = () => {
                         value="addFeed"
                         name="_action"
                         type="submit"
+                        disabled={settingsForm.state !== "idle"}
                       >
                         <Icon
                           iconName={

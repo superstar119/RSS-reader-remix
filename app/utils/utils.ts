@@ -102,7 +102,6 @@ export const parseRSS = async (url: string) => {
 
     return { title, posts };
   } catch (err) {
-    console.log(err);
     return { title: "", posts: [] };
   }
 };

@@ -5,7 +5,6 @@ import { getUser } from "~/models/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
-
   if (!user) return redirect("/login");
   else {
     const feeds = await getUserFeedSubscription(user.id);

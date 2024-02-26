@@ -9,7 +9,7 @@ export default function Checkout() {
       <Button className="text-[Inter] text-[16px] leading-[150%] text-white px-[15px] py-[10px] rounded-[3px] inline-flex items-center gap-[10px] w-auto">
         Select Plan
       </Button>
-      <span>
+      <span className="text-[#7b7b7b]">
         Or{" "}
         <Link
           className="underline p-0 text-[#7b7b7b] text-[16px] leading-[150%] font-normal"

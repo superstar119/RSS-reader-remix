@@ -46,6 +46,7 @@
     "react-dom": "^18.2.0",
     "react-loading-icons": "^1.1.0",
     "remix-themes": "^1.2.2",
+    "remix-toast": "^1.2.0",
     "rss-parser": "^3.13.0",
     "s-ago": "^2.2.0",
     "sonner": "^1.4.0",
