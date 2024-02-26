@@ -27,7 +27,6 @@ import {
   DraggableProvided,
 } from "@hello-pangea/dnd";
 
-import { createPosts } from "~/models/post.server";
 import { Theme, useTheme } from "remix-themes";
 import {
   createFeedSubscription,
@@ -35,7 +34,12 @@ import {
   getUserFeeds,
 } from "~/models/feed-subscription.server";
 import { cn } from "~/lib/utils";
-import { isTrialExpired, parseRSS, reorder } from "~/utils/utils";
+import {
+  isTrialExpired,
+  parseRSS,
+  reorder,
+  getTitleFromURL,
+} from "~/utils/utils";
 import type {
   SettingActionType,
   SettingFeedItemType,
@@ -57,12 +61,6 @@ interface LemonsqueezyCustomersResponse {
     [key: string]: any;
   }>;
 }
-
-// export const meta = () => [
-//   {
-//     title: "RSS Feed | Settings",
-//   },
-// ];
 
 export const config = { runtime: "nodejs" };
 
@@ -125,26 +123,23 @@ export const action: ActionFunction = async ({ request }) => {
 
   switch (action._action) {
     case "addFeed": {
-      let feed = await getFeedByUrl(action.url);
-      if (!feed || feed.updatedAt.toString() !== Date.now().toString()) {
-        const rss = await parseRSS(action.url);
-        if (rss.title === "" && !rss.posts.length)
-          return json({
-            errors: "Something went wrong. Try again.",
-          });
-        if (!feed) feed = await createFeed(action.url, rss.title);
-        feed = await updateFeed(action.url, rss.title);
-        await createPosts(feed.id, rss.posts);
+      const feed = await getFeedByUrl(action.url);
+      let feedId = null;
+      if (!feed) {
+        const title = await getTitleFromURL(action.url);
+        const newFeed = await createFeed(action.url, title);
+        feedId = newFeed.id;
+      } else {
+        feedId = feed.id;
       }
-
-      await createFeedSubscription(user.id, feed.id);
-      return json({ errors: "none" });
+      await createFeedSubscription(user.id, feedId);
+      return true;
     }
 
     case "deleteFeed": {
       const feed = await getFeedById(action.id);
       if (feed) await deleteFeedSubscription(feed.id, user.id);
-      return json({ errors: "none" });
+      return true;
     }
   }
 };
@@ -176,28 +171,6 @@ const Settings = () => {
   useEffect(() => {
     if (loaderData.feeds) setFeeds(loaderData.feeds);
   }, [loaderData]);
-
-  useEffect(() => {
-    if (settingsForm.state === "idle") {
-      setEdit(false);
-      const response = settingsForm.data as SettingFormResponseType;
-      if (response?.errors === "none") {
-        toast("Feed is added succssfully.", {
-          action: {
-            label: "Dismiss",
-            onClick: () => {},
-          },
-        });
-      } else if (typeof response?.errors === "string") {
-        toast(response.errors, {
-          action: {
-            label: "Dismiss",
-            onClick: () => {},
-          },
-        });
-      }
-    }
-  }, [settingsForm]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

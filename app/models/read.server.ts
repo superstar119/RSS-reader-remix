@@ -8,6 +8,13 @@ export const getReadNumber = async (
   return await prisma.read.count({ where: { userId, feedId } });
 };
 
+export const isRead = async (
+  userId: Read["userId"],
+  postId: Read["postId"]
+) => {
+  return await prisma.read.findFirst({ where: { userId, postId } });
+};
+
 export const markAsRead = async (
   userId: Read["userId"],
   postId: Read["postId"],

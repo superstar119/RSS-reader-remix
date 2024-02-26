@@ -64,30 +64,6 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (actionData) {
-      const { email, password } = actionData.errors;
-      if (email)
-        toast(actionData.errors.email, {
-          action: {
-            label: "Try again",
-            onClick: function () {
-              emailRef.current?.focus();
-            },
-          },
-        });
-      if (password)
-        toast(actionData.errors.password, {
-          action: {
-            label: "Try again",
-            onClick: function () {
-              passwordRef.current?.focus();
-            },
-          },
-        });
-    }
-  }, [actionData]);
-
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <div className="max-w-[400px] mx-auto min-w-[350px] h-full flex flex-col items-center justify-center animate-fade-in">
@@ -110,6 +86,9 @@ export default function Login() {
                 placeholder="richard@piedpiper.com"
                 className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
               />
+              {actionData?.errors.email && (
+                <span className="!text-red-600">{actionData.errors.email}</span>
+              )}
             </div>
 
             <div className="w-full flex flex-col gap-[8px] items-start">
@@ -123,6 +102,11 @@ export default function Login() {
                 placeholder="•••••••••••"
                 className="rounded-[3px] px-[20px] py-[16px] text-[16px] leading-[150%] h-[56px] focus-visible:ring-0 focus-visible:ring-offset-0 border-[#f1f1f1] focus:border-black placeholder:text-[#c0c0c0]"
               />
+              {actionData?.errors.password && (
+                <span className="!text-red-600">
+                  {actionData.errors.password}
+                </span>
+              )}
             </div>
 
             <div className="w-full flex justify-between">

@@ -45,7 +45,7 @@ export type FeedLoaderType = {
 
 export type FeedsListLoaderType = {
   sidebarData: Array<SidebarDataType>;
-  data: Array<FeedPost>;
+  posts: Array<any>;
   page: number;
 };
 

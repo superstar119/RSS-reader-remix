@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect, useState, forwardRef } from "react";
+import { HTMLAttributes, useState, forwardRef } from "react";
 import { useFetcher } from "@remix-run/react";
 
 import { Separator } from "@radix-ui/react-separator";
@@ -7,7 +7,7 @@ import { Text } from "../ui/text";
 import { Icon } from "../ui/icon";
 
 import { cn } from "~/lib/utils";
-import { toast } from "sonner";
+
 import { SettingFeedItemType } from "~/utils/type";
 
 type FeedItemProps = {
@@ -18,31 +18,6 @@ export const FeedItem = forwardRef<HTMLDivElement, FeedItemProps>(
   ({ item, ...props }, ref) => {
     const [hover, setHover] = useState<boolean>(false);
     const fetcher = useFetcher();
-
-    useEffect(() => {
-      if (fetcher.state === "idle") {
-        const response = fetcher.data as {
-          _action?: string;
-          errors?: string;
-        };
-
-        if (response?.errors === "none") {
-          toast("Feed is deleted succssfully.", {
-            action: {
-              label: "Dismiss",
-              onClick: () => {},
-            },
-          });
-        } else if (typeof response?.errors === "string") {
-          toast(response.errors, {
-            action: {
-              label: "Dismiss",
-              onClick: () => {},
-            },
-          });
-        }
-      }
-    });
 
     return (
       <div

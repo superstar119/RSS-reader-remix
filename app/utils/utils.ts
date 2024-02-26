@@ -113,7 +113,7 @@ const getImageFromURL = async (url: string) => {
   return getImageSrc(html);
 };
 
-const getTitleFromURL = async (url: string): Promise<string> => {
+export const getTitleFromURL = async (url: string): Promise<string> => {
   const Url = new URL(url);
   const hostname = await Url.host;
   const protocol = await Url.protocol;

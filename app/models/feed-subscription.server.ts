@@ -4,7 +4,14 @@ import { db as prisma } from "~/utils/db.server";
 export const getUserFeedSubscription = async (id: User["id"]) => {
   return prisma.feedSubscription.findMany({
     where: { userId: id },
-    orderBy: { order: "asc" },
+    include: {
+      feed: {
+        select: {
+          url: true,
+          title: true,
+        },
+      },
+    },
   });
 };
 

@@ -12,6 +12,7 @@ import { FeedPost, FeedSubscription } from "@prisma/client";
 
 import { getUserFeedSubscription } from "~/models/feed-subscription.server";
 import {
+  createPosts,
   getPostAll,
   getPosts,
   getUnreadPostsNumber,
@@ -30,8 +31,8 @@ import { Sidebar, SidebarType } from "~/components/layout/side-bar";
 import { Text } from "~/components/ui/text";
 
 import preview from "../assets/preview-placeholder.png";
-import { compareByDate } from "~/utils/utils";
-import { markAsRead } from "~/models/read.server";
+import { compareByDate, parseRSS } from "~/utils/utils";
+import { isRead, markAsRead } from "~/models/read.server";
 import {
   FeedListSubmitAction,
   FeedsListLoaderType,
@@ -59,24 +60,67 @@ export const loader: LoaderFunction = async ({ request }) => {
   const skip = page * 10;
   const take = 10;
 
-  const subscriptions = await getUserFeedSubscription(user.id);
-  const filteredSubscriptions =
+  const feedSubscriptions = await getUserFeedSubscription(user.id);
+  const feeds = feedSubscriptions.map((item: any) => ({
+    id: item.feedId,
+    url: item.feed.url,
+    title: item.feed.title,
+  }));
+  // if (category !== "all")
+  //   filteredFeeds = filteredFeeds.map((item: any) => item.id === category);
+
+  // Input Post Data
+  const addPostPromise = feeds.map(async (item: any) => {
+    const rss = await parseRSS(item.url);
+    if (rss.title === "" && !rss.posts.length) return;
+    return createPosts(item.id, rss.posts);
+  });
+
+  await Promise.all(addPostPromise);
+
+  const filteredFeeds =
     category === "all"
-      ? subscriptions
-      : subscriptions.filter(
-          (item: FeedSubscription) => item.feedId === category
-        );
+      ? feeds
+      : feeds.filter((item: any) => item.id === category);
+
+  // console.log(filteredFeeds);
 
   const posts = await getPosts(
-    filteredSubscriptions.map((item: FeedSubscription) => item.feedId),
+    filteredFeeds.map((item: any) => item.id),
     skip,
     take
   );
 
-  posts.sort(compareByDate);
+  const Posts = await Promise.all(
+    posts.map(async (post: any) => {
+      const read = await isRead(user.id, post.id);
 
-  const sidebarDataPromises = subscriptions.map(
-    async (item: FeedSubscription): Promise<SidebarDataType> => {
+      const isReading: boolean = read ? true : false;
+      console.log(isReading);
+      return {
+        ...post,
+        isReading,
+      };
+    })
+  );
+
+  // const filteredSubscriptions =
+  //   category === "all"
+  //     ? subscriptions
+  //     : subscriptions.filter(
+  //         (item: FeedSubscription) => item.feedId === category
+  //       );
+
+  // const posts = await getPosts(
+  //   filteredSubscriptions.map((item: FeedSubscription) => item.feedId),
+  //   skip,
+  //   take
+  // );
+
+  // posts.sort(compareByDate);
+
+  const sidebarDataPromises = feedSubscriptions.map(
+    async (item: any): Promise<SidebarDataType> => {
       const feed = await getFeedById(item.feedId);
       const unread = await getUnreadPostsNumber(user.id, item);
       return feed ? { item: feed.title, unread, feedId: item.feedId } : {};
@@ -97,7 +141,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json({
     sidebarData,
-    data: posts,
+    posts: Posts,
     page,
   });
 };
@@ -126,7 +170,7 @@ const FeedList = () => {
   const [theme, setTheme] = useTheme();
   const loaderData = useLoaderData<FeedsListLoaderType>();
   const { layout, setLayout, context, setContext } = useContext(layoutContext);
-  const [posts, setPosts] = useState<FeedPost[]>(loaderData.data);
+  const [posts, setPosts] = useState<Array<any>>(loaderData.posts);
   const [disabled, setDisable] = useState<boolean>(false);
   const markFetcher = useFetcher();
   // keyboard shortcut
@@ -174,7 +218,7 @@ const FeedList = () => {
 
   useEffect(() => {
     if (fetcher.state === "loading") return;
-    const newItems = fetcher.data?.data;
+    const newItems = fetcher.data?.posts;
     const page = fetcher.data?.page;
     if (newItems && newItems.length < 10) setDisable(true);
     if (page && page > 0)
@@ -185,7 +229,7 @@ const FeedList = () => {
     else setPosts(newItems ?? []);
 
     setContext({ ...context, unread: loaderData.sidebarData[0]["unread"] });
-  }, [fetcher.data?.data, fetcher.state, loaderData.sidebarData]);
+  }, [fetcher.data?.posts, fetcher.state, loaderData.sidebarData]);
 
   useEffect(() => {
     setDisable(false);
@@ -213,7 +257,10 @@ const FeedList = () => {
                 <Link
                   to={`/feeds/${item.id}`}
                   key={index}
-                  className="hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800"
+                  className={cn(
+                    "hover:bg-gray-100 rounded-[8px] dark:hover:bg-gray-800",
+                    item.isReading ? "!opacity-50" : "!opacity-100"
+                  )}
                 >
                   <div
                     className={cn(
