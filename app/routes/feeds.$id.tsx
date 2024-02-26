@@ -69,7 +69,7 @@ export default function FeedDetails() {
       console.log(key);
       switch (key) {
         case "escape":
-          navigate(-1);
+          navigate("/feeds/list");
           break;
         case "arrowright":
           if (nextId) navigate(`/feeds/${nextId}`);

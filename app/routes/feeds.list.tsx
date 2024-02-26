@@ -104,21 +104,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     })
   );
 
-  // const filteredSubscriptions =
-  //   category === "all"
-  //     ? subscriptions
-  //     : subscriptions.filter(
-  //         (item: FeedSubscription) => item.feedId === category
-  //       );
-
-  // const posts = await getPosts(
-  //   filteredSubscriptions.map((item: FeedSubscription) => item.feedId),
-  //   skip,
-  //   take
-  // );
-
-  // posts.sort(compareByDate);
-
   const sidebarDataPromises = feedSubscriptions.map(
     async (item: any): Promise<SidebarDataType> => {
       const feed = await getFeedById(item.feedId);
