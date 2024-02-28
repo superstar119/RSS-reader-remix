@@ -7,9 +7,8 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { verifyUser } from "~/models/user.server";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { createUserSession, getUser } from "~/models/session.server";
-import { toast } from "sonner";
 
 export const meta: MetaFunction = () => [{ title: "Login | RSS Feed" }];
 
