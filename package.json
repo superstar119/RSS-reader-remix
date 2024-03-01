@@ -10,7 +10,7 @@
     "start": "remix-serve ./build/index.js",
     "setup": "prisma generate && prisma migrate deploy",
     "typecheck": "tsc",
-    "deploy": "prisma generate && remix build"
+    "deploy": "prisma generate && prisma migrate deploy && remix build"
   },
   "dependencies": {
     "@emailjs/nodejs": "^2.2.0",
