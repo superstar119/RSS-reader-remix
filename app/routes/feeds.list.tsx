@@ -66,8 +66,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     url: item.feed.url,
     title: item.feed.title,
   }));
-  // if (category !== "all")
-  //   filteredFeeds = filteredFeeds.map((item: any) => item.id === category);
+
 
   // Input Post Data
   const addPostPromise = feeds.map(async (item: any) => {
@@ -83,8 +82,6 @@ export const loader: LoaderFunction = async ({ request }) => {
       ? feeds
       : feeds.filter((item: any) => item.id === category);
 
-  // console.log(filteredFeeds);
-
   const posts = await getPosts(
     filteredFeeds.map((item: any) => item.id),
     skip,
@@ -96,7 +93,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       const read = await isRead(user.id, post.id);
 
       const isReading: boolean = read ? true : false;
-      console.log(isReading);
+      
       return {
         ...post,
         isReading,

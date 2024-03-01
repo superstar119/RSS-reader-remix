@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-const layoutContext = createContext({
+const Context = createContext({
   layout: "tileList",
   setLayout: (newLayout: string) => {},
   context: {
@@ -13,4 +13,4 @@ const layoutContext = createContext({
   setContext: (newContext: any) => {},
 });
 
-export default layoutContext;
+export default Context;

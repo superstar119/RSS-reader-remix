@@ -17,7 +17,7 @@ import styles from "./tailwind.css";
 import { Navbar } from "./components/layout/nav-bar";
 import { Toaster } from "./components/ui/sonner";
 import { Loading } from "./components/layout/loading";
-import layoutContext from "./lib/context";
+import Context from "./lib/context";
 import {
   PreventFlashOnWrongTheme,
   ThemeProvider,
@@ -54,7 +54,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const Document: FC<DocumentProps> = ({ children, title }) => {
+const Document: FC<DocumentProps> = ({ children }) => {
   const loadData = useLoaderData<typeof loader>();
   const [theme] = useTheme();
 
@@ -86,7 +86,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     category: "all",
   });
 
-  const layoutValue = {
+  const initial = {
     layout,
     setLayout,
     context: context,
@@ -94,12 +94,12 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <layoutContext.Provider value={layoutValue}>
+    <Context.Provider value={initial}>
       <div className="bg-white dark:bg-slate-950 transition-all transition-duration-500 w-full min-h-screen flex flex-col max-w-screen justify-start items-center">
         <Navbar />
         {children}
       </div>
-    </layoutContext.Provider>
+    </Context.Provider>
   );
 };
 
